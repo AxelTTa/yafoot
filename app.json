@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "YaFoot",
+    "slug": "yafoot",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "yafoot",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A1B3D"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yafoot.app"
+    },
+    "android": {
+      "package": "com.yafoot.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#0A1B3D"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "supabaseUrl": "https://zfsgclwyaapgwxjtzvyd.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpmc2djbHd5YWFwZ3d4anR6dnlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MjE5OTcsImV4cCI6MjA5NzI5Nzk5N30.t4UyTSN6N0wCcrIdLcH1Nj9oVw7S0XcQ5sNYVKMedtc"
+    }
+  }
+}

@@ -1,0 +1,187 @@
+import { Stack, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { Avatar, Empty, Loading } from "../../components/ui";
+import { useAuth } from "../../lib/auth";
+import { leagueLeaderboard } from "../../lib/api";
+import { supabase } from "../../lib/supabase";
+import { colors, radius, spacing } from "../../lib/theme";
+
+type Row = { user_id: string; points: number; role: string; profiles: any };
+type Msg = { id: number; sender_id: string; body: string; created_at: string };
+
+export default function LeagueDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const leagueId = Number(id);
+  const { session } = useAuth();
+  const me = session?.user?.id;
+  const [tab, setTab] = useState<"standings" | "chat">("standings");
+  const [rows, setRows] = useState<Row[]>([]);
+  const [msgs, setMsgs] = useState<Msg[]>([]);
+  const [text, setText] = useState("");
+  const [loading, setLoading] = useState(true);
+  const listRef = useRef<FlatList>(null);
+
+  const loadBoard = useCallback(async () => {
+    try {
+      setRows((await leagueLeaderboard(leagueId)) as Row[]);
+    } catch {}
+    setLoading(false);
+  }, [leagueId]);
+
+  const loadMsgs = useCallback(async () => {
+    const { data } = await supabase
+      .from("league_messages")
+      .select("id, sender_id, body, created_at")
+      .eq("league_id", leagueId)
+      .order("created_at", { ascending: true })
+      .limit(200);
+    setMsgs((data as Msg[]) ?? []);
+  }, [leagueId]);
+
+  useEffect(() => {
+    loadBoard();
+    loadMsgs();
+    const ch = supabase
+      .channel(`league-${leagueId}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "league_messages", filter: `league_id=eq.${leagueId}` },
+        (payload) => setMsgs((m) => [...m, payload.new as Msg])
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [leagueId, loadBoard, loadMsgs]);
+
+  async function send() {
+    const body = text.trim();
+    if (!body || !me) return;
+    setText("");
+    await supabase.from("league_messages").insert({ league_id: leagueId, sender_id: me, body });
+  }
+
+  if (loading) return <Loading />;
+
+  const medal = (i: number) => (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: "League",
+          headerStyle: { backgroundColor: colors.surface },
+          headerTintColor: colors.text,
+        }}
+      />
+      <View style={styles.tabs}>
+        {(["standings", "chat"] as const).map((t) => (
+          <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]}>
+            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
+              {t === "standings" ? "🏆 Standings" : "💬 Chat"}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {tab === "standings" ? (
+        <FlatList
+          data={rows}
+          keyExtractor={(r) => r.user_id}
+          contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: 40 }}
+          renderItem={({ item, index }) => (
+            <View style={[styles.rankRow, item.user_id === me && { borderColor: colors.bleu }]}>
+              <Text style={styles.rank}>{medal(index)}</Text>
+              <Avatar name={item.profiles?.display_name || item.profiles?.username} size={36} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.name}>
+                  {item.profiles?.display_name || item.profiles?.username}
+                  {item.user_id === me ? "  (you)" : ""}
+                </Text>
+                <Text style={styles.handle}>@{item.profiles?.username}</Text>
+              </View>
+              <Text style={styles.pts}>{item.points} pts</Text>
+            </View>
+          )}
+          ListEmptyComponent={<Empty icon="🏆" title="No members yet" />}
+        />
+      ) : (
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={90}
+        >
+          <FlatList
+            ref={listRef}
+            data={msgs}
+            keyExtractor={(m) => String(m.id)}
+            contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
+            onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
+            renderItem={({ item }) => {
+              const mine = item.sender_id === me;
+              return (
+                <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
+                  <Text style={[styles.msgText, mine && { color: colors.blanc }]}>{item.body}</Text>
+                </View>
+              );
+            }}
+            ListEmptyComponent={<Empty icon="💬" title="No messages yet" sub="Say hi to your league!" />}
+          />
+          <View style={styles.composer}>
+            <TextInput
+              style={styles.composerInput}
+              placeholder="Message your league…"
+              placeholderTextColor={colors.textFaint}
+              value={text}
+              onChangeText={setText}
+              onSubmitEditing={send}
+            />
+            <Pressable style={styles.sendBtn} onPress={send}>
+              <Text style={{ color: colors.blanc, fontWeight: "900" }}>Send</Text>
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  tabs: { flexDirection: "row", padding: spacing.md, gap: spacing.sm, backgroundColor: colors.surface },
+  tab: { flex: 1, paddingVertical: spacing.sm, borderRadius: radius.md, alignItems: "center", backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },
+  tabActive: { backgroundColor: colors.bleu, borderColor: colors.bleu },
+  tabText: { color: colors.textDim, fontWeight: "800" },
+  tabTextActive: { color: colors.blanc },
+  rankRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  rank: { color: colors.text, fontWeight: "900", fontSize: 16, width: 28, textAlign: "center" },
+  name: { color: colors.text, fontWeight: "800", fontSize: 14 },
+  handle: { color: colors.textFaint, fontSize: 12 },
+  pts: { color: colors.gold, fontWeight: "900", fontSize: 15 },
+  bubble: { maxWidth: "78%", padding: spacing.md, borderRadius: radius.lg },
+  mine: { alignSelf: "flex-end", backgroundColor: colors.bleu, borderBottomRightRadius: 4 },
+  theirs: { alignSelf: "flex-start", backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderBottomLeftRadius: 4 },
+  msgText: { color: colors.text, fontSize: 15 },
+  composer: { flexDirection: "row", gap: spacing.sm, padding: spacing.md, backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
+  composerInput: { flex: 1, backgroundColor: colors.bg, borderRadius: radius.pill, paddingHorizontal: spacing.lg, height: 46, color: colors.text, borderWidth: 1, borderColor: colors.border },
+  sendBtn: { backgroundColor: colors.bleu, borderRadius: radius.pill, paddingHorizontal: spacing.lg, alignItems: "center", justifyContent: "center" },
+});
