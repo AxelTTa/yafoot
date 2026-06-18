@@ -34,6 +34,22 @@ export async function savePrediction(matchId: number, home: number, away: number
   if (error) throw error;
 }
 
+export async function fetchMyForecasts() {
+  const { data } = await supabase
+    .from("predictions")
+    .select("pred_home, pred_away, points_awarded, scored, matches(home_team,home_flag,away_team,away_flag,home_score,away_score,status,utc_kickoff,group_name)")
+    .order("created_at", { ascending: false })
+    .limit(40);
+  return (data as any[]) ?? [];
+}
+
+export async function updateProfile(fields: { display_name?: string; avatar_url?: string }) {
+  const { data: u } = await supabase.auth.getUser();
+  if (!u.user?.id) throw new Error("Not signed in");
+  const { error } = await supabase.from("profiles").update(fields).eq("id", u.user.id);
+  if (error) throw error;
+}
+
 // ----- leagues -----
 export async function fetchMyLeagues(): Promise<League[]> {
   const { data, error } = await supabase

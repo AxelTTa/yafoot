@@ -71,7 +71,7 @@ export default function Predict() {
           />
         }
         renderItem={({ item }) => (
-          <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} />
+          <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />
         )}
         ListEmptyComponent={<Empty icon="🎯" title="All caught up" sub="No upcoming matches to predict right now." />}
       />

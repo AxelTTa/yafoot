@@ -28,8 +28,11 @@ function RootNav() {
       <Stack.Screen name="onboarding/invite" />
       <Stack.Screen name="invite/[code]" />
       <Stack.Screen name="match/[id]" options={{ presentation: "card" }} />
+      <Stack.Screen name="stats/[id]" />
       <Stack.Screen name="league/[id]" />
       <Stack.Screen name="chat/[id]" />
+      <Stack.Screen name="settings" />
+      <Stack.Screen name="notifications" />
     </Stack>
   );
 }

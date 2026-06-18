@@ -89,7 +89,12 @@ export default function Matches() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={styles.topbar}>
         <LogoInline size={24} />
-        <View style={styles.wcPill}><Text style={styles.wc}>World Cup 2026 🇨🇦🇺🇸🇲🇽</Text></View>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+          <View style={styles.wcPill}><Text style={styles.wc}>WC 2026 🇨🇦🇺🇸🇲🇽</Text></View>
+          <Pressable onPress={() => router.push("/notifications")} style={styles.bell} hitSlop={8}>
+            <Text style={{ fontSize: 18 }}>🔔</Text>
+          </Pressable>
+        </View>
       </View>
 
       {filter === "groups" ? (
@@ -112,7 +117,7 @@ export default function Matches() {
           refreshControl={refresh}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
           renderItem={({ item }) => (
-            <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} />
+            <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />
           )}
           ListEmptyComponent={
             <Empty
@@ -132,8 +137,9 @@ const styles = StyleSheet.create({
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
     paddingHorizontal: spacing.lg, paddingTop: 58, paddingBottom: spacing.md,
   },
-  wcPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: colors.border },
+  wcPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.border },
   wc: { color: colors.textDim, fontSize: 12, fontWeight: "700" },
+  bell: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
   list: { paddingHorizontal: spacing.lg, paddingBottom: 110 },
   filters: { flexDirection: "row", gap: spacing.sm, paddingVertical: spacing.md, flexWrap: "wrap" },
   filterBtn: {

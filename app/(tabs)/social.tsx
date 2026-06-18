@@ -1,5 +1,6 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 import {
   FlatList,
   Pressable,
@@ -35,6 +36,15 @@ export default function Social() {
       load();
     }, [load])
   );
+
+  // realtime: friend requests / accepts appear without reloading
+  useEffect(() => {
+    const ch = supabase
+      .channel("friends-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "friendships" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [load]);
 
   async function doSearch(text: string) {
     setQ(text);

@@ -19,10 +19,12 @@ export default function MatchCard({
   match,
   prediction,
   onPress,
+  onStats,
 }: {
   match: Match;
   prediction?: Prediction;
   onPress?: () => void;
+  onStats?: () => void;
 }) {
   const live = isLive(match.status);
   const finished = isFinished(match.status);
@@ -73,34 +75,31 @@ export default function MatchCard({
         </View>
       </View>
 
-      {prediction ? (
-        <View style={styles.predRow}>
-          <Text style={styles.predLabel}>
-            Your pick: {prediction.pred_home}-{prediction.pred_away}
-          </Text>
-          {prediction.scored ? (
-            <Text
-              style={[
-                styles.predPts,
-                {
-                  color:
-                    prediction.points_awarded >= 3
-                      ? colors.gold
-                      : prediction.points_awarded > 0
-                      ? colors.live
-                      : colors.textFaint,
-                },
-              ]}
-            >
-              +{prediction.points_awarded} pts
-            </Text>
+      <View style={styles.footer}>
+        <View style={{ flex: 1 }}>
+          {prediction ? (
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Text style={styles.predLabel}>Your pick {prediction.pred_home}-{prediction.pred_away}</Text>
+              {prediction.scored ? (
+                <Text style={[styles.predPts, { color: prediction.points_awarded >= 3 ? colors.gold : prediction.points_awarded > 0 ? colors.live : colors.textFaint }]}>
+                  +{prediction.points_awarded} pts
+                </Text>
+              ) : (
+                <Text style={styles.predPending}>locked</Text>
+              )}
+            </View>
+          ) : !finished && !live ? (
+            <Text style={styles.tapHint}>Tap to predict →</Text>
           ) : (
-            <Text style={styles.predPending}>locked</Text>
+            <Text style={styles.predPending}>{finished ? "Full time" : "In play"}</Text>
           )}
         </View>
-      ) : !finished && !live ? (
-        <Text style={styles.tapHint}>Tap to predict →</Text>
-      ) : null}
+        {onStats ? (
+          <Pressable onPress={onStats} style={styles.statsBtn} hitSlop={6}>
+            <Text style={styles.statsText}>📊 Stats</Text>
+          </Pressable>
+        ) : null}
+      </View>
     </Pressable>
   );
 }
@@ -128,9 +127,11 @@ const styles = StyleSheet.create({
   scoreBox: { paddingHorizontal: spacing.md, minWidth: 64, alignItems: "center" },
   score: { color: colors.text, fontSize: 20, fontWeight: "900" },
   vs: { color: colors.textFaint, fontSize: 13, fontWeight: "700" },
-  predRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.sm },
-  predLabel: { color: colors.textDim, fontSize: 13, fontWeight: "600" },
+  footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: colors.borderSoft, paddingTop: spacing.md, gap: spacing.sm },
+  predLabel: { color: colors.textDim, fontSize: 13, fontWeight: "700" },
   predPts: { fontSize: 13, fontWeight: "900" },
-  predPending: { color: colors.bleu, fontSize: 12, fontWeight: "700" },
-  tapHint: { color: colors.bleu, fontSize: 12, fontWeight: "700", borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.sm },
+  predPending: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
+  tapHint: { color: colors.bleu, fontSize: 13, fontWeight: "800" },
+  statsBtn: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: colors.border },
+  statsText: { color: colors.text, fontSize: 12, fontWeight: "800" },
 });
