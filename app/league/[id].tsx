@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Avatar, Empty, Loading } from "../../components/ui";
+import { Avatar, Empty, Header, Loading, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { notify } from "../../lib/notify";
 import { leagueLeaderboard } from "../../lib/api";
@@ -91,15 +91,8 @@ export default function LeagueDetail() {
   const rankColor = (i: number) => (i === 0 ? colors.gold : i === 1 ? colors.silver : i === 2 ? colors.bronze : colors.textFaint);
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: league?.name ?? "League",
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.text,
-        }}
-      />
+    <Screen>
+      <Header title={league?.name ?? "League"} />
       <View style={styles.tabs}>
         {(["standings", "chat"] as const).map((t) => (
           <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]}>
@@ -187,14 +180,14 @@ export default function LeagueDetail() {
           </View>
         </KeyboardAvoidingView>
       )}
-    </View>
+    </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  tabs: { flexDirection: "row", padding: spacing.md, gap: spacing.sm, backgroundColor: colors.surface },
-  tab: { flex: 1, paddingVertical: spacing.sm, borderRadius: radius.md, alignItems: "center", backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border },
-  tabActive: { backgroundColor: colors.bleu, borderColor: colors.bleu },
+  tabs: { flexDirection: "row", padding: spacing.md, gap: spacing.sm, backgroundColor: colors.bg },
+  tab: { flex: 1, paddingVertical: spacing.md, borderRadius: radius.pill, alignItems: "center", backgroundColor: colors.surface },
+  tabActive: { backgroundColor: colors.greenDark },
   tabText: { color: colors.textDim, fontWeight: "800" },
   tabTextActive: { color: colors.blanc },
   rankRow: {

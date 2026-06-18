@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Empty, Loading } from "../../components/ui";
+import { Empty, Header, Loading, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
@@ -79,15 +79,8 @@ export default function Chat() {
   if (loading) return <Loading />;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: name,
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.text,
-        }}
-      />
+    <Screen>
+      <Header title={name} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -123,7 +116,7 @@ export default function Chat() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
-    </View>
+    </Screen>
   );
 }
 

@@ -1,7 +1,7 @@
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Icon, Loading, Pill } from "../../components/ui";
+import { Button, Header, Icon, Loading, Pill, Screen } from "../../components/ui";
 import { fetchMatch, fetchMyPredictions, savePrediction } from "../../lib/api";
 import { notify, confirmAsync } from "../../lib/notify";
 import { colors, radius, spacing } from "../../lib/theme";
@@ -66,16 +66,9 @@ export default function MatchDetail() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <Stack.Screen
-        options={{
-          headerShown: true,
-          title: match.group_name ?? match.stage?.replace(/_/g, " ") ?? "Match",
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.text,
-        }}
-      />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}>
+    <Screen>
+      <Header title={match.group_name ?? match.stage?.replace(/_/g, " ") ?? "Match"} />
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg, paddingBottom: 40 }}>
         <View style={styles.hero}>
           <View style={styles.heroTeam}>
             <Text style={styles.heroFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
@@ -160,7 +153,7 @@ export default function MatchDetail() {
           </View>
         )}
       </ScrollView>
-    </View>
+    </Screen>
   );
 }
 
