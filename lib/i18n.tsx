@@ -9,7 +9,7 @@ const LANG_KEY = "yafoot.lang";
 
 const T = {
   en: {
-    // lang picker
+    // lang picker (en)
     lang_pick: "Pick your language",
     lang_en: "English 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     lang_fr: "Français 🇫🇷",
@@ -18,13 +18,14 @@ const T = {
     // welcome
     welcome_tagline: "Predict the World Cup.\nBeat your mates.",
     welcome_invited: "Your mate invited you!",
-    username_label: "PICK YOUR USERNAME",
-    username_placeholder: "username",
+    username_label: "YOUR NAME",
+    username_placeholder: "Your name (e.g. Axel)",
+    handle_preview: "Your handle: @{h}",
     btn_start: "Let's go!",
     btn_join_friend: "Join & add friend",
-    welcome_fine: "No email needed. Just a name and you're in.",
-    err_short: "Pick a username (min 3 chars).",
-    err_chars: "Letters, numbers and underscores only.",
+    welcome_fine: "No email needed. Just your name and you're in.",
+    err_short: "Need at least 2 characters.",
+    err_chars: "That username is already taken — try a different name.",
 
     // invite
     invite_congrats: "You're in, @{u}!",
@@ -65,9 +66,26 @@ const T = {
     code_placeholder: "Enter the 6-char code",
     btn_create_league: "Create League",
     btn_join_league: "Join League",
-    err_name: "Name needs at least 3 characters.",
+    err_name: "Name needs at least 2 characters.",
     no_leagues: "No leagues yet",
     no_leagues_sub: "Create a league and invite mates, or join one with a code.",
+
+    // create wizard
+    create_step1_title: "How long?",
+    create_step1_sub: "How many matches does your competition last?",
+    create_step2_title: "Loser's punishment",
+    create_step2_sub: "Pick one for last place — or skip.",
+    create_step3_title: "Name your league",
+    create_step3_sub: "What's your crew called?",
+    create_done_share: "Share with mates",
+    create_done_go: "Go to league",
+    btn_next: "Next",
+    pun_skip: "Skip — no punishment",
+
+    // join (unauthenticated)
+    join_need_account: "Create an account first",
+    join_need_account_sub: "Takes 5 seconds — then we'll drop you straight into the league.",
+    join_create_account: "Create account →",
 
     // duration
     dur_section: "COMPETITION LENGTH",
@@ -187,13 +205,14 @@ const T = {
     // welcome
     welcome_tagline: "Préds la Coupe du Monde.\nDéfonce tes potes.",
     welcome_invited: "Un pote t'a invité !",
-    username_label: "CHOISIS TON PSEUDO",
-    username_placeholder: "pseudo",
+    username_label: "TON PRÉNOM",
+    username_placeholder: "Ton prénom (ex. Axel)",
+    handle_preview: "Ton pseudo : @{h}",
     btn_start: "C'est parti !",
     btn_join_friend: "Rejoindre & ajouter",
-    welcome_fine: "Pas d'email. Juste un pseudo et t'es dans la place.",
-    err_short: "Faut au moins 3 caractères, bro.",
-    err_chars: "Lettres, chiffres et underscores seulement.",
+    welcome_fine: "Pas d'email. Juste ton prénom et t'es dans la place.",
+    err_short: "Faut au moins 2 caractères.",
+    err_chars: "Ce pseudo est déjà pris — essaie un autre prénom.",
 
     // invite
     invite_congrats: "T'es dans la place, @{u} !",
@@ -234,9 +253,26 @@ const T = {
     code_placeholder: "Colle le code à 6 caractères",
     btn_create_league: "Créer la ligue",
     btn_join_league: "Rejoindre",
-    err_name: "Au moins 3 caractères, s'il te plaît.",
+    err_name: "Au moins 2 caractères, s'il te plaît.",
     no_leagues: "Pas encore de ligues",
     no_leagues_sub: "Crée une ligue et invite tes potes, ou rejoins-en une avec un code.",
+
+    // create wizard
+    create_step1_title: "Sur combien de matchs ?",
+    create_step1_sub: "Combien de matchs dure ta compétition ?",
+    create_step2_title: "La punition du perdant",
+    create_step2_sub: "Choisis pour le dernier — ou passe.",
+    create_step3_title: "Nomme ta ligue",
+    create_step3_sub: "C'est quoi le nom de votre crew ?",
+    create_done_share: "Partager avec les potes",
+    create_done_go: "Voir la ligue",
+    btn_next: "Suivant",
+    pun_skip: "Passer — pas de punition",
+
+    // join (unauthenticated)
+    join_need_account: "Crée un compte d'abord",
+    join_need_account_sub: "5 secondes — et on te dépose direct dans la ligue.",
+    join_create_account: "Créer un compte →",
 
     // duration
     dur_section: "DURÉE DE LA COMPÉTITION",

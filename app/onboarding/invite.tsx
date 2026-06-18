@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
-import { Icon, Screen } from "../../components/ui";
+import { Button, Icon, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { inviteLink } from "../../lib/invite";
@@ -48,6 +48,16 @@ export default function OnboardingInvite() {
         <Text style={styles.h}>{t("invite_congrats", { u: profile?.username ?? "" })}</Text>
         <Text style={styles.sub}>{t("invite_sub")}</Text>
 
+        {/* Primary CTA — always visible, above the invite card */}
+        <Button
+          title={t("btn_continue")}
+          variant="green"
+          icon="arrow-forward"
+          onPress={() => router.replace("/(tabs)")}
+          style={{ marginVertical: spacing.sm }}
+        />
+
+        {/* Secondary — share invite link */}
         <View style={styles.linkCard}>
           <Text style={styles.linkLabel}>{t("invite_link_label")}</Text>
           <View style={styles.linkPill}>
@@ -55,21 +65,16 @@ export default function OnboardingInvite() {
             <Text style={styles.linkText} numberOfLines={1}>{link.replace(/^https?:\/\//, "")}</Text>
           </View>
           <View style={styles.btnRow}>
-            <Pressable onPress={copy} style={({ pressed }) => [styles.actionBtn, { flex: 1, backgroundColor: colors.greenDark }, pressed && { opacity: 0.88 }]}>
+            <Pressable onPress={copy} style={({ pressed }) => [styles.actionBtn, { flex: 1, backgroundColor: colors.surfaceDark }, pressed && { opacity: 0.88 }]}>
               <Icon name={copied ? "checkmark" : "copy"} size={16} color={colors.blanc} />
               <Text style={styles.actionTxt}>{copied ? t("btn_copied") : t("btn_copy")}</Text>
             </Pressable>
-            <Pressable onPress={share} style={({ pressed }) => [styles.actionBtn, { flex: 1, backgroundColor: colors.yellow }, pressed && { opacity: 0.88 }]}>
-              <Icon name="share-social" size={16} color={colors.ink} />
-              <Text style={[styles.actionTxt, { color: colors.ink }]}>{t("btn_share")}</Text>
+            <Pressable onPress={share} style={({ pressed }) => [styles.actionBtn, { flex: 1, backgroundColor: colors.purple }, pressed && { opacity: 0.88 }]}>
+              <Icon name="share-social" size={16} color={colors.blanc} />
+              <Text style={styles.actionTxt}>{t("btn_share")}</Text>
             </Pressable>
           </View>
         </View>
-
-        <Pressable onPress={() => router.replace("/(tabs)")} style={({ pressed }) => [styles.skip, pressed && { opacity: 0.7 }]}>
-          <Text style={styles.skipText}>{t("btn_continue")}</Text>
-          <Icon name="arrow-forward" size={16} color={colors.ink} />
-        </Pressable>
       </ScrollView>
     </Screen>
   );
@@ -88,6 +93,4 @@ const styles = StyleSheet.create({
   btnRow: { flexDirection: "row", gap: spacing.sm },
   actionBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: radius.pill, height: 44 },
   actionTxt: { color: colors.blanc, fontWeight: "900", fontSize: 15 },
-  skip: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: spacing.md },
-  skipText: { color: colors.ink, opacity: 0.7, fontWeight: "800", fontSize: 15 },
 });
