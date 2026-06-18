@@ -4,11 +4,13 @@ import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import MatchCard from "../../components/MatchCard";
 import { Card, Empty, Loading, ScreenHeader } from "../../components/ui";
 import { fetchMatches, fetchMyPredictions } from "../../lib/api";
+import { useI18n } from "../../lib/i18n";
 import { colors, radius, spacing } from "../../lib/theme";
 import { Match, Prediction, isUpcoming } from "../../lib/types";
 
 export default function Predict() {
   const router = useRouter();
+  const { t } = useI18n();
   const [matches, setMatches] = useState<Match[]>([]);
   const [preds, setPreds] = useState<Record<number, Prediction>>({});
   const [loading, setLoading] = useState(true);
@@ -16,16 +18,10 @@ export default function Predict() {
 
   const load = useCallback(async () => {
     const [m, p] = await Promise.all([fetchMatches(), fetchMyPredictions().catch(() => ({}))]);
-    setMatches(m);
-    setPreds(p);
-    setLoading(false);
+    setMatches(m); setPreds(p); setLoading(false);
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load])
-  );
+  useFocusEffect(useCallback(() => { load(); }, [load]));
 
   const upcoming = useMemo(() => matches.filter((m) => isUpcoming(m.status)), [matches]);
   const predictedCount = upcoming.filter((m) => preds[m.id]).length;
@@ -34,7 +30,7 @@ export default function Predict() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScreenHeader title="Predict" subtitle="Earn points. Climb your leagues." />
+      <ScreenHeader title={t("tab_predict")} subtitle={t("predict_sub")} />
 
       <FlatList
         data={upcoming}
@@ -43,7 +39,7 @@ export default function Predict() {
         ListHeaderComponent={
           <Card style={styles.progressCard}>
             <View style={styles.progressRow}>
-              <Text style={styles.progressLabel}>Predicted this round</Text>
+              <Text style={styles.progressLabel}>{t("predict_round")}</Text>
               <Text style={styles.progressNum}>{predictedCount} / {upcoming.length}</Text>
             </View>
             <View style={styles.bar}>
@@ -52,20 +48,12 @@ export default function Predict() {
           </Card>
         }
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={async () => {
-              setRefreshing(true);
-              await load();
-              setRefreshing(false);
-            }}
-            tintColor={colors.bleu}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
         }
         renderItem={({ item }) => (
           <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />
         )}
-        ListEmptyComponent={<Empty icon="create-outline" title="All caught up" sub="No upcoming matches to predict right now." />}
+        ListEmptyComponent={<Empty icon="create-outline" title={t("predict_empty_title")} sub={t("predict_empty")} />}
       />
     </View>
   );

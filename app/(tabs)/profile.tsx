@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Avatar, Icon, ScreenHeader, ScrollView } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { useI18n } from "../../lib/i18n";
 import { fetchMyForecasts } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { prettyTeam } from "../../lib/teams";
@@ -11,6 +12,7 @@ import { colors, radius, shadow, spacing } from "../../lib/theme";
 export default function Profile() {
   const router = useRouter();
   const { profile, session, refreshProfile } = useAuth();
+  const { t } = useI18n();
   const [stats, setStats] = useState({ predictions: 0, exact: 0, leagues: 0, correct: 0 });
   const [forecasts, setForecasts] = useState<any[]>([]);
 
@@ -44,7 +46,8 @@ export default function Profile() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 130 }}>
       <ScreenHeader
-        title="Profile"
+        title={t("tab_profile")}
+        subtitle={t("profile_sub")}
         right={
           <Pressable onPress={() => router.push("/settings")} style={styles.gear} hitSlop={8}>
             <Icon name="settings-sharp" size={20} color={colors.ink} />
@@ -59,27 +62,26 @@ export default function Profile() {
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, gap: spacing.md }}>
-        {/* points hero — vivid purple card, white text reads cleanly */}
         <View style={styles.hero}>
           <View style={styles.heroIcon}><Icon name="trophy" size={26} color={colors.yellow} /></View>
           <View>
-            <Text style={styles.heroLabel}>TOTAL POINTS</Text>
+            <Text style={styles.heroLabel}>{t("total_points")}</Text>
             <Text style={styles.heroPoints}>{profile?.total_points ?? 0}</Text>
           </View>
         </View>
 
         <View style={styles.statsRow}>
-          <StatTile label="Predictions" value={stats.predictions} color={colors.greenDark} />
-          <StatTile label="Exact" value={stats.exact} color={colors.orange} />
-          <StatTile label="Accuracy" value={`${accuracy}%`} color={colors.purple} />
-          <StatTile label="Leagues" value={stats.leagues} color={colors.cyan} />
+          <StatTile label={t("stat_pred")} value={stats.predictions} color={colors.greenDark} />
+          <StatTile label={t("stat_exact")} value={stats.exact} color={colors.orange} />
+          <StatTile label={t("stat_acc")} value={`${accuracy}%`} color={colors.purple} />
+          <StatTile label={t("stat_leagues")} value={stats.leagues} color={colors.cyan} />
         </View>
 
-        <Text style={styles.section}>MY FORECASTS</Text>
+        <Text style={styles.section}>{t("my_forecasts")}</Text>
         {forecasts.length === 0 ? (
           <View style={styles.emptyFc}>
             <Icon name="create-outline" size={20} color={colors.textDim} />
-            <Text style={styles.emptyTxt}>No predictions yet — head to Predict to make your first.</Text>
+            <Text style={styles.emptyTxt}>{t("no_forecasts")}</Text>
           </View>
         ) : (
           <View style={{ gap: spacing.sm }}>

@@ -7,11 +7,13 @@ import { supabase } from "../../lib/supabase";
 import { notify } from "../../lib/notify";
 import { inviteLink } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
+import { useI18n } from "../../lib/i18n";
 import { accentFor, colors, radius, spacing } from "../../lib/theme";
 
 export default function Social() {
   const router = useRouter();
   const { profile } = useAuth();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [friends, setFriends] = useState<any>({ accepted: [], incoming: [], outgoing: [] });
@@ -38,8 +40,8 @@ export default function Social() {
     setSearching(false);
   }
   async function add(uid: string) {
-    try { await sendFriendRequest(uid); notify("Request sent"); setResults((r) => r.filter((u) => u.id !== uid)); load(); }
-    catch (e: any) { notify("Couldn't send", e.message); }
+    try { await sendFriendRequest(uid); notify(t("req_sent")); setResults((r) => r.filter((u) => u.id !== uid)); load(); }
+    catch (e: any) { notify(t("req_sent"), e.message); }
   }
 
   if (loading) return <Loading />;
@@ -48,8 +50,8 @@ export default function Social() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <ScreenHeader
-        title="Friends"
-        subtitle="Add rivals & challenge them"
+        title={t("tab_friends")}
+        subtitle={t("friends_sub")}
         right={
           <Pressable onPress={() => setShowQR(true)} style={styles.qrBtn} hitSlop={8}>
             <Icon name="qr-code" size={20} color={colors.ink} />
@@ -60,12 +62,12 @@ export default function Social() {
         visible={showQR}
         onClose={() => setShowQR(false)}
         value={profile?.username ? inviteLink(profile.username) : ""}
-        title="My invite QR"
-        subtitle="Friend scans this to add you instantly"
+        title={t("qr_friend_title")}
+        subtitle={t("qr_friend_sub")}
       />
       <View style={styles.searchWrap}>
         <Icon name="search" size={18} color={colors.textFaint} />
-        <TextInput style={styles.search} placeholder="Search by username" placeholderTextColor={colors.textFaint} autoCapitalize="none" value={q} onChangeText={doSearch} />
+        <TextInput style={styles.search} placeholder={t("search_ph")} placeholderTextColor={colors.textFaint} autoCapitalize="none" value={q} onChangeText={doSearch} />
       </View>
 
       <FlatList
@@ -75,10 +77,10 @@ export default function Social() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.greenDark} />}
         ListHeaderComponent={
           q.length >= 2 ? (
-            <Text style={styles.sectionLabel}>{searching ? "Searching…" : "Search results"}</Text>
+            <Text style={styles.sectionLabel}>{searching ? t("searching") : "Search results"}</Text>
           ) : friends.incoming.length ? (
             <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
-              <Text style={styles.sectionLabel}>Requests</Text>
+              <Text style={styles.sectionLabel}>{t("requests")}</Text>
               {friends.incoming.map((r: any) => (
                 <Card key={r.id} style={styles.row}>
                   <Avatar name={r.req?.display_name || r.req?.username} url={r.req?.avatar_url} size={44} />
@@ -86,16 +88,16 @@ export default function Social() {
                     <Text style={styles.name}>{r.req?.display_name || r.req?.username}</Text>
                     <Text style={styles.handle}>@{r.req?.username}</Text>
                   </View>
-                  <Button title="Accept" variant="green" onPress={async () => { await respondFriend(r.id, true); load(); }} style={{ height: 40, paddingHorizontal: 16 }} />
+                  <Button title={t("btn_accept")} variant="green" onPress={async () => { await respondFriend(r.id, true); load(); }} style={{ height: 40, paddingHorizontal: 16 }} />
                   <Pressable onPress={async () => { await respondFriend(r.id, false); load(); }} hitSlop={8}>
                     <Icon name="close" size={22} color={colors.textFaint} />
                   </Pressable>
                 </Card>
               ))}
-              <Text style={[styles.sectionLabel, { marginTop: spacing.sm }]}>Your friends</Text>
+              <Text style={[styles.sectionLabel, { marginTop: spacing.sm }]}>{t("your_friends")}</Text>
             </View>
           ) : (
-            <Text style={styles.sectionLabel}>Your friends</Text>
+            <Text style={styles.sectionLabel}>{t("your_friends")}</Text>
           )
         }
         renderItem={({ item, index }) =>
@@ -106,7 +108,7 @@ export default function Social() {
                 <Text style={styles.name}>{item.display_name || item.username}</Text>
                 <Text style={styles.handle}>@{item.username} · {item.total_points} pts</Text>
               </View>
-              <Button title="Add" variant="green" icon="person-add" onPress={() => add(item.id)} style={{ height: 40, paddingHorizontal: 16 }} />
+              <Button title={t("btn_add")} variant="green" icon="person-add" onPress={() => add(item.id)} style={{ height: 40, paddingHorizontal: 16 }} />
             </Card>
           ) : (
             <Card style={styles.row} onPress={() => router.push(`/chat/${item.id}`)}>
@@ -121,8 +123,8 @@ export default function Social() {
         }
         ListEmptyComponent={
           q.length >= 2
-            ? <Empty icon="search" color={colors.orange} title="No players found" />
-            : <Empty icon="people-outline" color={colors.purple} title="No friends yet" sub="Search a username, or share your invite link from your profile." />
+            ? <Empty icon="search" color={colors.orange} title={t("no_players")} />
+            : <Empty icon="people-outline" color={colors.purple} title={t("no_friends")} sub={t("no_friends_sub")} />
         }
       />
     </View>

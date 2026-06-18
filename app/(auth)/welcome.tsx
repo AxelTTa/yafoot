@@ -5,10 +5,12 @@ import { Button, Screen, Tricolor } from "../../components/ui";
 import { Logo } from "../../components/Brand";
 import { supabase } from "../../lib/supabase";
 import { consumePendingInvite, getPendingInvite } from "../../lib/invite";
+import { useI18n } from "../../lib/i18n";
 import { colors, radius, spacing } from "../../lib/theme";
 
 export default function Welcome() {
   const router = useRouter();
+  const { t } = useI18n();
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,17 +23,13 @@ export default function Welcome() {
   async function start() {
     const u = username.trim();
     setError(null);
-    if (u.length < 3) return setError("Pick a username (at least 3 characters).");
-    if (!/^[a-zA-Z0-9_]+$/.test(u)) return setError("Letters, numbers and underscores only.");
+    if (u.length < 3) return setError(t("err_short"));
+    if (!/^[a-zA-Z0-9_]+$/.test(u)) return setError(t("err_chars"));
     setLoading(true);
     const { error: e } = await supabase.auth.signInAnonymously({
       options: { data: { username: u.toLowerCase(), display_name: u } },
     });
-    if (e) {
-      setLoading(false);
-      setError(e.message);
-      return;
-    }
+    if (e) { setLoading(false); setError(e.message); return; }
     const { data: who } = await supabase.auth.getUser();
     if (who.user?.id) {
       await supabase.from("profiles").update({ username: u.toLowerCase(), display_name: u }).eq("id", who.user.id);
@@ -44,10 +42,7 @@ export default function Welcome() {
 
   return (
     <Screen>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ flex: 1 }}>
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: spacing.xl }}
           keyboardShouldPersistTaps="handled"
@@ -55,22 +50,20 @@ export default function Welcome() {
         >
           <View style={{ alignItems: "center", marginBottom: spacing.xl }}>
             <Logo size={48} />
-            <Text style={styles.tag}>
-              {invited ? "A friend invited you" : "Predict the World Cup. Beat your friends."}
-            </Text>
+            <Text style={styles.tag}>{invited ? t("welcome_invited") : t("welcome_tagline")}</Text>
           </View>
 
-          <Text style={styles.label}>CHOOSE YOUR USERNAME</Text>
+          <Text style={styles.label}>{t("username_label")}</Text>
           <View style={styles.inputRow}>
             <Text style={styles.at}>@</Text>
             <TextInput
               style={styles.input}
-              placeholder="username"
+              placeholder={t("username_placeholder")}
               placeholderTextColor={colors.textFaint}
               autoCapitalize="none"
               autoCorrect={false}
               value={username}
-              onChangeText={(t) => { setUsername(t); setError(null); }}
+              onChangeText={(x) => { setUsername(x); setError(null); }}
               onSubmitEditing={start}
               maxLength={20}
               returnKeyType="go"
@@ -78,12 +71,12 @@ export default function Welcome() {
           </View>
           {error ? <Text style={styles.error}>{error}</Text> : null}
           <Button
-            title={invited ? "Join & add friend" : "Get started"}
+            title={invited ? t("btn_join_friend") : t("btn_start")}
             onPress={start}
             loading={loading}
             style={{ marginTop: spacing.lg }}
           />
-          <Text style={styles.fine}>No email, no password. Just pick a name and play.</Text>
+          <Text style={styles.fine}>{t("welcome_fine")}</Text>
           <View style={{ alignItems: "center", marginTop: spacing.lg }}><Tricolor width={70} /></View>
         </ScrollView>
       </KeyboardAvoidingView>

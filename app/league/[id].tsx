@@ -13,10 +13,11 @@ import {
 import { Avatar, Empty, Header, Icon, Loading, QRModal, Screen } from "../../components/ui";
 import { inviteBase } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
+import { useI18n } from "../../lib/i18n";
 import { notify } from "../../lib/notify";
 import { leagueLeaderboard } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
-import { colors, radius, spacing } from "../../lib/theme";
+import { colors, radius, shadow, spacing } from "../../lib/theme";
 
 type Row = { user_id: string; points: number; role: string; profiles: any };
 type Msg = { id: number; sender_id: string; body: string; created_at: string };
@@ -26,8 +27,9 @@ export default function LeagueDetail() {
   const leagueId = Number(id);
   const { session } = useAuth();
   const me = session?.user?.id;
+  const { t } = useI18n();
   const [tab, setTab] = useState<"standings" | "chat">("standings");
-  const [league, setLeague] = useState<{ name: string; code: string } | null>(null);
+  const [league, setLeague] = useState<{ name: string; code: string; max_matches?: number | null; punishment?: string | null } | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -55,7 +57,7 @@ export default function LeagueDetail() {
   useEffect(() => {
     supabase
       .from("leagues")
-      .select("name, code")
+      .select("name, code, max_matches, punishment")
       .eq("id", leagueId)
       .single()
       .then(({ data }) => data && setLeague(data as any));
@@ -114,10 +116,10 @@ export default function LeagueDetail() {
         />
       ) : null}
       <View style={styles.tabs}>
-        {(["standings", "chat"] as const).map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]}>
-            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t === "standings" ? "Standings" : "Chat"}
+        {(["standings", "chat"] as const).map((tb) => (
+          <Pressable key={tb} onPress={() => setTab(tb)} style={[styles.tab, tab === tb && styles.tabActive]}>
+            <Text style={[styles.tabText, tab === tb && styles.tabTextActive]}>
+              {tb === "standings" ? t("standings") : t("chat")}
             </Text>
           </Pressable>
         ))}
@@ -130,21 +132,43 @@ export default function LeagueDetail() {
           contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: 40 }}
           ListHeaderComponent={
             league ? (
-              <Pressable
-                onPress={() => {
-                  if (typeof navigator !== "undefined" && navigator.clipboard) {
-                    navigator.clipboard.writeText(league.code).catch(() => {});
-                  }
-                  notify("Invite code copied", `Share "${league.code}" so friends can join ${league.name}.`);
-                }}
-                style={styles.invite}
-              >
-                <View>
-                  <Text style={styles.inviteLabel}>INVITE CODE</Text>
-                  <Text style={styles.inviteCode}>{league.code}</Text>
-                </View>
-                <Text style={styles.inviteShare}>Share ›</Text>
-              </Pressable>
+              <View style={{ gap: spacing.sm, marginBottom: spacing.xs }}>
+                {/* punishment banner */}
+                {league.punishment ? (
+                  <View style={styles.punBanner}>
+                    <Icon name="flame" size={20} color={colors.orange} />
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.punLabel}>{t("loser_label")}</Text>
+                      <Text style={styles.punText}>{league.punishment}</Text>
+                    </View>
+                  </View>
+                ) : null}
+
+                {/* duration chip */}
+                {league.max_matches ? (
+                  <View style={styles.durBanner}>
+                    <Icon name="time-outline" size={16} color={colors.cyan} />
+                    <Text style={styles.durBannerTxt}>{league.max_matches} match competition</Text>
+                  </View>
+                ) : null}
+
+                {/* invite code */}
+                <Pressable
+                  onPress={() => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(league.code).catch(() => {});
+                    }
+                    notify(t("copy_code"), `Share "${league.code}" so friends can join ${league.name}.`);
+                  }}
+                  style={styles.invite}
+                >
+                  <View>
+                    <Text style={styles.inviteLabel}>{t("invite_code")}</Text>
+                    <Text style={styles.inviteCode}>{league.code}</Text>
+                  </View>
+                  <Text style={styles.inviteShare}>Share ›</Text>
+                </Pressable>
+              </View>
             ) : null
           }
           renderItem={({ item, index }) => (
@@ -220,6 +244,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  punBanner: { flexDirection: "row", alignItems: "center", gap: spacing.md, backgroundColor: "rgba(251,140,60,0.12)", borderRadius: radius.lg, padding: spacing.md, borderWidth: 1, borderColor: "rgba(251,140,60,0.3)", ...shadow },
+  punLabel: { color: colors.orange, fontSize: 10, fontWeight: "900", letterSpacing: 1 },
+  punText: { color: colors.ink, fontSize: 14, fontWeight: "800", marginTop: 2, lineHeight: 20 },
+  durBanner: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: "rgba(34,199,192,0.1)", borderRadius: radius.md, padding: spacing.sm + 2, borderWidth: 1, borderColor: "rgba(34,199,192,0.25)" },
+  durBannerTxt: { color: colors.cyan, fontSize: 13, fontWeight: "800" },
   invite: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.bleuSoft, borderRadius: radius.md, padding: spacing.md, borderWidth: 1, borderColor: colors.bleu, marginBottom: spacing.xs },
   inviteLabel: { color: colors.textDim, fontSize: 10, fontWeight: "800", letterSpacing: 1 },
   inviteCode: { color: colors.blanc, fontSize: 22, fontWeight: "900", letterSpacing: 3 },

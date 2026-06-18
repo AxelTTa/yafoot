@@ -3,11 +3,10 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth";
+import { I18nProvider, getSavedLang } from "../lib/i18n";
 import { Loading } from "../components/ui";
 import { colors } from "../lib/theme";
 
-// Web: vector-icons' own @font-face for "ionicons" 404s in static exports, so glyphs
-// render blank. Inject a working @font-face pointing to the stable /fonts/ionicons.ttf.
 if (typeof document !== "undefined" && !document.getElementById("yf-ionicons")) {
   const s = document.createElement("style");
   s.id = "yf-ionicons";
@@ -24,8 +23,18 @@ function RootNav() {
     if (loading) return;
     const inAuth = segments[0] === "(auth)";
     const inInvite = segments[0] === "invite";
-    if (!session && !inAuth && !inInvite) router.replace("/(auth)/welcome");
-    else if (session && inAuth) router.replace("/(tabs)");
+    const inJoin = segments[0] === "join";
+    const inOnboarding = segments[0] === "onboarding";
+
+    if (!session && !inAuth && !inInvite && !inJoin) {
+      // First time: check if language is already chosen
+      getSavedLang().then((lang) => {
+        if (lang) router.replace("/(auth)/welcome");
+        else router.replace("/(auth)/language");
+      });
+    } else if (session && inAuth) {
+      router.replace("/(tabs)");
+    }
   }, [session, loading, segments]);
 
   if (loading) return <Loading />;
@@ -36,6 +45,7 @@ function RootNav() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="onboarding/invite" />
       <Stack.Screen name="invite/[code]" />
+      <Stack.Screen name="join/[code]" />
       <Stack.Screen name="match/[id]" options={{ presentation: "card" }} />
       <Stack.Screen name="stats/[id]" />
       <Stack.Screen name="league/[id]" />
@@ -49,10 +59,12 @@ function RootNav() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <StatusBar style="dark" />
-        <RootNav />
-      </AuthProvider>
+      <I18nProvider>
+        <AuthProvider>
+          <StatusBar style="dark" />
+          <RootNav />
+        </AuthProvider>
+      </I18nProvider>
     </SafeAreaProvider>
   );
 }
