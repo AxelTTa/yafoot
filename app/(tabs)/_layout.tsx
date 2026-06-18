@@ -25,12 +25,12 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: colors.surfaceDark,
           borderTopWidth: 0,
-          borderRadius: 28,
-          height: 70 + insets.bottom,
-          paddingTop: 9,
-          paddingBottom: insets.bottom + 9,
-          marginHorizontal: 14,
-          marginBottom: insets.bottom > 0 ? 6 : 12,
+          borderRadius: 26,
+          height: 60 + insets.bottom,
+          paddingTop: 8,
+          paddingBottom: Math.max(8, insets.bottom),
+          marginHorizontal: 12,
+          marginBottom: insets.bottom > 0 ? 4 : 10,
           position: "absolute",
           elevation: 12,
           shadowColor: "#000",
@@ -38,9 +38,9 @@ export default function TabsLayout() {
           shadowRadius: 16,
           shadowOffset: { width: 0, height: 8 },
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: "800" },
-        tabBarItemStyle: { paddingTop: 2 },
-        tabBarIconStyle: { marginBottom: 2 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 0 },
+        tabBarItemStyle: { paddingTop: 0, paddingBottom: 0 },
+        tabBarIconStyle: { marginBottom: 0 },
       }}
     >
       <Tabs.Screen name="index" options={{ title: t("tab_matches"), tabBarIcon: ({ focused }) => <TabIcon name="football" focused={focused} /> }} />

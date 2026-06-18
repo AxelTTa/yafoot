@@ -81,6 +81,7 @@ const T = {
     create_done_go: "Go to league",
     btn_next: "Next",
     pun_skip: "Skip — no punishment",
+    pun_context: "This happens to the person who finishes dead last.",
 
     // join (unauthenticated)
     join_need_account: "Create an account first",
@@ -268,6 +269,7 @@ const T = {
     create_done_go: "Voir la ligue",
     btn_next: "Suivant",
     pun_skip: "Passer — pas de punition",
+    pun_context: "C'est ce qui arrive à celui qui finit bon dernier.",
 
     // join (unauthenticated)
     join_need_account: "Crée un compte d'abord",

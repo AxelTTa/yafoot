@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Icon, QRModal } from "../components/ui";
 import { createLeague } from "../lib/api";
 import { useI18n } from "../lib/i18n";
@@ -22,20 +23,24 @@ import { colors, radius, shadow, spacing } from "../lib/theme";
 type Step = 1 | 2 | 3 | 4;
 type DurKey = "full" | "groups" | "weekend" | "custom";
 const DUR_MATCHES: Record<DurKey, number | null> = { full: null, groups: 48, weekend: 8, custom: 0 };
+const DUR_NUM: Record<DurKey, string> = { full: "104", groups: "48", weekend: "8", custom: "?" };
 
 export default function CreateLeagueWizard() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { t, punishments } = useI18n();
 
   const [step, setStep] = useState<Step>(1);
   const [dur, setDur] = useState<DurKey>("full");
-  const [customMatches, setCustomMatches] = useState(20);
+  const [customMatches, setCustomMatches] = useState(1);
   const [selectedPunishment, setSelectedPunishment] = useState<string | null>(null);
   const [customPunishment, setCustomPunishment] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [doneLeague, setDoneLeague] = useState<{ id: number; code: string; name: string } | null>(null);
   const [showQR, setShowQR] = useState(false);
+
+  const stepAccent: Record<Step, string> = { 1: colors.cyan, 2: colors.orange, 3: colors.purple, 4: colors.green };
 
   function back() {
     if (step === 1) router.back();
@@ -48,7 +53,7 @@ export default function CreateLeagueWizard() {
     setBusy(true);
     try {
       const lg = await createLeague(n);
-      const maxMatches = dur === "full" ? null : dur === "custom" ? (customMatches || 20) : DUR_MATCHES[dur];
+      const maxMatches = dur === "full" ? null : dur === "custom" ? (customMatches || 1) : DUR_MATCHES[dur];
       const punishment = customPunishment.trim() || selectedPunishment || null;
       if (maxMatches !== null || punishment) {
         await supabase.from("leagues").update({ max_matches: maxMatches, punishment }).eq("id", lg.id);
@@ -74,292 +79,284 @@ export default function CreateLeagueWizard() {
     }
   }
 
-  const durOptions: { key: DurKey; icon: string; label: string; sub: string }[] = [
-    { key: "full", icon: "globe", label: t("dur_full"), sub: t("dur_full_sub") },
-    { key: "groups", icon: "layers", label: t("dur_groups"), sub: t("dur_groups_sub") },
-    { key: "weekend", icon: "calendar", label: t("dur_weekend"), sub: t("dur_weekend_sub") },
-    { key: "custom", icon: "settings", label: t("dur_custom"), sub: t("dur_custom_sub") },
+  const durOptions: { key: DurKey; label: string }[] = [
+    { key: "full", label: t("dur_full") },
+    { key: "groups", label: t("dur_groups") },
+    { key: "weekend", label: t("dur_weekend") },
+    { key: "custom", label: t("dur_custom") },
   ];
 
-  const stepColors: Record<Step, string> = { 1: colors.cyan, 2: colors.orange, 3: colors.purple, 4: colors.green };
   const activePunishment = customPunishment.trim() || selectedPunishment;
+  const bottomPad = Math.max(insets.bottom, 16);
 
   return (
     <View style={styles.root}>
-      {/* Header bar */}
-      <View style={styles.header}>
+      {/* ── Header ── */}
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 44) + 12 }]}>
         <Pressable onPress={back} style={styles.backBtn} hitSlop={10}>
           <Icon name="chevron-back" size={22} color={colors.ink} />
         </Pressable>
         {step < 4 ? (
           <View style={styles.progressWrap}>
             {([1, 2, 3] as const).map((s) => (
-              <View key={s} style={[styles.dot, step >= s && { backgroundColor: stepColors[step] }]} />
+              <View key={s} style={[styles.dot, step >= s && { backgroundColor: stepAccent[step], width: step === s ? 24 : 10 }]} />
             ))}
           </View>
         ) : null}
         <View style={{ width: 40 }} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* ── STEP 1: Duration ── */}
-          {step === 1 && (
-            <View style={styles.stepWrap}>
-              <Text style={styles.stepTitle}>{t("create_step1_title")}</Text>
-              <Text style={styles.stepSub}>{t("create_step1_sub")}</Text>
+      {/* ══════════════════ STEP 1: Duration ══════════════════ */}
+      {step === 1 && (
+        <View style={{ flex: 1 }}>
+          <View style={styles.stepHead}>
+            <Text style={styles.stepTitle}>{t("create_step1_title")}</Text>
+            <Text style={styles.stepSub}>{t("create_step1_sub")}</Text>
+          </View>
 
-              <View style={styles.durGrid}>
-                {durOptions.map((o) => {
-                  const active = dur === o.key;
-                  return (
-                    <Pressable
-                      key={o.key}
-                      onPress={() => setDur(o.key)}
-                      style={[styles.durCard, active && { borderColor: stepColors[1], borderWidth: 2.5 }]}
-                    >
-                      <Icon name={o.icon as any} size={28} color={active ? stepColors[1] : colors.textFaint} />
-                      <Text style={[styles.durLabel, active && { color: stepColors[1] }]}>{o.label}</Text>
-                      <Text style={styles.durSub}>{o.sub}</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+          {/* Big 2×2 grid */}
+          <View style={styles.durGrid}>
+            {durOptions.map((o) => {
+              const active = dur === o.key;
+              const numDisplay = o.key === "custom" && dur === "custom" ? String(customMatches) : DUR_NUM[o.key];
+              return (
+                <Pressable
+                  key={o.key}
+                  onPress={() => setDur(o.key)}
+                  style={[styles.durCard, active && { borderColor: stepAccent[1], borderWidth: 3, backgroundColor: "rgba(34,199,192,0.06)" }]}
+                >
+                  <Text style={[styles.durBigNum, active && { color: stepAccent[1] }]}>{numDisplay}</Text>
+                  {o.key !== "custom" && <Text style={styles.durMatchesLabel}>matches</Text>}
+                  <Text style={[styles.durOptionLabel, active && { color: stepAccent[1] }]}>{o.label}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
 
-              {dur === "custom" ? (
-                <View style={styles.stepper}>
-                  <Pressable
-                    onPress={() => setCustomMatches((n) => Math.max(2, n - 1))}
-                    style={styles.stepperBtn}
-                  >
-                    <Icon name="remove" size={22} color={colors.ink} />
-                  </Pressable>
-                  <Text style={styles.stepperVal}>{customMatches}</Text>
-                  <Pressable
-                    onPress={() => setCustomMatches((n) => Math.min(104, n + 1))}
-                    style={styles.stepperBtn}
-                  >
-                    <Icon name="add" size={22} color={colors.ink} />
-                  </Pressable>
-                </View>
-              ) : null}
-
-              <Button
-                title={t("btn_next")}
-                variant="green"
-                icon="arrow-forward"
-                onPress={() => setStep(2)}
-                style={styles.cta}
-              />
-            </View>
-          )}
-
-          {/* ── STEP 2: Punishment ── */}
-          {step === 2 && (
-            <View style={styles.stepWrap}>
-              <Text style={styles.stepTitle}>{t("create_step2_title")}</Text>
-              <Text style={styles.stepSub}>{t("create_step2_sub")}</Text>
-
-              {/* No punishment row */}
-              <Pressable
-                onPress={() => { setSelectedPunishment(null); setCustomPunishment(""); }}
-                style={[styles.punRow, !activePunishment && styles.punRowActive]}
-              >
-                <View style={[styles.radio, !activePunishment && { backgroundColor: colors.greenDark, borderColor: colors.greenDark }]}>
-                  {!activePunishment ? <View style={styles.radioDot} /> : null}
-                </View>
-                <Text style={[styles.punTxt, !activePunishment && { color: colors.greenDark, fontWeight: "900" }]}>
-                  {t("pun_skip")}
-                </Text>
+          {/* Custom stepper — shown inline below the grid when custom is selected */}
+          {dur === "custom" ? (
+            <View style={styles.stepper}>
+              <Pressable onPress={() => setCustomMatches((n) => Math.max(1, n - 1))} style={styles.stepperBtn}>
+                <Icon name="remove" size={28} color={colors.ink} />
               </Pressable>
-
-              {/* Presets */}
-              {punishments.map((p, i) => {
-                const active = selectedPunishment === p && !customPunishment.trim();
-                return (
-                  <Pressable
-                    key={i}
-                    onPress={() => { setSelectedPunishment(p); setCustomPunishment(""); }}
-                    style={[styles.punRow, active && styles.punRowActive]}
-                  >
-                    <View style={[styles.radio, active && { backgroundColor: colors.orange, borderColor: colors.orange }]}>
-                      {active ? <View style={styles.radioDot} /> : null}
-                    </View>
-                    <Text style={[styles.punTxt, active && { color: colors.orange, fontWeight: "900" }]}>{p}</Text>
-                  </Pressable>
-                );
-              })}
-
-              {/* Custom */}
-              <TextInput
-                style={styles.input}
-                placeholder={t("pun_custom_ph")}
-                placeholderTextColor={colors.textFaint}
-                value={customPunishment}
-                onChangeText={(v) => { setCustomPunishment(v); if (v.trim()) setSelectedPunishment(null); }}
-                multiline
-                numberOfLines={2}
-              />
-
-              <Button
-                title={t("btn_next")}
-                variant="green"
-                icon="arrow-forward"
-                onPress={() => setStep(3)}
-                style={styles.cta}
-              />
-            </View>
-          )}
-
-          {/* ── STEP 3: Name ── */}
-          {step === 3 && (
-            <View style={[styles.stepWrap, { paddingTop: spacing.xl }]}>
-              <Text style={styles.stepTitle}>{t("create_step3_title")}</Text>
-
-              <TextInput
-                style={[styles.input, styles.nameInput]}
-                placeholder={t("name_placeholder")}
-                placeholderTextColor={colors.textFaint}
-                value={name}
-                onChangeText={setName}
-                autoFocus
-                maxLength={40}
-                returnKeyType="done"
-                onSubmitEditing={doCreate}
-              />
-
-              <Button
-                title={t("btn_create_league")}
-                variant="green"
-                icon="checkmark"
-                onPress={doCreate}
-                loading={busy}
-                style={styles.cta}
-              />
-            </View>
-          )}
-
-          {/* ── STEP 4: Done ── */}
-          {step === 4 && doneLeague && (
-            <View style={[styles.stepWrap, { alignItems: "center" }]}>
-              <View style={styles.doneIcon}>
-                <Icon name="trophy" size={48} color={colors.yellow} />
+              <View style={{ alignItems: "center" }}>
+                <Text style={styles.stepperVal}>{customMatches}</Text>
+                <Text style={styles.stepperLabel}>matches</Text>
               </View>
-              <Text style={styles.stepTitle}>{t("league_created")}</Text>
-              <Text style={styles.stepSub}>{doneLeague.name}</Text>
-
-              <Pressable onPress={() => setShowQR(true)} style={styles.codeCard}>
-                <Text style={styles.codeLabel}>{t("invite_code")}</Text>
-                <Text style={styles.code}>{doneLeague.code}</Text>
-                <View style={styles.qrHint}>
-                  <Icon name="qr-code" size={14} color={colors.textDim} />
-                  <Text style={styles.qrHintTxt}>Tap for QR code</Text>
-                </View>
+              <Pressable onPress={() => setCustomMatches((n) => Math.min(104, n + 1))} style={styles.stepperBtn}>
+                <Icon name="add" size={28} color={colors.ink} />
               </Pressable>
-
-              <QRModal
-                visible={showQR}
-                onClose={() => setShowQR(false)}
-                value={`${inviteBase()}/join/${doneLeague.code}`}
-                title={t("qr_league")}
-                subtitle={`${t("invite_code")}: ${doneLeague.code}`}
-              />
-
-              <Button
-                title={t("create_done_share")}
-                variant="green"
-                icon="share-social"
-                onPress={shareLeague}
-                style={styles.cta}
-              />
-              <Button
-                title={t("create_done_go")}
-                variant="ghost"
-                icon="arrow-forward"
-                onPress={() => router.replace(`/league/${doneLeague.id}`)}
-                style={{ marginTop: spacing.sm }}
-              />
             </View>
-          )}
+          ) : null}
+
+          <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
+            <Button title={t("btn_next")} variant="green" icon="arrow-forward" onPress={() => setStep(2)} />
+          </View>
+        </View>
+      )}
+
+      {/* ══════════════════ STEP 2: Punishment ══════════════════ */}
+      {step === 2 && (
+        <View style={{ flex: 1 }}>
+          <View style={styles.stepHead}>
+            <Text style={styles.stepTitle}>{t("create_step2_title")}</Text>
+            {/* Context banner */}
+            <View style={styles.contextBanner}>
+              <Icon name="person" size={16} color={colors.orange} />
+              <Text style={styles.contextTxt}>
+                {t("pun_context") ?? "This happens to the person who finishes dead last."}
+              </Text>
+            </View>
+          </View>
+
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl }}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* No punishment */}
+            <Pressable
+              onPress={() => { setSelectedPunishment(null); setCustomPunishment(""); }}
+              style={[styles.punRow, !activePunishment && styles.punRowActive]}
+            >
+              <View style={[styles.radio, !activePunishment && { backgroundColor: colors.greenDark, borderColor: colors.greenDark }]}>
+                {!activePunishment ? <View style={styles.radioDot} /> : null}
+              </View>
+              <Text style={[styles.punTxt, !activePunishment && { color: colors.greenDark, fontWeight: "900" }]}>
+                {t("pun_skip")}
+              </Text>
+            </Pressable>
+
+            {/* Presets */}
+            {punishments.map((p, i) => {
+              const active = selectedPunishment === p && !customPunishment.trim();
+              return (
+                <Pressable
+                  key={i}
+                  onPress={() => { setSelectedPunishment(p); setCustomPunishment(""); }}
+                  style={[styles.punRow, active && styles.punRowActive]}
+                >
+                  <View style={[styles.radio, active && { backgroundColor: colors.orange, borderColor: colors.orange }]}>
+                    {active ? <View style={styles.radioDot} /> : null}
+                  </View>
+                  <Text style={[styles.punTxt, active && { color: colors.orange, fontWeight: "900" }]}>{p}</Text>
+                </Pressable>
+              );
+            })}
+
+            {/* Custom */}
+            <Text style={styles.orCustomLabel}>{t("pun_or_custom")}</Text>
+            <TextInput
+              style={styles.input}
+              placeholder={t("pun_custom_ph")}
+              placeholderTextColor={colors.textFaint}
+              value={customPunishment}
+              onChangeText={(v) => { setCustomPunishment(v); if (v.trim()) setSelectedPunishment(null); }}
+              multiline
+              numberOfLines={2}
+            />
+          </ScrollView>
+
+          {/* Sticky Next at bottom */}
+          <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
+            <Button title={t("btn_next")} variant="green" icon="arrow-forward" onPress={() => setStep(3)} />
+          </View>
+        </View>
+      )}
+
+      {/* ══════════════════ STEP 3: Name ══════════════════ */}
+      {step === 3 && (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <View style={[styles.stepHead, { paddingTop: spacing.xl }]}>
+            <Text style={styles.stepTitle}>{t("create_step3_title")}</Text>
+          </View>
+          <View style={{ paddingHorizontal: spacing.xl, gap: spacing.md }}>
+            <TextInput
+              style={[styles.input, styles.nameInput]}
+              placeholder={t("name_placeholder")}
+              placeholderTextColor={colors.textFaint}
+              value={name}
+              onChangeText={setName}
+              autoFocus
+              maxLength={40}
+              returnKeyType="done"
+              onSubmitEditing={doCreate}
+            />
+            <Button title={t("btn_create_league")} variant="green" icon="checkmark" onPress={doCreate} loading={busy} />
+          </View>
+        </KeyboardAvoidingView>
+      )}
+
+      {/* ══════════════════ STEP 4: Done ══════════════════ */}
+      {step === 4 && doneLeague && (
+        <ScrollView contentContainerStyle={[styles.doneScroll, { paddingBottom: bottomPad + spacing.xl }]} showsVerticalScrollIndicator={false}>
+          <View style={styles.doneIcon}>
+            <Icon name="trophy" size={52} color={colors.yellow} />
+          </View>
+          <Text style={[styles.stepTitle, { textAlign: "center" }]}>{t("league_created")}</Text>
+          <Text style={[styles.stepSub, { textAlign: "center" }]}>{doneLeague.name}</Text>
+
+          <Pressable onPress={() => setShowQR(true)} style={styles.codeCard}>
+            <Text style={styles.codeLabel}>{t("invite_code")}</Text>
+            <Text style={styles.code}>{doneLeague.code}</Text>
+            <View style={styles.qrHint}>
+              <Icon name="qr-code" size={14} color={colors.textDim} />
+              <Text style={styles.qrHintTxt}>Tap for QR code</Text>
+            </View>
+          </Pressable>
+
+          <QRModal
+            visible={showQR}
+            onClose={() => setShowQR(false)}
+            value={`${inviteBase()}/join/${doneLeague.code}`}
+            title={t("qr_league")}
+            subtitle={`${t("invite_code")}: ${doneLeague.code}`}
+          />
+
+          <Button title={t("create_done_share")} variant="green" icon="share-social" onPress={shareLeague} style={{ marginTop: spacing.md }} />
+          <Button title={t("create_done_go")} variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${doneLeague.id}`)} style={{ marginTop: spacing.sm }} />
         </ScrollView>
-      </KeyboardAvoidingView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
+
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingTop: 56, paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
   },
-  backBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: colors.surface, alignItems: "center", justifyContent: "center",
-    ...shadow,
-  },
-  progressWrap: { flexDirection: "row", gap: 8, alignItems: "center" },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border },
-  scroll: { padding: spacing.xl, paddingTop: spacing.md, paddingBottom: 80 },
-  stepWrap: { gap: spacing.lg },
-  stepTitle: { color: colors.ink, fontSize: 30, fontWeight: "900", letterSpacing: -0.5 },
-  stepSub: { color: colors.textDim, fontSize: 14, fontWeight: "700", marginTop: -spacing.sm },
+  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center", ...shadow },
+  progressWrap: { flexDirection: "row", gap: 6, alignItems: "center" },
+  dot: { width: 10, height: 10, borderRadius: 6, backgroundColor: colors.border },
 
-  durGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  stepHead: { paddingHorizontal: spacing.xl, paddingBottom: spacing.lg, gap: spacing.sm },
+  stepTitle: { color: colors.ink, fontSize: 30, fontWeight: "900", letterSpacing: -0.5 },
+  stepSub: { color: colors.textDim, fontSize: 14, fontWeight: "700" },
+
+  // ── Step 1 ──
+  durGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, paddingHorizontal: spacing.lg },
   durCard: {
     width: "47.5%", backgroundColor: colors.surface, borderRadius: radius.xl,
-    padding: spacing.lg, alignItems: "center", gap: spacing.xs,
+    paddingVertical: spacing.xl, paddingHorizontal: spacing.md,
+    alignItems: "center", gap: 4,
     borderWidth: 1.5, borderColor: colors.border, ...shadow,
   },
-  durLabel: { color: colors.ink, fontSize: 14, fontWeight: "900", textAlign: "center" },
-  durSub: { color: colors.textFaint, fontSize: 11, fontWeight: "600", textAlign: "center" },
+  durBigNum: { color: colors.ink, fontSize: 56, fontWeight: "900", lineHeight: 60, letterSpacing: -2 },
+  durMatchesLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "700", letterSpacing: 0.5, textTransform: "uppercase" },
+  durOptionLabel: { color: colors.textDim, fontSize: 13, fontWeight: "800", marginTop: 4, textAlign: "center" },
 
   stepper: {
     flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.xl,
-    backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, ...shadow,
+    backgroundColor: colors.surface, borderRadius: radius.xl, margin: spacing.lg,
+    padding: spacing.xl, ...shadow,
   },
-  stepperBtn: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center",
-  },
-  stepperVal: { color: colors.ink, fontSize: 36, fontWeight: "900", minWidth: 60, textAlign: "center" },
+  stepperBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center" },
+  stepperVal: { color: colors.ink, fontSize: 64, fontWeight: "900", lineHeight: 68, letterSpacing: -2 },
+  stepperLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
 
+  // ── Step 2 ──
+  contextBanner: {
+    flexDirection: "row", alignItems: "flex-start", gap: spacing.sm,
+    backgroundColor: "rgba(251,140,60,0.1)", borderRadius: radius.md,
+    padding: spacing.md, borderWidth: 1, borderColor: "rgba(251,140,60,0.25)",
+  },
+  contextTxt: { flex: 1, color: colors.ink, fontSize: 13, fontWeight: "700", lineHeight: 18 },
   punRow: {
     flexDirection: "row", alignItems: "flex-start", gap: spacing.md,
-    paddingVertical: spacing.sm + 2, paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
+    paddingVertical: spacing.sm + 2, paddingHorizontal: spacing.sm,
+    borderRadius: radius.md, marginBottom: 2,
   },
   punRowActive: { backgroundColor: colors.surface },
-  radio: {
-    width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: colors.border,
-    alignItems: "center", justifyContent: "center", marginTop: 2, flexShrink: 0,
-  },
-  radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.blanc },
-  punTxt: { flex: 1, color: colors.textDim, fontSize: 14, fontWeight: "700", lineHeight: 20 },
-
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.border, alignItems: "center", justifyContent: "center", marginTop: 1, flexShrink: 0 },
+  radioDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.blanc },
+  punTxt: { flex: 1, color: colors.textDim, fontSize: 14, fontWeight: "700", lineHeight: 22 },
+  orCustomLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "800", marginTop: spacing.lg, marginBottom: spacing.sm },
   input: {
     backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
     borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     color: colors.text, fontSize: 15, minHeight: 52,
   },
-  nameInput: { fontSize: 20, fontWeight: "700", height: 64 },
 
-  cta: { marginTop: spacing.sm },
+  // ── Step 3 ──
+  nameInput: { fontSize: 22, fontWeight: "800", height: 66 },
 
-  doneIcon: {
-    width: 96, height: 96, borderRadius: 48,
-    backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center", ...shadow,
+  // ── Sticky bottom ──
+  stickyBottom: {
+    paddingHorizontal: spacing.xl, paddingTop: spacing.md,
+    backgroundColor: colors.bg,
+    borderTopWidth: 1, borderTopColor: colors.border,
   },
-  codeCard: {
-    backgroundColor: colors.surfaceDark, borderRadius: radius.xl, padding: spacing.xl,
-    alignItems: "center", gap: spacing.xs, width: "100%", ...shadow,
-  },
-  codeLabel: { color: colors.textDim, fontSize: 11, fontWeight: "900", letterSpacing: 1.5 },
-  code: { color: colors.blanc, fontSize: 36, fontWeight: "900", letterSpacing: 6 },
+
+  // ── Step 4 ──
+  doneScroll: { padding: spacing.xl, alignItems: "center", gap: spacing.md },
+  doneIcon: { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center", ...shadow },
+  codeCard: { backgroundColor: colors.surfaceDark, borderRadius: radius.xl, padding: spacing.xl, alignItems: "center", gap: spacing.xs, width: "100%", ...shadow },
+  codeLabel: { color: "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: "900", letterSpacing: 1.5 },
+  code: { color: colors.blanc, fontSize: 40, fontWeight: "900", letterSpacing: 8 },
   qrHint: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: spacing.xs },
-  qrHintTxt: { color: colors.textDim, fontSize: 12, fontWeight: "700" },
+  qrHintTxt: { color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: "700" },
 });
