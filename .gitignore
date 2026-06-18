@@ -7,3 +7,5 @@ web-build/
 .env
 ios/
 android/
+yafoot.env
+yafoot_sessions.json
