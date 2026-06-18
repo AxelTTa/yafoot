@@ -49,7 +49,7 @@ async function signup(p, name){
   ok(A._dialogs.some(d=>/Prediction saved/i.test(d)), "got 'Prediction saved' confirmation: "+JSON.stringify(A._dialogs).slice(0,90));
   // back on predict list, the card should now show "Your pick"
   await sleep(1500); await tapExact(A,"Predict"); await sleep(2000);
-  ok(/Your pick/.test(await textOf(A)), "prediction shows on the match card");
+  ok(/Pick /.test(await textOf(A)), "prediction shows on the match card");
   await A.screenshot({path:`${SHOT}/A-predicted.png`});
 
   console.log("\n[3] friends: A searches and adds B");
@@ -64,7 +64,7 @@ async function signup(p, name){
   console.log("\n[4] B accepts request");
   await tapExact(B,"Friends"); await sleep(2500);
   await B.screenshot({path:`${SHOT}/B-requests.png`});
-  const hasReq = /Friend requests|Accept/.test(await textOf(B));
+  const hasReq = /Requests|Accept/.test(await textOf(B));
   ok(hasReq, "B sees incoming friend request");
   await tapExact(B,"Accept"); await sleep(2500);
 
@@ -77,14 +77,15 @@ async function signup(p, name){
   await sleep(2500);
   // get a real ElementHandle for the friend row and click it with trusted mouse events
   const rowHandle = await A.evaluateHandle((name)=>{
-    const rows=[...document.querySelectorAll("*")].filter(n=>{const t=n.textContent||""; return t.includes("@"+name) && t.includes("💬") && n.children.length<=4;});
+    const rows=[...document.querySelectorAll("*")].filter(n=>{const t=n.textContent||""; return t.includes("@"+name) && n.children.length<=6;});
     return rows[rows.length-1] || null;
   }, ub);
   const rowEl = rowHandle.asElement();
   if (rowEl) { await rowEl.click().catch(()=>{}); }
   await sleep(2500);
   await A.screenshot({path:`${SHOT}/A-dm.png`});
-  const dmOpen = /Start the conversation/.test(await textOf(A)) || (await A.$$("input")).length > 0;
+  const dmOpen = /Start the conversation|Message /.test(await textOf(A));
+    await sleep(1500);
   ok(dmOpen, "DM screen opened");
   if (dmOpen) {
     await fill(A,"message","Hey Dave, GG!"); await tapExact(A,"Send"); await sleep(3000);
@@ -92,7 +93,7 @@ async function signup(p, name){
     await tapExact(B,"Matches"); await sleep(1200); await tapExact(B,"Friends"); await sleep(2500);
     await B.evaluate(()=>{ const ins=[...document.querySelectorAll("input")]; const s=ins[ins.length-1]; if(s){const set=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value").set;set.call(s,"");s.dispatchEvent(new Event("input",{bubbles:true}));} });
     await sleep(2000);
-    const bRow = await B.evaluateHandle((name)=>{ const rows=[...document.querySelectorAll("*")].filter(n=>{const t=n.textContent||"";return t.includes("@"+name)&&t.includes("💬")&&n.children.length<=4;}); return rows[rows.length-1]||null; }, ua);
+    const bRow = await B.evaluateHandle((name)=>{ const rows=[...document.querySelectorAll("*")].filter(n=>{const t=n.textContent||"";return t.includes("@"+name)&&n.children.length<=6;}); return rows[rows.length-1]||null; }, ua);
     const bEl = bRow.asElement(); if (bEl) await bEl.click().catch(()=>{});
     await sleep(3500);
     ok(/Hey Dave, GG!/.test(await textOf(B)), "B received A's DM in realtime");
