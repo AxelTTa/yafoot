@@ -53,7 +53,7 @@ export default function Notifications() {
     <Screen>
       <Header title="Notifications" />
       <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg, paddingBottom: 60 }}>
-        {empty ? <Empty icon="🔔" title="You're all caught up" sub="Friend requests, live matches and messages show up here." /> : null}
+        {empty ? <Empty icon="notifications-outline" title="You're all caught up" sub="Friend requests, live matches and messages show up here." /> : null}
 
         {requests.length ? (
           <View style={{ gap: spacing.sm }}>

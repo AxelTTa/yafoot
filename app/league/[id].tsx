@@ -88,7 +88,7 @@ export default function LeagueDetail() {
 
   if (loading) return <Loading />;
 
-  const medal = (i: number) => (i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`);
+  const rankColor = (i: number) => (i === 0 ? colors.gold : i === 1 ? colors.silver : i === 2 ? colors.bronze : colors.textFaint);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -104,7 +104,7 @@ export default function LeagueDetail() {
         {(["standings", "chat"] as const).map((t) => (
           <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]}>
             <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t === "standings" ? "🏆 Standings" : "💬 Chat"}
+              {t === "standings" ? "Standings" : "Chat"}
             </Text>
           </Pressable>
         ))}
@@ -136,7 +136,7 @@ export default function LeagueDetail() {
           }
           renderItem={({ item, index }) => (
             <View style={[styles.rankRow, item.user_id === me && { borderColor: colors.bleu }]}>
-              <Text style={styles.rank}>{medal(index)}</Text>
+              <Text style={[styles.rank, { color: rankColor(index) }]}>{index + 1}</Text>
               <Avatar name={item.profiles?.display_name || item.profiles?.username} size={36} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.name}>
@@ -148,7 +148,7 @@ export default function LeagueDetail() {
               <Text style={styles.pts}>{item.points} pts</Text>
             </View>
           )}
-          ListEmptyComponent={<Empty icon="🏆" title="No members yet" />}
+          ListEmptyComponent={<Empty icon="trophy-outline" title="No members yet" />}
         />
       ) : (
         <KeyboardAvoidingView
@@ -170,7 +170,7 @@ export default function LeagueDetail() {
                 </View>
               );
             }}
-            ListEmptyComponent={<Empty icon="💬" title="No messages yet" sub="Say hi to your league!" />}
+            ListEmptyComponent={<Empty icon="chatbubbles-outline" title="No messages yet" sub="Say hi to your league!" />}
           />
           <View style={styles.composer}>
             <TextInput

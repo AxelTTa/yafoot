@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing } from "../lib/theme";
+import { Icon } from "./ui";
+import { colors, radius, shadow, spacing } from "../lib/theme";
 import { Match, Prediction, isFinished, isLive } from "../lib/types";
 import { prettyTeam, teamFlag } from "../lib/teams";
 
@@ -11,8 +12,7 @@ function kickoffLabel(iso: string | null) {
   const sameDay = d.toDateString() === now.toDateString();
   const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   if (sameDay) return `Today ${time}`;
-  const date = d.toLocaleDateString([], { month: "short", day: "numeric" });
-  return `${date} ${time}`;
+  return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
 }
 
 export default function MatchCard({
@@ -31,21 +31,16 @@ export default function MatchCard({
   const showScore = live || finished;
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && { opacity: 0.9 }]}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, shadow, pressed && { opacity: 0.95 }]}>
       <View style={styles.header}>
-        <Text style={styles.group}>
-          {match.group_name ?? match.stage?.replace(/_/g, " ") ?? "World Cup"}
-        </Text>
+        <Text style={styles.group}>{match.group_name ?? match.stage?.replace(/_/g, " ") ?? "World Cup"}</Text>
         {live ? (
-          <View style={styles.liveBadge}>
+          <View style={styles.livePill}>
             <View style={styles.dot} />
             <Text style={styles.liveText}>{match.minute ? `${match.minute}'` : "LIVE"}</Text>
           </View>
         ) : finished ? (
-          <Text style={styles.ft}>FT</Text>
+          <View style={styles.ftPill}><Text style={styles.ftText}>FT</Text></View>
         ) : (
           <Text style={styles.time}>{kickoffLabel(match.utc_kickoff)}</Text>
         )}
@@ -54,23 +49,17 @@ export default function MatchCard({
       <View style={styles.row}>
         <View style={styles.team}>
           <Text style={styles.flag}>{teamFlag(match.home_team, match.home_flag)}</Text>
-          <Text style={styles.teamName} numberOfLines={1}>
-            {prettyTeam(match.home_team)}
-          </Text>
+          <Text style={styles.teamName} numberOfLines={1}>{prettyTeam(match.home_team)}</Text>
         </View>
         <View style={styles.scoreBox}>
           {showScore ? (
-            <Text style={[styles.score, live && { color: colors.live }]}>
-              {match.home_score ?? 0} - {match.away_score ?? 0}
-            </Text>
+            <Text style={[styles.score, live && { color: colors.live }]}>{match.home_score ?? 0}–{match.away_score ?? 0}</Text>
           ) : (
             <Text style={styles.vs}>vs</Text>
           )}
         </View>
         <View style={[styles.team, { justifyContent: "flex-end" }]}>
-          <Text style={[styles.teamName, { textAlign: "right" }]} numberOfLines={1}>
-            {prettyTeam(match.away_team)}
-          </Text>
+          <Text style={[styles.teamName, { textAlign: "right" }]} numberOfLines={1}>{prettyTeam(match.away_team)}</Text>
           <Text style={styles.flag}>{teamFlag(match.away_team, match.away_flag)}</Text>
         </View>
       </View>
@@ -79,24 +68,28 @@ export default function MatchCard({
         <View style={{ flex: 1 }}>
           {prediction ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-              <Text style={styles.predLabel}>Your pick {prediction.pred_home}-{prediction.pred_away}</Text>
+              <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
               {prediction.scored ? (
-                <Text style={[styles.predPts, { color: prediction.points_awarded >= 3 ? colors.gold : prediction.points_awarded > 0 ? colors.live : colors.textFaint }]}>
-                  +{prediction.points_awarded} pts
-                </Text>
+                <View style={[styles.ptsPill, { backgroundColor: prediction.points_awarded >= 3 ? colors.green : prediction.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
+                  <Text style={[styles.ptsText, { color: prediction.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{prediction.points_awarded}</Text>
+                </View>
               ) : (
-                <Text style={styles.predPending}>locked</Text>
+                <Text style={styles.locked}>locked</Text>
               )}
             </View>
           ) : !finished && !live ? (
-            <Text style={styles.tapHint}>Tap to predict →</Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
+              <Icon name="create-outline" size={15} color={colors.greenDark} />
+              <Text style={styles.tapHint}>Tap to predict</Text>
+            </View>
           ) : (
-            <Text style={styles.predPending}>{finished ? "Full time" : "In play"}</Text>
+            <Text style={styles.locked}>{finished ? "Full time" : "In play"}</Text>
           )}
         </View>
         {onStats ? (
           <Pressable onPress={onStats} style={styles.statsBtn} hitSlop={6}>
-            <Text style={styles.statsText}>📊 Stats</Text>
+            <Icon name="stats-chart" size={13} color={colors.purple} />
+            <Text style={styles.statsText}>Stats</Text>
           </Pressable>
         ) : null}
       </View>
@@ -105,33 +98,28 @@ export default function MatchCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.md,
-  },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  group: { color: colors.textDim, fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.4 },
-  time: { color: colors.textDim, fontSize: 12, fontWeight: "700" },
-  ft: { color: colors.textFaint, fontSize: 12, fontWeight: "800" },
-  liveBadge: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: colors.liveBg, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
-  dot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.live },
-  liveText: { color: colors.live, fontSize: 11, fontWeight: "800" },
+  group: { color: colors.textDim, fontSize: 12, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },
+  time: { color: colors.textDim, fontSize: 12, fontWeight: "800" },
+  ftPill: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 3 },
+  ftText: { color: colors.textFaint, fontSize: 11, fontWeight: "900" },
+  livePill: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: colors.live, paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.blanc },
+  liveText: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
   row: { flexDirection: "row", alignItems: "center" },
   team: { flex: 1, flexDirection: "row", alignItems: "center", gap: 8 },
-  flag: { fontSize: 26 },
-  teamName: { color: colors.text, fontSize: 15, fontWeight: "700", flexShrink: 1 },
+  flag: { fontSize: 28 },
+  teamName: { color: colors.ink, fontSize: 15, fontWeight: "800", flexShrink: 1 },
   scoreBox: { paddingHorizontal: spacing.md, minWidth: 64, alignItems: "center" },
-  score: { color: colors.text, fontSize: 20, fontWeight: "900" },
-  vs: { color: colors.textFaint, fontSize: 13, fontWeight: "700" },
+  score: { color: colors.ink, fontSize: 22, fontWeight: "900" },
+  vs: { color: colors.textFaint, fontSize: 13, fontWeight: "800" },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: 1, borderTopColor: colors.borderSoft, paddingTop: spacing.md, gap: spacing.sm },
-  predLabel: { color: colors.textDim, fontSize: 13, fontWeight: "700" },
-  predPts: { fontSize: 13, fontWeight: "900" },
-  predPending: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
-  tapHint: { color: colors.bleu, fontSize: 13, fontWeight: "800" },
-  statsBtn: { backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: colors.border },
-  statsText: { color: colors.text, fontSize: 12, fontWeight: "800" },
+  predLabel: { color: colors.ink, fontSize: 13, fontWeight: "800" },
+  ptsPill: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
+  ptsText: { fontSize: 12, fontWeight: "900" },
+  locked: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
+  tapHint: { color: colors.greenDark, fontSize: 13, fontWeight: "900" },
+  statsBtn: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(155,93,229,0.12)", borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6 },
+  statsText: { color: colors.purple, fontSize: 12, fontWeight: "900" },
 });

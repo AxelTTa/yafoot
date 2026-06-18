@@ -53,7 +53,7 @@ export default function Welcome() {
         <View style={{ alignItems: "center", marginBottom: spacing.xxl }}>
           <Logo size={48} />
           <Text style={styles.tag}>
-            {invited ? "A friend invited you 🎉" : "Predict the World Cup. Beat your friends."}
+            {invited ? "A friend invited you" : "Predict the World Cup. Beat your friends."}
           </Text>
         </View>
 

@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button, Loading, Pill } from "../../components/ui";
+import { Button, Icon, Loading, Pill } from "../../components/ui";
 import { fetchMatch, fetchMyPredictions, savePrediction } from "../../lib/api";
 import { notify, confirmAsync } from "../../lib/notify";
 import { colors, radius, spacing } from "../../lib/theme";
@@ -113,7 +113,12 @@ export default function MatchDetail() {
           </View>
         </View>
 
-        {match.venue ? <Text style={styles.venue}>📍 {match.venue}</Text> : null}
+        {match.venue ? (
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 }}>
+            <Icon name="location-outline" size={14} color={colors.textDim} />
+            <Text style={styles.venue}>{match.venue}</Text>
+          </View>
+        ) : null}
 
         {open ? (
           <View style={styles.predictBox}>

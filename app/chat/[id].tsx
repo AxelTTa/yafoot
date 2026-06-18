@@ -107,7 +107,7 @@ export default function Chat() {
               </View>
             );
           }}
-          ListEmptyComponent={<Empty icon="💬" title="Start the conversation" />}
+          ListEmptyComponent={<Empty icon="chatbubbles-outline" title="Start the conversation" />}
         />
         <View style={styles.composer}>
           <TextInput
@@ -133,6 +133,6 @@ const styles = StyleSheet.create({
   theirs: { alignSelf: "flex-start", backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderBottomLeftRadius: 4 },
   msgText: { color: colors.text, fontSize: 15 },
   composer: { flexDirection: "row", gap: spacing.sm, padding: spacing.md, backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
-  composerInput: { flex: 1, backgroundColor: colors.bg, borderRadius: radius.pill, paddingHorizontal: spacing.lg, height: 46, color: colors.text, borderWidth: 1, borderColor: colors.border },
+  composerInput: { flex: 1, backgroundColor: colors.surfaceAlt, borderRadius: radius.pill, paddingHorizontal: spacing.lg, height: 46, color: colors.text, borderWidth: 1, borderColor: colors.border },
   sendBtn: { backgroundColor: colors.bleu, borderRadius: radius.pill, paddingHorizontal: spacing.lg, alignItems: "center", justifyContent: "center" },
 });

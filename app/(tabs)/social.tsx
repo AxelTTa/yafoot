@@ -1,19 +1,11 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
-import {
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { Avatar, Button, Card, Empty, Loading } from "../../components/ui";
+import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
+import { Avatar, Button, Card, Empty, Icon, IconTile, Loading, ScreenHeader } from "../../components/ui";
 import { fetchFriends, respondFriend, searchUsers, sendFriendRequest } from "../../lib/api";
-import { notify, confirmAsync } from "../../lib/notify";
-import { colors, radius, spacing } from "../../lib/theme";
+import { supabase } from "../../lib/supabase";
+import { notify } from "../../lib/notify";
+import { accentFor, colors, radius, spacing } from "../../lib/theme";
 
 export default function Social() {
   const router = useRouter();
@@ -25,24 +17,12 @@ export default function Social() {
   const [searching, setSearching] = useState(false);
 
   const load = useCallback(async () => {
-    try {
-      setFriends(await fetchFriends());
-    } catch {}
+    try { setFriends(await fetchFriends()); } catch {}
     setLoading(false);
   }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load])
-  );
-
-  // realtime: friend requests / accepts appear without reloading
+  useFocusEffect(useCallback(() => { load(); }, [load]));
   useEffect(() => {
-    const ch = supabase
-      .channel("friends-rt")
-      .on("postgres_changes", { event: "*", schema: "public", table: "friendships" }, () => load())
-      .subscribe();
+    const ch = supabase.channel("friends-rt").on("postgres_changes", { event: "*", schema: "public", table: "friendships" }, () => load()).subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [load]);
 
@@ -53,95 +33,77 @@ export default function Social() {
     setResults(await searchUsers(text.trim()));
     setSearching(false);
   }
-
   async function add(uid: string) {
-    try {
-      await sendFriendRequest(uid);
-      notify("Request sent");
-      setResults((r) => r.filter((u) => u.id !== uid));
-      load();
-    } catch (e: any) {
-      notify("Error", e.message);
-    }
+    try { await sendFriendRequest(uid); notify("Request sent"); setResults((r) => r.filter((u) => u.id !== uid)); load(); }
+    catch (e: any) { notify("Couldn't send", e.message); }
   }
 
   if (loading) return <Loading />;
+  const showing = q.length >= 2 ? results : friends.accepted;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={styles.header}>
-        <Text style={styles.title}>👥 Friends</Text>
-        <TextInput
-          style={styles.search}
-          placeholder="Search players by username…"
-          placeholderTextColor={colors.textFaint}
-          autoCapitalize="none"
-          value={q}
-          onChangeText={doSearch}
-        />
+      <ScreenHeader title="Friends" subtitle="Add rivals & challenge them" />
+      <View style={styles.searchWrap}>
+        <Icon name="search" size={18} color={colors.textFaint} />
+        <TextInput style={styles.search} placeholder="Search by username" placeholderTextColor={colors.textFaint} autoCapitalize="none" value={q} onChangeText={doSearch} />
       </View>
 
       <FlatList
-        data={q.length >= 2 ? results : friends.accepted}
+        data={showing}
         keyExtractor={(item, i) => item.id ?? String(i)}
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: 110 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
-        }
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: spacing.sm, paddingBottom: 120 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.greenDark} />}
         ListHeaderComponent={
           q.length >= 2 ? (
             <Text style={styles.sectionLabel}>{searching ? "Searching…" : "Search results"}</Text>
           ) : friends.incoming.length ? (
             <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
-              <Text style={styles.sectionLabel}>Friend requests</Text>
+              <Text style={styles.sectionLabel}>Requests</Text>
               {friends.incoming.map((r: any) => (
                 <Card key={r.id} style={styles.row}>
-                  <Avatar name={r.req?.display_name || r.req?.username} size={40} />
+                  <Avatar name={r.req?.display_name || r.req?.username} url={r.req?.avatar_url} size={44} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.name}>{r.req?.display_name || r.req?.username}</Text>
                     <Text style={styles.handle}>@{r.req?.username}</Text>
                   </View>
-                  <Button title="Accept" onPress={async () => { await respondFriend(r.id, true); load(); }} style={{ height: 38, paddingHorizontal: 14 }} />
-                  <Pressable onPress={async () => { await respondFriend(r.id, false); load(); }}>
-                    <Text style={{ color: colors.textFaint, fontSize: 22, paddingHorizontal: 4 }}>✕</Text>
+                  <Button title="Accept" variant="green" onPress={async () => { await respondFriend(r.id, true); load(); }} style={{ height: 40, paddingHorizontal: 16 }} />
+                  <Pressable onPress={async () => { await respondFriend(r.id, false); load(); }} hitSlop={8}>
+                    <Icon name="close" size={22} color={colors.textFaint} />
                   </Pressable>
                 </Card>
               ))}
-              <Text style={[styles.sectionLabel, { marginTop: spacing.md }]}>Your friends</Text>
+              <Text style={[styles.sectionLabel, { marginTop: spacing.sm }]}>Your friends</Text>
             </View>
           ) : (
             <Text style={styles.sectionLabel}>Your friends</Text>
           )
         }
-        renderItem={({ item }) =>
+        renderItem={({ item, index }) =>
           q.length >= 2 ? (
             <Card style={styles.row}>
-              <Avatar name={item.display_name || item.username} size={40} />
+              <Avatar name={item.display_name || item.username} url={item.avatar_url} size={44} color={accentFor(index)} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.name}>{item.display_name || item.username}</Text>
                 <Text style={styles.handle}>@{item.username} · {item.total_points} pts</Text>
               </View>
-              <Button title="+ Add" onPress={() => add(item.id)} style={{ height: 38, paddingHorizontal: 14 }} />
+              <Button title="Add" variant="green" icon="person-add" onPress={() => add(item.id)} style={{ height: 40, paddingHorizontal: 16 }} />
             </Card>
           ) : (
-            <Pressable onPress={() => router.push(`/chat/${item.id}`)}>
-              <Card style={styles.row}>
-                <Avatar name={item.display_name || item.username} size={40} />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.name}>{item.display_name || item.username}</Text>
-                  <Text style={styles.handle}>@{item.username} · {item.total_points} pts</Text>
-                </View>
-                <Text style={{ color: colors.bleu, fontWeight: "800" }}>💬</Text>
-              </Card>
-            </Pressable>
+            <Card style={styles.row} onPress={() => router.push(`/chat/${item.id}`)}>
+              <Avatar name={item.display_name || item.username} url={item.avatar_url} size={44} color={accentFor(index)} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.name}>{item.display_name || item.username}</Text>
+                <Text style={styles.handle}>@{item.username} · {item.total_points} pts</Text>
+              </View>
+              <IconTile name="chatbubble" color={colors.purple} size={40} />
+            </Card>
           )
         }
         ListEmptyComponent={
-          q.length >= 2 ? (
-            <Empty icon="🔍" title="No players found" />
-          ) : (
-            <Empty icon="👥" title="No friends yet" sub="Search by username to add friends and challenge them." />
-          )
+          q.length >= 2
+            ? <Empty icon="search" color={colors.orange} title="No players found" />
+            : <Empty icon="people-outline" color={colors.purple} title="No friends yet" sub="Search a username, or share your invite link from your profile." />
         }
       />
     </View>
@@ -149,27 +111,10 @@ export default function Social() {
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: 56,
-    paddingBottom: spacing.lg,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: spacing.md,
-  },
-  title: { color: colors.text, fontSize: 26, fontWeight: "900" },
-  search: {
-    backgroundColor: colors.bg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.lg,
-    height: 46,
-    color: colors.text,
-  },
-  sectionLabel: { color: colors.textDim, fontWeight: "800", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5 },
+  searchWrap: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: spacing.lg, marginBottom: spacing.md, backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: spacing.lg, height: 50 },
+  search: { flex: 1, color: colors.ink, fontSize: 15, fontWeight: "600" },
+  sectionLabel: { color: colors.textDim, fontWeight: "900", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: spacing.xs },
   row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  name: { color: colors.text, fontWeight: "800", fontSize: 15 },
-  handle: { color: colors.textFaint, fontSize: 12, marginTop: 2 },
+  name: { color: colors.ink, fontWeight: "800", fontSize: 15 },
+  handle: { color: colors.textFaint, fontSize: 12, marginTop: 2, fontWeight: "600" },
 });

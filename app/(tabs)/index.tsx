@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import MatchCard from "../../components/MatchCard";
 import GroupStandings from "../../components/GroupStandings";
-import { LogoInline } from "../../components/Brand";
-import { Empty, Loading } from "../../components/ui";
+import { Empty, Icon, Loading } from "../../components/ui";
+import { useAuth } from "../../lib/auth";
 import { fetchMatches, fetchMyPredictions } from "../../lib/api";
 import { computeGroups } from "../../lib/standings";
 import { supabase } from "../../lib/supabase";
@@ -15,6 +15,7 @@ type Filter = "live" | "upcoming" | "groups" | "results";
 
 export default function Matches() {
   const router = useRouter();
+  const { profile } = useAuth();
   const [matches, setMatches] = useState<Match[]>([]);
   const [preds, setPreds] = useState<Record<number, Prediction>>({});
   const [loading, setLoading] = useState(true);
@@ -23,22 +24,15 @@ export default function Matches() {
 
   const load = useCallback(async () => {
     const [m, p] = await Promise.all([fetchMatches(), fetchMyPredictions().catch(() => ({}))]);
-    setMatches(m);
-    setPreds(p);
-    setLoading(false);
+    setMatches(m); setPreds(p); setLoading(false);
   }, []);
 
   useEffect(() => {
     load();
-    const ch = supabase
-      .channel("matches-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => load())
-      .subscribe();
+    const ch = supabase.channel("matches-live").on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => load()).subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [load]);
-
   useFocusEffect(useCallback(() => { load(); }, [load]));
-
   useEffect(() => {
     if (!loading && matches.length) {
       const hasLive = matches.some((m) => isLive(m.status));
@@ -48,7 +42,6 @@ export default function Matches() {
 
   const liveCount = matches.filter((m) => isLive(m.status)).length;
   const groups = useMemo(() => computeGroups(matches), [matches]);
-
   const filtered = useMemo(() => {
     if (filter === "live") return matches.filter((m) => isLive(m.status));
     if (filter === "results") return matches.filter((m) => isFinished(m.status)).reverse();
@@ -58,43 +51,44 @@ export default function Matches() {
 
   if (loading) return <Loading />;
 
-  const tabs: { key: Filter; label: string; badge?: number }[] = [
-    { key: "live", label: "Live", badge: liveCount },
-    { key: "upcoming", label: "Upcoming" },
-    { key: "groups", label: "Groups" },
-    { key: "results", label: "Results" },
+  const tabs: { key: Filter; label: string; badge?: number; color: string }[] = [
+    { key: "live", label: "Live", badge: liveCount, color: colors.live },
+    { key: "upcoming", label: "Upcoming", color: colors.greenDark },
+    { key: "groups", label: "Groups", color: colors.purple },
+    { key: "results", label: "Results", color: colors.orange },
   ];
 
   const Filters = (
     <View style={styles.filters}>
-      {tabs.map((t) => (
-        <Pressable key={t.key} onPress={() => setFilter(t.key)} style={[styles.filterBtn, filter === t.key && styles.filterActive]}>
-          {filter === t.key && t.key === "live" && t.badge ? <View style={styles.liveDot} /> : null}
-          <Text style={[styles.filterText, filter === t.key && styles.filterTextActive]}>{t.label}</Text>
-          {t.badge ? (
-            <View style={[styles.badge, filter === t.key && { backgroundColor: "rgba(255,255,255,0.25)" }]}>
-              <Text style={styles.badgeText}>{t.badge}</Text>
-            </View>
-          ) : null}
-        </Pressable>
-      ))}
+      {tabs.map((t) => {
+        const active = filter === t.key;
+        return (
+          <Pressable key={t.key} onPress={() => setFilter(t.key)} style={[styles.chip, active && { backgroundColor: t.color }]}>
+            {t.key === "live" ? <View style={[styles.liveDot, { backgroundColor: active ? colors.blanc : colors.live }]} /> : null}
+            <Text style={[styles.chipText, active && { color: colors.blanc }]}>{t.label}</Text>
+            {t.badge ? (
+              <View style={[styles.badge, { backgroundColor: active ? "rgba(255,255,255,0.3)" : colors.live }]}>
+                <Text style={styles.badgeText}>{t.badge}</Text>
+              </View>
+            ) : null}
+          </Pressable>
+        );
+      })}
     </View>
   );
 
-  const refresh = (
-    <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
-  );
+  const refresh = <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.greenDark} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <View style={styles.topbar}>
-        <LogoInline size={24} />
-        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
-          <View style={styles.wcPill}><Text style={styles.wc}>WC 2026 🇨🇦🇺🇸🇲🇽</Text></View>
-          <Pressable onPress={() => router.push("/notifications")} style={styles.bell} hitSlop={8}>
-            <Text style={{ fontSize: 18 }}>🔔</Text>
-          </Pressable>
+        <View>
+          <Text style={styles.hi}>Hi, @{profile?.username ?? "player"}</Text>
+          <Text style={styles.title}>World Cup 2026</Text>
         </View>
+        <Pressable onPress={() => router.push("/notifications")} style={styles.bell} hitSlop={8}>
+          <Icon name="notifications" size={22} color={colors.ink} />
+        </Pressable>
       </View>
 
       {filter === "groups" ? (
@@ -106,7 +100,7 @@ export default function Matches() {
           refreshControl={refresh}
           renderItem={({ item }) => <GroupStandings group={item.group} rows={item.rows} />}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          ListEmptyComponent={<Empty icon="📊" title="No group data yet" />}
+          ListEmptyComponent={<Empty icon="podium" title="No group data yet" />}
         />
       ) : (
         <FlatList
@@ -116,12 +110,11 @@ export default function Matches() {
           contentContainerStyle={styles.list}
           refreshControl={refresh}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          renderItem={({ item }) => (
-            <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />
-          )}
+          renderItem={({ item }) => <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />}
           ListEmptyComponent={
             <Empty
-              icon={filter === "live" ? "📡" : filter === "results" ? "📋" : "🗓️"}
+              icon={filter === "live" ? "radio" : filter === "results" ? "list" : "calendar"}
+              color={filter === "live" ? colors.live : filter === "results" ? colors.orange : colors.greenDark}
               title={filter === "live" ? "No live matches" : filter === "results" ? "No results yet" : "No upcoming matches"}
               sub={filter === "live" ? "Check Upcoming for the next kickoff." : undefined}
             />
@@ -133,23 +126,15 @@ export default function Matches() {
 }
 
 const styles = StyleSheet.create({
-  topbar: {
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-    paddingHorizontal: spacing.lg, paddingTop: 58, paddingBottom: spacing.md,
-  },
-  wcPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8, borderWidth: 1, borderColor: colors.border },
-  wc: { color: colors.textDim, fontSize: 12, fontWeight: "700" },
-  bell: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
-  list: { paddingHorizontal: spacing.lg, paddingBottom: 110 },
+  topbar: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: spacing.lg, paddingTop: 56, paddingBottom: spacing.sm },
+  hi: { color: colors.textDim, fontSize: 14, fontWeight: "800" },
+  title: { color: colors.ink, fontSize: 28, fontWeight: "900", letterSpacing: -0.6 },
+  bell: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  list: { paddingHorizontal: spacing.lg, paddingBottom: 120 },
   filters: { flexDirection: "row", gap: spacing.sm, paddingVertical: spacing.md, flexWrap: "wrap" },
-  filterBtn: {
-    flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: spacing.lg, paddingVertical: 9,
-    borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
-  },
-  filterActive: { backgroundColor: colors.bleu, borderColor: colors.bleu },
-  filterText: { color: colors.textDim, fontWeight: "800", fontSize: 13 },
-  filterTextActive: { color: colors.blanc },
-  liveDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.blanc },
-  badge: { backgroundColor: colors.rouge, borderRadius: 999, minWidth: 18, height: 18, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 },
+  chip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: spacing.lg, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: colors.surface },
+  chipText: { color: colors.ink, fontWeight: "900", fontSize: 13 },
+  liveDot: { width: 7, height: 7, borderRadius: 4 },
+  badge: { borderRadius: 999, minWidth: 18, height: 18, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 },
   badgeText: { color: colors.blanc, fontSize: 10, fontWeight: "900" },
 });

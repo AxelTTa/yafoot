@@ -31,7 +31,7 @@
     "plugins": [
       "expo-router",
       "expo-asset",
-      "expo-font"
+      ["expo-font", { "fonts": ["./assets/fonts/Ionicons.ttf"] }]
     ],
     "extra": {
       "supabaseUrl": "https://zfsgclwyaapgwxjtzvyd.supabase.co",

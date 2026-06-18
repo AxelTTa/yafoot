@@ -10,10 +10,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Button, Card, Empty, Loading } from "../../components/ui";
+import { Button, Card, Empty, Icon, IconTile, Loading, ScreenHeader } from "../../components/ui";
 import { createLeague, fetchMyLeagues, joinLeague } from "../../lib/api";
 import { notify, confirmAsync } from "../../lib/notify";
-import { colors, radius, spacing } from "../../lib/theme";
+import { accentFor, colors, radius, spacing } from "../../lib/theme";
 import { League } from "../../lib/types";
 
 export default function Leagues() {
@@ -77,34 +77,33 @@ export default function Leagues() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <View style={styles.header}>
-        <Text style={styles.title}>🏆 Leagues</Text>
-        <View style={{ flexDirection: "row", gap: spacing.sm }}>
-          <Button title="+ Create" onPress={() => setModal("create")} style={{ flex: 1, height: 44 }} />
-          <Button title="Join" variant="outline" onPress={() => setModal("join")} style={{ flex: 1, height: 44 }} />
-        </View>
-      </View>
+      <ScreenHeader title="Leagues" subtitle="Compete with your friends" />
 
       <FlatList
         data={leagues}
         keyExtractor={(l) => String(l.id)}
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md, paddingBottom: 110 }}
+        contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: spacing.md, paddingBottom: 120 }}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
+          <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.greenDark} />
         }
-        renderItem={({ item }) => (
-          <Pressable onPress={() => router.push(`/league/${item.id}`)}>
-            <Card style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.lgName}>{item.name}</Text>
-                <Text style={styles.lgCode}>Code: {item.code}</Text>
-              </View>
-              <Text style={{ color: colors.textFaint, fontSize: 20 }}>›</Text>
-            </Card>
-          </Pressable>
+        ListHeaderComponent={
+          <View style={{ flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md }}>
+            <Button title="Create" icon="add" variant="green" onPress={() => setModal("create")} style={{ flex: 1, height: 48 }} />
+            <Button title="Join" icon="enter-outline" variant="purple" onPress={() => setModal("join")} style={{ flex: 1, height: 48 }} />
+          </View>
+        }
+        renderItem={({ item, index }) => (
+          <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing.md }} onPress={() => router.push(`/league/${item.id}`)}>
+            <IconTile name="trophy" color={accentFor(index)} size={46} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.lgName}>{item.name}</Text>
+              <Text style={styles.lgCode}>Code {item.code}</Text>
+            </View>
+            <Icon name="chevron-forward" size={22} color={colors.textFaint} />
+          </Card>
         )}
         ListEmptyComponent={
-          <Empty icon="🏆" title="No leagues yet" sub="Create a league and invite friends, or join one with a code." />
+          <Empty icon="trophy-outline" title="No leagues yet" sub="Create a league and invite friends, or join one with a code." />
         }
       />
 
@@ -133,7 +132,7 @@ export default function Leagues() {
                   value={code}
                   onChangeText={setCode}
                 />
-                <Button title="Join League" variant="red" onPress={doJoin} loading={busy} />
+                <Button title="Join League" variant="purple" onPress={doJoin} loading={busy} />
               </>
             )}
           </Pressable>
@@ -169,7 +168,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: { color: colors.text, fontSize: 20, fontWeight: "900" },
   input: {
-    backgroundColor: colors.bg,
+    backgroundColor: colors.surfaceAlt,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,

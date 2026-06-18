@@ -1,21 +1,13 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../lib/theme";
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+function TabIcon({ name, focused }: { name: any; focused: boolean }) {
   return (
-    <View
-      style={{
-        width: 46,
-        height: 32,
-        borderRadius: 16,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: focused ? colors.bleu : "transparent",
-      }}
-    >
-      <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.55 }}>{emoji}</Text>
+    <View style={{ width: 50, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: focused ? colors.green : "transparent" }}>
+      <Ionicons name={name} size={22} color={focused ? colors.blanc : "rgba(255,255,255,0.6)"} />
     </View>
   );
 }
@@ -27,26 +19,31 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.blanc,
-        tabBarInactiveTintColor: colors.textFaint,
+        tabBarInactiveTintColor: "rgba(255,255,255,0.6)",
         tabBarStyle: {
-          backgroundColor: colors.elevated,
-          borderTopColor: colors.border,
-          borderTopWidth: 1,
-          borderTopLeftRadius: 26,
-          borderTopRightRadius: 26,
-          height: 64 + insets.bottom,
-          paddingBottom: insets.bottom + 8,
-          paddingTop: 10,
+          backgroundColor: colors.surfaceDark,
+          borderTopWidth: 0,
+          borderRadius: 30,
+          height: 64,
+          paddingTop: 8,
+          paddingBottom: 8,
+          marginHorizontal: 14,
+          marginBottom: insets.bottom + 8,
           position: "absolute",
+          elevation: 12,
+          shadowColor: "#000",
+          shadowOpacity: 0.25,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 8 },
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 1 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 0 },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: "Matches", tabBarIcon: ({ focused }) => <TabIcon emoji="⚽" focused={focused} /> }} />
-      <Tabs.Screen name="predict" options={{ title: "Predict", tabBarIcon: ({ focused }) => <TabIcon emoji="🎯" focused={focused} /> }} />
-      <Tabs.Screen name="leagues" options={{ title: "Leagues", tabBarIcon: ({ focused }) => <TabIcon emoji="🏆" focused={focused} /> }} />
-      <Tabs.Screen name="social" options={{ title: "Friends", tabBarIcon: ({ focused }) => <TabIcon emoji="👥" focused={focused} /> }} />
-      <Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} /> }} />
+      <Tabs.Screen name="index" options={{ title: "Matches", tabBarIcon: ({ focused }) => <TabIcon name="football" focused={focused} /> }} />
+      <Tabs.Screen name="predict" options={{ title: "Predict", tabBarIcon: ({ focused }) => <TabIcon name="create" focused={focused} /> }} />
+      <Tabs.Screen name="leagues" options={{ title: "Leagues", tabBarIcon: ({ focused }) => <TabIcon name="trophy" focused={focused} /> }} />
+      <Tabs.Screen name="social" options={{ title: "Friends", tabBarIcon: ({ focused }) => <TabIcon name="people" focused={focused} /> }} />
+      <Tabs.Screen name="profile" options={{ title: "Profile", tabBarIcon: ({ focused }) => <TabIcon name="person" focused={focused} /> }} />
     </Tabs>
   );
 }

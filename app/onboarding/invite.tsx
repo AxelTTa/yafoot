@@ -37,7 +37,7 @@ export default function OnboardingInvite() {
         <View style={{ alignItems: "center", marginBottom: spacing.xl }}>
           <Logo size={40} />
         </View>
-        <Text style={styles.h}>You're in, @{profile?.username}! 🎉</Text>
+        <Text style={styles.h}>You're in, @{profile?.username}!</Text>
         <Text style={styles.sub}>YaFoot is better with friends. Send them your link — when they open it, you're instantly connected.</Text>
 
         <Card variant="hero" style={{ marginTop: spacing.xl, gap: spacing.md }}>
@@ -48,7 +48,7 @@ export default function OnboardingInvite() {
           </Pressable>
         </Card>
 
-        <Button title="Share with friends" variant="light" onPress={share} style={{ marginTop: spacing.lg }} />
+        <Button title="Share with friends" variant="yellow" onPress={share} style={{ marginTop: spacing.lg }} />
         <Button title="Continue to app" variant="ghost" onPress={() => router.replace("/(tabs)")} style={{ marginTop: spacing.xs }} />
         <View style={{ alignItems: "center", marginTop: spacing.lg }}><Tricolor width={70} /></View>
       </View>

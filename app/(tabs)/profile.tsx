@@ -1,7 +1,7 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Avatar, Card, ScreenHeader, ScrollView, Tricolor } from "../../components/ui";
+import { Avatar, Card, Icon, ScreenHeader, ScrollView, Tricolor } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { fetchMyForecasts } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
@@ -47,7 +47,7 @@ export default function Profile() {
         title="Profile"
         right={
           <Pressable onPress={() => router.push("/settings")} style={styles.gear} hitSlop={8}>
-            <Text style={{ fontSize: 20 }}>⚙️</Text>
+            <Icon name="settings-outline" size={20} color={colors.ink} />
           </Pressable>
         }
       />

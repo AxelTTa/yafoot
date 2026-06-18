@@ -1,7 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,7 +13,11 @@ import {
   ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { colors, radius, shadow, spacing } from "../lib/theme";
+import { accentFor, colors, radius, shadow, spacing } from "../lib/theme";
+
+export function Icon({ name, size = 22, color = colors.ink }: { name: any; size?: number; color?: string }) {
+  return <Ionicons name={name} size={size} color={color} />;
+}
 
 export function Screen({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
   return (
@@ -21,33 +27,28 @@ export function Screen({ children, style }: { children: React.ReactNode; style?:
   );
 }
 
-// Big tab-screen header (no back). Optional right action.
+// Big greeting-style header (lime bg, dark text). Optional right action.
 export function ScreenHeader({
   title,
-  emoji,
   subtitle,
   right,
 }: {
   title: string;
-  emoji?: string;
   subtitle?: string;
   right?: React.ReactNode;
 }) {
   return (
     <View style={styles.screenHeader}>
       <View style={{ flex: 1 }}>
-        <Text style={styles.screenTitle}>
-          {emoji ? `${emoji} ` : ""}
-          {title}
-        </Text>
         {subtitle ? <Text style={styles.screenSub}>{subtitle}</Text> : null}
+        <Text style={styles.screenTitle}>{title}</Text>
       </View>
       {right}
     </View>
   );
 }
 
-// Detail-screen header with a clearly visible round back button.
+// Detail-screen header with a dark round back button (clearly visible on lime).
 export function Header({ title, right }: { title?: string; right?: React.ReactNode }) {
   const router = useRouter();
   return (
@@ -57,11 +58,9 @@ export function Header({ title, right }: { title?: string; right?: React.ReactNo
         style={({ pressed }) => [styles.backBtn, pressed && { opacity: 0.7 }]}
         hitSlop={10}
       >
-        <Text style={styles.backArrow}>‹</Text>
+        <Icon name="chevron-back" size={24} color={colors.blanc} />
       </Pressable>
-      <Text style={styles.headerTitle} numberOfLines={1}>
-        {title ?? ""}
-      </Text>
+      <Text style={styles.headerTitle} numberOfLines={1}>{title ?? ""}</Text>
       <View style={styles.backBtnGhost}>{right}</View>
     </View>
   );
@@ -80,18 +79,24 @@ export function Card({
 }) {
   const v =
     variant === "hero"
-      ? { backgroundColor: colors.bleu, borderColor: colors.bleu }
+      ? { backgroundColor: colors.surfaceDark }
       : variant === "flat"
-      ? { backgroundColor: colors.surfaceAlt, borderColor: colors.borderSoft }
-      : { backgroundColor: colors.surface, borderColor: colors.border };
+      ? { backgroundColor: colors.surfaceAlt }
+      : { backgroundColor: colors.surface };
   const Comp: any = onPress ? Pressable : View;
   return (
-    <Comp
-      onPress={onPress}
-      style={({ pressed }: any) => [styles.card, v, pressed && onPress && { opacity: 0.92 }, style]}
-    >
+    <Comp onPress={onPress} style={({ pressed }: any) => [styles.card, shadow, v, pressed && onPress && { opacity: 0.93 }, style]}>
       {children}
     </Comp>
+  );
+}
+
+// Colored rounded icon tile (ref: list-row icons + action buttons).
+export function IconTile({ name, color = colors.green, size = 46, icon = colors.blanc }: { name: any; color?: string; size?: number; icon?: string }) {
+  return (
+    <View style={{ width: size, height: size, borderRadius: size * 0.32, backgroundColor: color, alignItems: "center", justifyContent: "center" }}>
+      <Icon name={name} size={size * 0.5} color={icon} />
+    </View>
   );
 }
 
@@ -101,110 +106,70 @@ export function Button({
   variant = "primary",
   loading,
   disabled,
+  icon,
   style,
 }: {
   title: string;
   onPress?: () => void;
-  variant?: "primary" | "red" | "ghost" | "outline" | "light";
+  variant?: "primary" | "green" | "yellow" | "purple" | "dark" | "outline" | "ghost";
   loading?: boolean;
   disabled?: boolean;
+  icon?: any;
   style?: ViewStyle;
 }) {
-  const bg =
-    variant === "primary"
-      ? colors.bleu
-      : variant === "red"
-      ? colors.rouge
-      : variant === "light"
-      ? colors.blanc
-      : "transparent";
-  const txt =
-    variant === "ghost" || variant === "outline"
-      ? colors.text
-      : variant === "light"
-      ? colors.bleuDeep
-      : colors.blanc;
+  const map: Record<string, { bg: string; fg: string; border?: string }> = {
+    primary: { bg: colors.greenDark, fg: colors.blanc },
+    green: { bg: colors.green, fg: colors.blanc },
+    yellow: { bg: colors.yellow, fg: colors.ink },
+    purple: { bg: colors.purple, fg: colors.blanc },
+    dark: { bg: colors.surfaceDark, fg: colors.blanc },
+    outline: { bg: "transparent", fg: colors.ink, border: colors.ink },
+    ghost: { bg: "transparent", fg: colors.textDim },
+  };
+  const c = map[variant];
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
       style={({ pressed }) => [
         styles.btn,
-        { backgroundColor: bg, borderColor: colors.border, borderWidth: variant === "outline" ? 1.5 : 0 },
+        { backgroundColor: c.bg, borderColor: c.border ?? "transparent", borderWidth: c.border ? 2 : 0 },
         (disabled || loading) && { opacity: 0.45 },
-        pressed && { opacity: 0.85, transform: [{ scale: 0.99 }] },
+        pressed && { opacity: 0.88, transform: [{ scale: 0.99 }] },
         style,
       ]}
     >
-      {loading ? <ActivityIndicator color={txt} /> : <Text style={[styles.btnText, { color: txt }]}>{title}</Text>}
+      {loading ? (
+        <ActivityIndicator color={c.fg} />
+      ) : (
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          {icon ? <Icon name={icon} size={18} color={c.fg} /> : null}
+          <Text style={[styles.btnText, { color: c.fg }]}>{title}</Text>
+        </View>
+      )}
     </Pressable>
   );
 }
 
-export function Chip({
-  label,
-  color = colors.bleu,
-  bg,
-  style,
-  dot,
-}: {
-  label: string;
-  color?: string;
-  bg?: string;
-  style?: ViewStyle;
-  dot?: boolean;
-}) {
+export function Chip({ label, color = colors.greenDark, bg, style, dot }: { label: string; color?: string; bg?: string; style?: ViewStyle; dot?: boolean }) {
   return (
-    <View style={[styles.chip, { backgroundColor: bg ?? "rgba(47,107,255,0.16)" }, style]}>
+    <View style={[styles.chip, { backgroundColor: bg ?? "rgba(0,0,0,0.06)" }, style]}>
       {dot ? <View style={[styles.chipDot, { backgroundColor: color }]} /> : null}
       <Text style={[styles.chipText, { color }]}>{label}</Text>
     </View>
   );
 }
-// back-compat alias
 export const Pill = Chip;
 
-export function Avatar({
-  name,
-  size = 44,
-  url,
-  ring,
-}: {
-  name?: string | null;
-  size?: number;
-  url?: string | null;
-  ring?: boolean;
-}) {
-  const initials = (name ?? "?")
-    .split(/[\s_]+/)
-    .map((s) => s[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+export function Avatar({ name, size = 44, url, ring, color }: { name?: string | null; size?: number; url?: string | null; ring?: boolean; color?: string }) {
+  const initials = (name ?? "?").split(/[\s_]+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
   if (url) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Image } = require("react-native");
-    return (
-      <Image
-        source={{ uri: url }}
-        style={{ width: size, height: size, borderRadius: size / 2, borderWidth: ring ? 2 : 1, borderColor: ring ? colors.bleu : colors.border }}
-      />
-    );
+    return <Image source={{ uri: url }} style={{ width: size, height: size, borderRadius: size / 2, borderWidth: ring ? 3 : 0, borderColor: colors.surfaceDark }} />;
   }
+  const bg = color ?? accentFor(initials.charCodeAt(0) || 0);
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: colors.bleuSoft,
-        alignItems: "center",
-        justifyContent: "center",
-        borderWidth: ring ? 2 : 1,
-        borderColor: ring ? colors.bleu : colors.border,
-      }}
-    >
-      <Text style={{ color: colors.text, fontWeight: "900", fontSize: size * 0.38 }}>{initials}</Text>
+    <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: bg, alignItems: "center", justifyContent: "center", borderWidth: ring ? 3 : 0, borderColor: colors.surfaceDark }}>
+      <Text style={{ color: colors.blanc, fontWeight: "900", fontSize: size * 0.4 }}>{initials}</Text>
     </View>
   );
 }
@@ -212,30 +177,28 @@ export function Avatar({
 export function Loading() {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.bg }}>
-      <ActivityIndicator color={colors.bleu} size="large" />
+      <ActivityIndicator color={colors.greenDark} size="large" />
     </View>
   );
 }
 
-export function Empty({ icon = "⚽", title, sub }: { icon?: string; title: string; sub?: string }) {
+export function Empty({ icon = "football", title, sub, color = colors.purple }: { icon?: any; title: string; sub?: string; color?: string }) {
   return (
-    <View style={{ alignItems: "center", justifyContent: "center", padding: spacing.xxl, gap: 8 }}>
-      <View style={styles.emptyIcon}>
-        <Text style={{ fontSize: 40 }}>{icon}</Text>
-      </View>
-      <Text style={{ color: colors.text, fontSize: 17, fontWeight: "800" }}>{title}</Text>
-      {sub ? <Text style={{ color: colors.textDim, textAlign: "center", fontSize: 14 }}>{sub}</Text> : null}
+    <View style={{ alignItems: "center", justifyContent: "center", padding: spacing.xxl, gap: 10 }}>
+      <IconTile name={icon} color={color} size={72} />
+      <Text style={{ color: colors.ink, fontSize: 18, fontWeight: "900" }}>{title}</Text>
+      {sub ? <Text style={{ color: colors.textDim, textAlign: "center", fontSize: 14, fontWeight: "600" }}>{sub}</Text> : null}
     </View>
   );
 }
 
-// Tricolor signature stripe
-export function Tricolor({ width = 60, height = 5 }: { width?: number; height?: number }) {
+// retained for back-compat (now a small row of accent dots)
+export function Tricolor({ width = 60 }: { width?: number; height?: number }) {
   return (
-    <View style={{ flexDirection: "row", width, height, borderRadius: height / 2, overflow: "hidden" }}>
-      <View style={{ flex: 1, backgroundColor: colors.bleu }} />
-      <View style={{ flex: 1, backgroundColor: colors.blanc }} />
-      <View style={{ flex: 1, backgroundColor: colors.rouge }} />
+    <View style={{ flexDirection: "row", gap: 5 }}>
+      {[colors.green, colors.yellow, colors.purple].map((c, i) => (
+        <View key={i} style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: c }} />
+      ))}
     </View>
   );
 }
@@ -243,64 +206,17 @@ export function Tricolor({ width = 60, height = 5 }: { width?: number; height?: 
 export { ScrollView };
 
 const styles = StyleSheet.create({
-  screenHeader: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    paddingHorizontal: spacing.lg,
-    paddingTop: 60,
-    paddingBottom: spacing.lg,
-    gap: spacing.md,
-  },
-  screenTitle: { color: colors.text, fontSize: 30, fontWeight: "900", letterSpacing: -0.5 },
-  screenSub: { color: colors.textDim, fontSize: 14, fontWeight: "600", marginTop: 4 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.md,
-    paddingTop: 56,
-    paddingBottom: spacing.md,
-    gap: spacing.sm,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  backBtnGhost: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
-  backArrow: { color: colors.text, fontSize: 30, fontWeight: "900", marginTop: -4 },
-  headerTitle: { flex: 1, color: colors.text, fontSize: 18, fontWeight: "800", textAlign: "center" },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  btn: {
-    height: 54,
-    borderRadius: radius.lg,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: spacing.lg,
-  },
-  btnText: { fontWeight: "800", fontSize: 16, letterSpacing: 0.2 } as TextStyle,
+  screenHeader: { flexDirection: "row", alignItems: "flex-end", paddingHorizontal: spacing.lg, paddingTop: 58, paddingBottom: spacing.lg, gap: spacing.md },
+  screenTitle: { color: colors.ink, fontSize: 30, fontWeight: "900", letterSpacing: -0.6 },
+  screenSub: { color: colors.textDim, fontSize: 14, fontWeight: "700" },
+  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: spacing.md, paddingTop: 54, paddingBottom: spacing.md, gap: spacing.sm },
+  backBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center" },
+  backBtnGhost: { minWidth: 42, height: 42, alignItems: "flex-end", justifyContent: "center" },
+  headerTitle: { flex: 1, color: colors.ink, fontSize: 19, fontWeight: "900", textAlign: "center" },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg },
+  btn: { height: 54, borderRadius: radius.pill, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.lg },
+  btnText: { fontWeight: "900", fontSize: 16, letterSpacing: 0.2 } as TextStyle,
   chip: { flexDirection: "row", alignItems: "center", gap: 5, paddingHorizontal: 11, paddingVertical: 5, borderRadius: radius.pill },
   chipDot: { width: 7, height: 7, borderRadius: 4 },
-  chipText: { fontSize: 11, fontWeight: "800", letterSpacing: 0.3 },
-  emptyIcon: {
-    width: 84,
-    height: 84,
-    borderRadius: 42,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 6,
-  },
+  chipText: { fontSize: 12, fontWeight: "900", letterSpacing: 0.2 },
 });

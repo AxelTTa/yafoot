@@ -6,6 +6,15 @@ import { AuthProvider, useAuth } from "../lib/auth";
 import { Loading } from "../components/ui";
 import { colors } from "../lib/theme";
 
+// Web: vector-icons' own @font-face for "ionicons" 404s in static exports, so glyphs
+// render blank. Inject a working @font-face pointing to the stable /fonts/ionicons.ttf.
+if (typeof document !== "undefined" && !document.getElementById("yf-ionicons")) {
+  const s = document.createElement("style");
+  s.id = "yf-ionicons";
+  s.textContent = "@font-face{font-family:'ionicons';src:url('/fonts/ionicons.ttf') format('truetype');font-display:block;}";
+  document.head.appendChild(s);
+}
+
 function RootNav() {
   const { session, loading } = useAuth();
   const segments = useSegments();
@@ -41,7 +50,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <RootNav />
       </AuthProvider>
     </SafeAreaProvider>
