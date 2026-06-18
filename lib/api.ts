@@ -72,11 +72,16 @@ export async function leagueLeaderboard(leagueId: number) {
 
 // ----- friends -----
 export async function searchUsers(q: string) {
-  const { data } = await supabase
+  const safe = q.replace(/[%_,*]/g, "").trim();
+  if (!safe) return [];
+  const { data: u } = await supabase.auth.getUser();
+  let query = supabase
     .from("profiles")
     .select("id, username, display_name, avatar_url, total_points")
-    .ilike("username", `%${q}%`)
+    .ilike("username", `%${safe}%`)
     .limit(20);
+  if (u.user?.id) query = query.neq("id", u.user.id); // don't return yourself
+  const { data } = await query;
   return data ?? [];
 }
 

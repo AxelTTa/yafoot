@@ -2,6 +2,7 @@ import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { colors, radius, spacing } from "../lib/theme";
 import { Match, Prediction, isFinished, isLive } from "../lib/types";
+import { prettyTeam, teamFlag } from "../lib/teams";
 
 function kickoffLabel(iso: string | null) {
   if (!iso) return "TBD";
@@ -50,9 +51,9 @@ export default function MatchCard({
 
       <View style={styles.row}>
         <View style={styles.team}>
-          <Text style={styles.flag}>{match.home_flag ?? "🏳️"}</Text>
+          <Text style={styles.flag}>{teamFlag(match.home_team, match.home_flag)}</Text>
           <Text style={styles.teamName} numberOfLines={1}>
-            {match.home_team}
+            {prettyTeam(match.home_team)}
           </Text>
         </View>
         <View style={styles.scoreBox}>
@@ -66,9 +67,9 @@ export default function MatchCard({
         </View>
         <View style={[styles.team, { justifyContent: "flex-end" }]}>
           <Text style={[styles.teamName, { textAlign: "right" }]} numberOfLines={1}>
-            {match.away_team}
+            {prettyTeam(match.away_team)}
           </Text>
-          <Text style={styles.flag}>{match.away_flag ?? "🏳️"}</Text>
+          <Text style={styles.flag}>{teamFlag(match.away_team, match.away_flag)}</Text>
         </View>
       </View>
 

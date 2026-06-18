@@ -28,6 +28,7 @@ const ISO2 = {
   "Ukraine":"UA","United States":"US","USA":"US","Uruguay":"UY","Wales":"GB","Algeria":"DZ","Chile":"CL",
   "Honduras":"HN","Uzbekistan":"UZ","Jordan":"JO","Cape Verde":"CV","Curacao":"CW","Haiti":"HT",
   "New Caledonia":"NC","Bolivia":"BO","Iraq":"IQ","Congo DR":"CD","DR Congo":"CD",
+  "Bosnia & Herzegovina":"BA","Bosnia and Herzegovina":"BA","Curaçao":"CW","Curacao":"CW",
 };
 const code3 = {
   AR:"ARG",AU:"AUS",AT:"AUT",BE:"BEL",BR:"BRA",CM:"CMR",CA:"CAN",CO:"COL",CR:"CRC",HR:"CRO",CZ:"CZE",
@@ -35,7 +36,7 @@ const code3 = {
   JM:"JAM",JP:"JPN",MX:"MEX",MA:"MAR",NL:"NED",NZ:"NZL",NG:"NGA",NO:"NOR",PA:"PAN",PY:"PAR",PE:"PER",
   PL:"POL",PT:"POR",QA:"QAT",SA:"KSA",SN:"SEN",RS:"SRB",SK:"SVK",SI:"SVN",ZA:"RSA",KR:"KOR",ES:"ESP",
   SE:"SWE",CH:"SUI",TN:"TUN",TR:"TUR",UA:"UKR",US:"USA",UY:"URU",DZ:"ALG",CL:"CHI",HN:"HON",UZ:"UZB",
-  JO:"JOR",CV:"CPV",CW:"CUW",HT:"HAI",NC:"NCL",BO:"BOL",IQ:"IRQ",CD:"COD",
+  JO:"JOR",CV:"CPV",CW:"CUW",HT:"HAI",NC:"NCL",BO:"BOL",IQ:"IRQ",CD:"COD",BA:"BIH",
 };
 function flagEmoji(iso2) {
   if (!iso2 || iso2.length !== 2) return "\u{1F3F3}"; // white flag fallback

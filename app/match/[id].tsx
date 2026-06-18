@@ -1,10 +1,12 @@
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, Loading, Pill } from "../../components/ui";
 import { fetchMatch, fetchMyPredictions, savePrediction } from "../../lib/api";
+import { notify, confirmAsync } from "../../lib/notify";
 import { colors, radius, spacing } from "../../lib/theme";
 import { Match, Prediction, isUpcoming } from "../../lib/types";
+import { prettyTeam, teamFlag } from "../../lib/teams";
 
 function Stepper({ value, set, color }: { value: number; set: (n: number) => void; color: string }) {
   return (
@@ -54,10 +56,10 @@ export default function MatchDetail() {
     setSaving(true);
     try {
       await savePrediction(match!.id, home, away);
-      Alert.alert("Prediction saved", `${match!.home_team} ${home} - ${away} ${match!.away_team}`);
+      notify("Prediction saved", `${match!.home_team} ${home} - ${away} ${match!.away_team}`);
       router.back();
     } catch (e: any) {
-      Alert.alert("Could not save", e.message);
+      notify("Could not save", e.message);
     } finally {
       setSaving(false);
     }
@@ -76,8 +78,8 @@ export default function MatchDetail() {
       <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg }}>
         <View style={styles.hero}>
           <View style={styles.heroTeam}>
-            <Text style={styles.heroFlag}>{match.home_flag}</Text>
-            <Text style={styles.heroName}>{match.home_team}</Text>
+            <Text style={styles.heroFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
+            <Text style={styles.heroName}>{prettyTeam(match.home_team)}</Text>
           </View>
           <View style={{ alignItems: "center", gap: 4 }}>
             {match.status === "FINISHED" || match.status === "IN_PLAY" || match.status === "PAUSED" ? (
@@ -106,8 +108,8 @@ export default function MatchDetail() {
             )}
           </View>
           <View style={styles.heroTeam}>
-            <Text style={styles.heroFlag}>{match.away_flag}</Text>
-            <Text style={styles.heroName}>{match.away_team}</Text>
+            <Text style={styles.heroFlag}>{teamFlag(match.away_team, match.away_flag)}</Text>
+            <Text style={styles.heroName}>{prettyTeam(match.away_team)}</Text>
           </View>
         </View>
 
@@ -119,11 +121,11 @@ export default function MatchDetail() {
             <Text style={styles.scoringHint}>Exact score = 3 pts · Right result = 1 pt</Text>
             <View style={styles.steppers}>
               <View style={{ alignItems: "center", flex: 1, gap: 8 }}>
-                <Text style={styles.stepFlag}>{match.home_flag}</Text>
+                <Text style={styles.stepFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
                 <Stepper value={home} set={setHome} color={colors.bleu} />
               </View>
               <View style={{ alignItems: "center", flex: 1, gap: 8 }}>
-                <Text style={styles.stepFlag}>{match.away_flag}</Text>
+                <Text style={styles.stepFlag}>{teamFlag(match.away_team, match.away_flag)}</Text>
                 <Stepper value={away} set={setAway} color={colors.rouge} />
               </View>
             </View>

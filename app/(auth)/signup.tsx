@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import { Button, Screen } from "../../components/ui";
 import { Logo } from "../../components/Brand";
 import { supabase } from "../../lib/supabase";
@@ -11,18 +11,28 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   async function signUp() {
-    if (username.trim().length < 3) return Alert.alert("Pick a username", "At least 3 characters.");
+    setError(null);
+    setNotice(null);
+    if (username.trim().length < 3) return setError("Username must be at least 3 characters.");
+    if (!email.trim().includes("@")) return setError("Enter a valid email address.");
+    if (password.length < 6) return setError("Password must be at least 6 characters.");
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: { data: { username: username.trim().toLowerCase(), display_name: username.trim() } },
     });
     setLoading(false);
-    if (error) Alert.alert("Sign up failed", error.message);
-    else Alert.alert("Welcome to YaFoot!", "Your account is ready. Start predicting!");
+    if (error) {
+      setError(/already registered/i.test(error.message) ? "That email is already registered. Try signing in." : error.message);
+    } else if (!data.session) {
+      setNotice("Account created! Check your email to confirm, then sign in.");
+    }
+    // with auto-confirm, data.session is set and the auth listener navigates automatically
   }
 
   return (
@@ -60,8 +70,11 @@ export default function Signup() {
             placeholderTextColor={colors.textFaint}
             secureTextEntry
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(t) => { setPassword(t); setError(null); }}
+            onSubmitEditing={signUp}
           />
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {notice ? <Text style={styles.notice}>{notice}</Text> : null}
           <Button title="Create Account" variant="red" onPress={signUp} loading={loading} />
         </View>
 
@@ -89,4 +102,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   footer: { flexDirection: "row", justifyContent: "center", marginTop: spacing.xl },
+  error: { color: colors.rougeSoft, fontWeight: "600", textAlign: "center", marginTop: -4 },
+  notice: { color: colors.live, fontWeight: "600", textAlign: "center", marginTop: -4 },
 });

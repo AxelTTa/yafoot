@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import MatchCard from "../../components/MatchCard";
 import { Empty, Loading } from "../../components/ui";
@@ -21,9 +21,11 @@ export default function Predict() {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   const upcoming = useMemo(() => matches.filter((m) => isUpcoming(m.status)), [matches]);
   const predictedCount = upcoming.filter((m) => preds[m.id]).length;

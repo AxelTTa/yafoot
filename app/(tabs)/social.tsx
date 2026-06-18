@@ -1,7 +1,6 @@
-import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
-  Alert,
   FlatList,
   Pressable,
   RefreshControl,
@@ -12,6 +11,7 @@ import {
 } from "react-native";
 import { Avatar, Button, Card, Empty, Loading } from "../../components/ui";
 import { fetchFriends, respondFriend, searchUsers, sendFriendRequest } from "../../lib/api";
+import { notify, confirmAsync } from "../../lib/notify";
 import { colors, radius, spacing } from "../../lib/theme";
 
 export default function Social() {
@@ -30,9 +30,11 @@ export default function Social() {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   async function doSearch(text: string) {
     setQ(text);
@@ -45,11 +47,11 @@ export default function Social() {
   async function add(uid: string) {
     try {
       await sendFriendRequest(uid);
-      Alert.alert("Request sent");
+      notify("Request sent");
       setResults((r) => r.filter((u) => u.id !== uid));
       load();
     } catch (e: any) {
-      Alert.alert("Error", e.message);
+      notify("Error", e.message);
     }
   }
 

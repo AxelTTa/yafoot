@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Empty, Loading } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, spacing } from "../../lib/theme";
 
@@ -68,7 +69,11 @@ export default function Chat() {
     const body = text.trim();
     if (!body || !me) return;
     setText("");
-    await supabase.from("direct_messages").insert({ sender_id: me, recipient_id: friendId, body });
+    const { error } = await supabase.from("direct_messages").insert({ sender_id: me, recipient_id: friendId, body });
+    if (error) {
+      setText(body);
+      notify("Message not sent", error.message);
+    }
   }
 
   if (loading) return <Loading />;

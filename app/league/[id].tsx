@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { Avatar, Empty, Loading } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { notify } from "../../lib/notify";
 import { leagueLeaderboard } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, spacing } from "../../lib/theme";
@@ -25,6 +26,7 @@ export default function LeagueDetail() {
   const { session } = useAuth();
   const me = session?.user?.id;
   const [tab, setTab] = useState<"standings" | "chat">("standings");
+  const [league, setLeague] = useState<{ name: string; code: string } | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
@@ -49,6 +51,12 @@ export default function LeagueDetail() {
   }, [leagueId]);
 
   useEffect(() => {
+    supabase
+      .from("leagues")
+      .select("name, code")
+      .eq("id", leagueId)
+      .single()
+      .then(({ data }) => data && setLeague(data as any));
     loadBoard();
     loadMsgs();
     const ch = supabase
@@ -56,7 +64,10 @@ export default function LeagueDetail() {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "league_messages", filter: `league_id=eq.${leagueId}` },
-        (payload) => setMsgs((m) => [...m, payload.new as Msg])
+        (payload) => {
+          const n = payload.new as Msg;
+          setMsgs((m) => (m.some((x) => x.id === n.id) ? m : [...m, n]));
+        }
       )
       .subscribe();
     return () => {
@@ -68,7 +79,11 @@ export default function LeagueDetail() {
     const body = text.trim();
     if (!body || !me) return;
     setText("");
-    await supabase.from("league_messages").insert({ league_id: leagueId, sender_id: me, body });
+    const { error } = await supabase.from("league_messages").insert({ league_id: leagueId, sender_id: me, body });
+    if (error) {
+      setText(body); // restore so the message isn't lost
+      notify("Message not sent", error.message);
+    }
   }
 
   if (loading) return <Loading />;
@@ -80,7 +95,7 @@ export default function LeagueDetail() {
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "League",
+          title: league?.name ?? "League",
           headerStyle: { backgroundColor: colors.surface },
           headerTintColor: colors.text,
         }}
@@ -100,6 +115,25 @@ export default function LeagueDetail() {
           data={rows}
           keyExtractor={(r) => r.user_id}
           contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: 40 }}
+          ListHeaderComponent={
+            league ? (
+              <Pressable
+                onPress={() => {
+                  if (typeof navigator !== "undefined" && navigator.clipboard) {
+                    navigator.clipboard.writeText(league.code).catch(() => {});
+                  }
+                  notify("Invite code copied", `Share "${league.code}" so friends can join ${league.name}.`);
+                }}
+                style={styles.invite}
+              >
+                <View>
+                  <Text style={styles.inviteLabel}>INVITE CODE</Text>
+                  <Text style={styles.inviteCode}>{league.code}</Text>
+                </View>
+                <Text style={styles.inviteShare}>Share ›</Text>
+              </Pressable>
+            ) : null
+          }
           renderItem={({ item, index }) => (
             <View style={[styles.rankRow, item.user_id === me && { borderColor: colors.bleu }]}>
               <Text style={styles.rank}>{medal(index)}</Text>
@@ -173,6 +207,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  invite: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.bleuSoft, borderRadius: radius.md, padding: spacing.md, borderWidth: 1, borderColor: colors.bleu, marginBottom: spacing.xs },
+  inviteLabel: { color: colors.textDim, fontSize: 10, fontWeight: "800", letterSpacing: 1 },
+  inviteCode: { color: colors.blanc, fontSize: 22, fontWeight: "900", letterSpacing: 3 },
+  inviteShare: { color: colors.bleu, fontWeight: "800", fontSize: 14 },
   rank: { color: colors.text, fontWeight: "900", fontSize: 16, width: 28, textAlign: "center" },
   name: { color: colors.text, fontWeight: "800", fontSize: 14 },
   handle: { color: colors.textFaint, fontSize: 12 },

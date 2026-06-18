@@ -1,7 +1,6 @@
-import { useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
-  Alert,
   FlatList,
   Modal,
   Pressable,
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 import { Button, Card, Empty, Loading } from "../../components/ui";
 import { createLeague, fetchMyLeagues, joinLeague } from "../../lib/api";
+import { notify, confirmAsync } from "../../lib/notify";
 import { colors, radius, spacing } from "../../lib/theme";
 import { League } from "../../lib/types";
 
@@ -35,21 +35,23 @@ export default function Leagues() {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   async function doCreate() {
-    if (name.trim().length < 3) return Alert.alert("Name too short", "At least 3 characters.");
+    if (name.trim().length < 3) return notify("Name too short", "At least 3 characters.");
     setBusy(true);
     try {
       const lg = await createLeague(name.trim());
       setModal(null);
       setName("");
       await load();
-      Alert.alert("League created!", `Share code "${lg.code}" with friends to invite them.`);
+      notify("League created!", `Share code "${lg.code}" with friends to invite them.`);
     } catch (e: any) {
-      Alert.alert("Error", e.message);
+      notify("Error", e.message);
     } finally {
       setBusy(false);
     }
@@ -65,7 +67,7 @@ export default function Leagues() {
       await load();
       router.push(`/league/${lid}`);
     } catch (e: any) {
-      Alert.alert("Could not join", e.message);
+      notify("Could not join", e.message);
     } finally {
       setBusy(false);
     }

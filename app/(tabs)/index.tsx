@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import MatchCard from "../../components/MatchCard";
@@ -37,6 +37,13 @@ export default function Matches() {
       supabase.removeChannel(ch);
     };
   }, [load]);
+
+  // reload predictions/scores whenever the tab regains focus
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
 
   // default filter: if there are live matches show live, else upcoming
   useEffect(() => {

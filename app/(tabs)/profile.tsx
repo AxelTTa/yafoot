@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Avatar, Button, Card } from "../../components/ui";
 import { LogoInline } from "../../components/Brand";
+import { notify, confirmAsync } from "../../lib/notify";
 import { useAuth } from "../../lib/auth";
 import { supabase } from "../../lib/supabase";
 import { colors, spacing } from "../../lib/theme";
@@ -62,11 +63,9 @@ export default function Profile() {
           <Text style={styles.email}>{session?.user?.email}</Text>
         </View>
 
-        <Button title="Sign Out" variant="outline" onPress={() => {
-          Alert.alert("Sign out?", "", [
-            { text: "Cancel", style: "cancel" },
-            { text: "Sign out", style: "destructive", onPress: signOut },
-          ]);
+        <Button title="Sign Out" variant="outline" onPress={async () => {
+          const ok = await confirmAsync("Sign out?", "");
+          if (ok) signOut();
         }} />
       </View>
     </ScrollView>
