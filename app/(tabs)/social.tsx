@@ -74,7 +74,7 @@ export default function Social() {
       <FlatList
         data={q.length >= 2 ? results : friends.accepted}
         keyExtractor={(item, i) => item.id ?? String(i)}
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm, paddingBottom: 110 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
         }

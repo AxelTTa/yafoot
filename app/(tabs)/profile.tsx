@@ -33,7 +33,7 @@ export default function Profile() {
   );
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 60 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 110 }}>
       <View style={styles.header}>
         <Avatar name={profile?.display_name || profile?.username} size={84} />
         <Text style={styles.name}>{profile?.display_name || profile?.username || "Player"}</Text>

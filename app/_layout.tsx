@@ -14,7 +14,8 @@ function RootNav() {
   useEffect(() => {
     if (loading) return;
     const inAuth = segments[0] === "(auth)";
-    if (!session && !inAuth) router.replace("/(auth)/login");
+    const inInvite = segments[0] === "invite";
+    if (!session && !inAuth && !inInvite) router.replace("/(auth)/welcome");
     else if (session && inAuth) router.replace("/(tabs)");
   }, [session, loading, segments]);
 
@@ -24,6 +25,8 @@ function RootNav() {
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
       <Stack.Screen name="(auth)" />
       <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="onboarding/invite" />
+      <Stack.Screen name="invite/[code]" />
       <Stack.Screen name="match/[id]" options={{ presentation: "card" }} />
       <Stack.Screen name="league/[id]" />
       <Stack.Screen name="chat/[id]" />

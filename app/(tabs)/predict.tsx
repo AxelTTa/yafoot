@@ -58,7 +58,7 @@ export default function Predict() {
       <FlatList
         data={upcoming}
         keyExtractor={(m) => String(m.id)}
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md, paddingBottom: 110 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}

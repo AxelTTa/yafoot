@@ -88,7 +88,7 @@ export default function Leagues() {
       <FlatList
         data={leagues}
         keyExtractor={(l) => String(l.id)}
-        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md, paddingBottom: 110 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
         }
