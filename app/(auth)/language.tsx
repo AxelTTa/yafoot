@@ -17,8 +17,7 @@ export default function LanguageScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Logo size={52} />
-        <Text style={styles.title}>YaFoot</Text>
+        <Logo size={64} />
         <Text style={styles.sub}>Pick your language / Choisis ta langue</Text>
 
         <View style={styles.cards}>
@@ -43,7 +42,6 @@ export default function LanguageScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, alignItems: "center", justifyContent: "center", padding: spacing.xl, gap: spacing.lg },
-  title: { color: colors.ink, fontSize: 36, fontWeight: "900", letterSpacing: -1, marginTop: -spacing.sm },
   sub: { color: colors.textDim, fontSize: 15, fontWeight: "700", textAlign: "center" },
   cards: { flexDirection: "row", gap: spacing.md, width: "100%" },
   card: {

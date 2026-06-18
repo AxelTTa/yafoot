@@ -5,6 +5,7 @@ import MatchCard from "../../components/MatchCard";
 import GroupStandings from "../../components/GroupStandings";
 import { Empty, Icon, Loading } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { useI18n } from "../../lib/i18n";
 import { fetchMatches, fetchMyPredictions } from "../../lib/api";
 import { computeGroups } from "../../lib/standings";
 import { supabase } from "../../lib/supabase";
@@ -16,6 +17,7 @@ type Filter = "live" | "upcoming" | "groups" | "results";
 export default function Matches() {
   const router = useRouter();
   const { profile } = useAuth();
+  const { t } = useI18n();
   const [matches, setMatches] = useState<Match[]>([]);
   const [preds, setPreds] = useState<Record<number, Prediction>>({});
   const [loading, setLoading] = useState(true);
@@ -52,10 +54,10 @@ export default function Matches() {
   if (loading) return <Loading />;
 
   const tabs: { key: Filter; label: string; badge?: number; color: string }[] = [
-    { key: "live", label: "Live", badge: liveCount, color: colors.live },
-    { key: "upcoming", label: "Upcoming", color: colors.greenDark },
-    { key: "groups", label: "Groups", color: colors.purple },
-    { key: "results", label: "Results", color: colors.orange },
+    { key: "live", label: t("filter_live"), badge: liveCount, color: colors.live },
+    { key: "upcoming", label: t("filter_upcoming"), color: colors.greenDark },
+    { key: "groups", label: t("filter_groups"), color: colors.purple },
+    { key: "results", label: t("filter_results"), color: colors.orange },
   ];
 
   const Filters = (
@@ -84,7 +86,7 @@ export default function Matches() {
       <View style={styles.topbar}>
         <View>
           <Text style={styles.hi}>Hi, @{profile?.username ?? "player"}</Text>
-          <Text style={styles.title}>World Cup 2026</Text>
+          <Text style={styles.title}>{t("matches_sub")}</Text>
         </View>
         <Pressable onPress={() => router.push("/notifications")} style={styles.bell} hitSlop={8}>
           <Icon name="notifications" size={22} color={colors.ink} />
@@ -100,7 +102,7 @@ export default function Matches() {
           refreshControl={refresh}
           renderItem={({ item }) => <GroupStandings group={item.group} rows={item.rows} />}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          ListEmptyComponent={<Empty icon="podium" title="No group data yet" />}
+          ListEmptyComponent={<Empty icon="podium" title={t("empty_groups")} />}
         />
       ) : (
         <FlatList
@@ -115,8 +117,8 @@ export default function Matches() {
             <Empty
               icon={filter === "live" ? "radio" : filter === "results" ? "list" : "calendar"}
               color={filter === "live" ? colors.live : filter === "results" ? colors.orange : colors.greenDark}
-              title={filter === "live" ? "No live matches" : filter === "results" ? "No results yet" : "No upcoming matches"}
-              sub={filter === "live" ? "Check Upcoming for the next kickoff." : undefined}
+              title={filter === "live" ? t("empty_live") : filter === "results" ? t("empty_results") : t("empty_upcoming")}
+              sub={filter === "live" ? t("empty_live_sub") : undefined}
             />
           }
         />

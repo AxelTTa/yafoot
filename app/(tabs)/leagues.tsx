@@ -92,11 +92,11 @@ export default function Leagues() {
     }
   }
 
-  const durOptions: { key: DurKey; icon: string; color: string }[] = [
-    { key: "full", icon: "globe", color: colors.purple },
-    { key: "groups", icon: "layers", color: colors.cyan },
-    { key: "weekend", icon: "calendar", color: colors.orange },
-    { key: "custom", icon: "settings", color: colors.pink },
+  const durOptions: { key: DurKey; icon: string; color: string; label: string; sub: string }[] = [
+    { key: "full",    icon: "globe",    color: colors.purple, label: t("dur_full"),    sub: t("dur_full_sub") },
+    { key: "groups",  icon: "layers",   color: colors.cyan,   label: t("dur_groups"),  sub: t("dur_groups_sub") },
+    { key: "weekend", icon: "calendar", color: colors.orange, label: t("dur_weekend"), sub: t("dur_weekend_sub") },
+    { key: "custom",  icon: "settings", color: colors.pink,   label: t("dur_custom"),  sub: t("dur_custom_sub") },
   ];
 
   if (loading) return <Loading />;
@@ -125,13 +125,13 @@ export default function Leagues() {
               <Text style={styles.lgName}>{item.name}</Text>
               <View style={{ flexDirection: "row", gap: 8, marginTop: 3, alignItems: "center" }}>
                 <Text style={styles.lgCode}>Code {item.code}</Text>
-                {(item as any).max_matches ? (
+                {item.max_matches ? (
                   <View style={styles.durChip}>
                     <Icon name="time" size={10} color={colors.orange} />
-                    <Text style={[styles.durChipTxt, { color: colors.orange }]}>{(item as any).max_matches} matches</Text>
+                    <Text style={[styles.durChipTxt, { color: colors.orange }]}>{item.max_matches} matches</Text>
                   </View>
                 ) : null}
-                {(item as any).punishment ? (
+                {item.punishment ? (
                   <View style={[styles.durChip, { backgroundColor: "rgba(155,93,229,0.1)" }]}>
                     <Icon name="flame" size={10} color={colors.purple} />
                     <Text style={[styles.durChipTxt, { color: colors.purple }]}>Punishment</Text>
@@ -173,8 +173,8 @@ export default function Leagues() {
                     return (
                       <Pressable key={o.key} onPress={() => setDur(o.key)} style={[styles.durCard, active && { borderColor: o.color, borderWidth: 2 }]}>
                         <IconTile name={o.icon} color={active ? o.color : colors.surfaceAlt} size={36} icon={active ? colors.blanc : colors.textFaint} />
-                        <Text style={[styles.durLabel, active && { color: o.color }]}>{t(`dur_${o.key}` as any)}</Text>
-                        <Text style={styles.durSub}>{t(`dur_${o.key}_sub` as any)}</Text>
+                        <Text style={[styles.durLabel, active && { color: o.color }]}>{o.label}</Text>
+                        <Text style={styles.durSub}>{o.sub}</Text>
                       </Pressable>
                     );
                   })}

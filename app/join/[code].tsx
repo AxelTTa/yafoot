@@ -1,28 +1,28 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Button, Icon, Loading, Screen } from "../../components/ui";
+import { Button, Icon, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { useI18n } from "../../lib/i18n";
 import { joinLeague } from "../../lib/api";
 import { notify } from "../../lib/notify";
-import { colors, radius, spacing } from "../../lib/theme";
+import { colors, spacing } from "../../lib/theme";
 
 export default function JoinLeague() {
   const { code } = useLocalSearchParams<{ code: string }>();
   const router = useRouter();
   const { session } = useAuth();
+  const { t } = useI18n();
   const [joining, setJoining] = useState(false);
-  const [done, setDone] = useState(false);
 
   async function doJoin() {
     if (!code) return;
     setJoining(true);
     try {
       const lid = await joinLeague(code.toUpperCase());
-      setDone(true);
-      setTimeout(() => router.replace(`/league/${lid}`), 800);
+      router.replace(`/league/${lid}`);
     } catch (e: any) {
-      notify("Could not join", e.message);
+      notify(t("error_join") ?? "Could not join", e.message);
       setJoining(false);
     }
   }
@@ -32,15 +32,13 @@ export default function JoinLeague() {
       <Screen>
         <View style={styles.center}>
           <Icon name="lock-closed" size={48} color={colors.purple} />
-          <Text style={styles.h}>Sign in first</Text>
-          <Text style={styles.sub}>You need an account to join a league.</Text>
-          <Button title="Go to app" onPress={() => router.replace("/(auth)/welcome")} style={{ marginTop: spacing.lg }} />
+          <Text style={styles.h}>{t("join_signin_title")}</Text>
+          <Text style={styles.sub}>{t("join_signin_sub")}</Text>
+          <Button title={t("join_go_to_app")} onPress={() => router.replace("/(auth)/welcome")} style={{ marginTop: spacing.lg }} />
         </View>
       </Screen>
     );
   }
-
-  if (done) return <Loading />;
 
   return (
     <Screen>
@@ -48,11 +46,11 @@ export default function JoinLeague() {
         <View style={styles.iconWrap}>
           <Icon name="trophy" size={40} color={colors.yellow} />
         </View>
-        <Text style={styles.h}>Join league</Text>
+        <Text style={styles.h}>{t("join_title")}</Text>
         <Text style={styles.code}>{code?.toUpperCase()}</Text>
-        <Text style={styles.sub}>Tap below to join this league and start competing!</Text>
-        <Button title="Join League" variant="green" icon="enter-outline" onPress={doJoin} loading={joining} style={{ marginTop: spacing.lg, width: "100%" }} />
-        <Button title="Cancel" variant="ghost" onPress={() => router.replace("/(tabs)/leagues")} style={{ marginTop: spacing.sm }} />
+        <Text style={styles.sub}>{t("join_sub")}</Text>
+        <Button title={t("btn_join_league")} variant="green" icon="enter-outline" onPress={doJoin} loading={joining} style={{ marginTop: spacing.lg, width: "100%" }} />
+        <Button title={t("btn_close")} variant="ghost" onPress={() => router.replace("/(tabs)/leagues")} style={{ marginTop: spacing.sm }} />
       </View>
     </Screen>
   );

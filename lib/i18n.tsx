@@ -155,6 +155,20 @@ const T = {
     signout_msg: "Username-only account — signing out on this device means starting fresh.",
     change_photo: "Change photo",
 
+    // join league screen
+    join_sub: "Tap below to join and start competing!",
+    join_signin_title: "Sign in first",
+    join_signin_sub: "You need an account to join a league.",
+    join_go_to_app: "Go to app",
+    error_join: "Could not join",
+
+    // matches empty states
+    empty_live: "No live matches",
+    empty_live_sub: "Check Upcoming for the next kickoff.",
+    empty_results: "No results yet",
+    empty_upcoming: "No upcoming matches",
+    empty_groups: "No group data yet",
+
     // common
     btn_close: "Close",
     scan_hint: "Scan with any camera app",
@@ -309,6 +323,20 @@ const T = {
     signout_title: "Te déconnecter ?",
     signout_msg: "Compte sans email — te déco sur ce tel = repartir de zéro. Pas de retour en arrière.",
     change_photo: "Changer la photo",
+
+    // join league screen
+    join_sub: "Tape ci-dessous pour rejoindre et commencer !",
+    join_signin_title: "Connecte-toi d'abord",
+    join_signin_sub: "Il te faut un compte pour rejoindre une ligue.",
+    join_go_to_app: "Aller dans l'app",
+    error_join: "Impossible de rejoindre",
+
+    // matches empty states
+    empty_live: "Pas de matchs en direct",
+    empty_live_sub: "Regarde les matchs À venir.",
+    empty_results: "Pas encore de résultats",
+    empty_upcoming: "Pas de matchs à venir",
+    empty_groups: "Pas encore de données de groupe",
 
     // common
     btn_close: "Fermer",

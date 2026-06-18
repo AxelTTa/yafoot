@@ -38,6 +38,8 @@ export type League = {
   description: string | null;
   is_public: boolean;
   created_at: string;
+  max_matches: number | null;
+  punishment: string | null;
 };
 
 export const isLive = (s: Match["status"]) => s === "IN_PLAY" || s === "PAUSED";

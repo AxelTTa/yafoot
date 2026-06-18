@@ -60,7 +60,7 @@ export default function LeagueDetail() {
       .select("name, code, max_matches, punishment")
       .eq("id", leagueId)
       .single()
-      .then(({ data }) => data && setLeague(data as any));
+      .then(({ data }) => data && setLeague(data as typeof league));
     loadBoard();
     loadMsgs();
     const ch = supabase
