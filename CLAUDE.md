@@ -48,15 +48,24 @@ Focus: **FIFA World Cup 2026 only** (all 104 matches, group + knockout). Live sc
 - `components/ui.tsx`: Screen, ScreenHeader (greeting), Header (round back button), Card (default/hero/flat), Button, Chip, Avatar, IconTile, Icon (Ionicons), Empty, Loading.
 - **No emoji in UI** — use `<Icon name="..."/>` (Ionicons). Country flags (emoji) are data and stay.
 
-## Deploy (web → Vercel)
-```bash
-npm install
-rm -rf dist && npx expo export --platform web --output-dir dist
-mkdir -p dist/fonts && cp assets/fonts/Ionicons.ttf dist/fonts/ionicons.ttf   # REQUIRED (see gotcha)
-printf '{ "rewrites": [ { "source": "/(.*)", "destination": "/index.html" } ] }' > dist/vercel.json
-cd dist && npx vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope axelcassou2-1440s-projects
-```
-SPA rewrite (`/(.*) -> /index.html`) is mandatory or deep-link reloads 404.
+## SHIPPING UPDATES — run after EVERY change (both targets)
+**One command:** `bash scripts/deploy.sh` — it typechecks, builds, ships the icon font, verifies the
+**native bundle compiles (Expo Go must always work)**, deploys to **Vercel**, pushes an **Expo Go OTA**
+via EAS Update (if `EXPO_TOKEN` set), then commits + pushes to GitHub. All creds come from `yafoot.env`
+(sourced by the systemd bridge), so the manager already has them.
+
+Two delivery targets — keep BOTH current:
+1. **Vercel web URL** (https://dist-five-zeta-92i4a6g3xx.vercel.app) — uses `VERCEL_TOKEN`. Works now.
+   Manual: `cd dist && npx vercel deploy --prod --yes --token "$VERCEL_TOKEN" --scope axelcassou2-1440s-projects`.
+   SPA rewrite (`/(.*) -> /index.html` in `dist/vercel.json`) is mandatory or deep-link reloads 404.
+2. **Expo Go (native, first-class target)** — the app MUST always run on Expo Go (SDK 54).
+   - **OTA via EAS Update:** needs `EXPO_TOKEN` (free at expo.dev → Account → Access tokens). First time:
+     `EXPO_TOKEN=... npx eas-cli init` (creates projectId in app.json) then `eas update:configure`.
+     Then every deploy runs `eas update --branch production` → the user's Expo Go pulls the latest bundle.
+   - Until `EXPO_TOKEN` is set, `scripts/deploy.sh` skips OTA but still verifies the native bundle compiles.
+   - `eas.json` is already present (channels: development/preview/production).
+   - **ALWAYS keep Expo-Go-compatible:** no web-only APIs without a `Platform.OS` guard; the deploy script
+     fails loudly if `npx expo export --platform ios` breaks. Test native compileability before shipping.
 
 ## CRITICAL GOTCHAS (learned the hard way)
 1. **Icon font on web:** vector-icons' auto-injected `@font-face` 404s in static exports → blank glyphs. Fix is in `app/_layout.tsx` (injects `@font-face` for family `ionicons` → `/fonts/ionicons.ttf`) + we ship `dist/fonts/ionicons.ttf`. **The TTF MUST match the installed @expo/vector-icons version** (SDK54 = v15; a stale TTF renders width-0 blank glyphs). On version bump, re-copy `node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.ttf` → `assets/fonts/Ionicons.ttf`.
@@ -73,7 +82,7 @@ SPA rewrite (`/(.*) -> /index.html`) is mandatory or deep-link reloads 404.
 - Browser tests use `puppeteer-core` + `/usr/bin/google-chrome`.
 
 ## Secrets (server-only, in yafoot.env — NEVER commit)
-`SUPABASE_URL, SUPABASE_SERVICE_ROLE, SUPABASE_PAT (sbp_), SUPABASE_ANON, VERCEL_TOKEN (vcp_), FD_API_KEY`.
+`SUPABASE_URL, SUPABASE_SERVICE_ROLE, SUPABASE_PAT (sbp_), SUPABASE_ANON, VERCEL_TOKEN (vcp_), FD_API_KEY, EXPO_TOKEN (for Expo Go OTA)`.
 
 ## Auto-commit rule
 After completing changes: `git add -A && git commit -m "..." && git push`.
