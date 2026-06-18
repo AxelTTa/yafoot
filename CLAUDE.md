@@ -84,6 +84,16 @@ Two delivery targets — keep BOTH current:
 ## Secrets (server-only, in yafoot.env — NEVER commit)
 `SUPABASE_URL, SUPABASE_SERVICE_ROLE, SUPABASE_PAT (sbp_), SUPABASE_ANON, VERCEL_TOKEN (vcp_), FD_API_KEY, EXPO_TOKEN (for Expo Go OTA)`.
 
+## Manager / worker architecture (Telegram control)
+- The YaFoot Telegram bot is a **non-blocking MANAGER** (`yafoot_bridge.py` on the server): it stays free to
+  chat and **delegates** all real work, so Axel can talk to it while builds run.
+- **Delegation:** the manager runs `bash scripts/delegate.sh "<task>"` → spawns a **detached worker** (claud)
+  that does the task end-to-end, ships via `scripts/deploy.sh`, and **self-reports to Telegram** when done.
+  Workers survive bridge restarts; logs in `workers/<id>.log`. `/workers` lists them.
+- The manager never runs builds/edits/deploys itself — it only delegates + answers quick read-only questions.
+- If you ARE a worker: read this file, do the task autonomously, ship with `scripts/deploy.sh`, then send a
+  Telegram summary (token + chat id are in your env). Never ask questions.
+
 ## Auto-commit rule
 After completing changes: `git add -A && git commit -m "..." && git push`.
 
