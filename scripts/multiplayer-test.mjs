@@ -45,19 +45,16 @@ async function fillPlaceholder(page, prefix, val) {
 async function signup(page, name) {
   process.stdout.write(`   ${name}: goto…`);
   await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 120000 });
-  await page.waitForFunction(() => /Sign In/.test(document.body.innerText), { timeout: 90000 });
+  await page.waitForFunction(() => /Get started/.test(document.body.innerText), { timeout: 90000 });
   process.stdout.write(" loaded…");
   await sleep(2500);
-  await tapExact(page, "Create one");
-  await sleep(2000);
-  process.stdout.write(" filling…");
   const stamp = Date.now().toString(36) + Math.floor(Math.random() * 1000);
   await fillPlaceholder(page, "username", name + stamp);
-  await fillPlaceholder(page, "email", `${name}_${stamp}@yafoot.test`);
-  await fillPlaceholder(page, "password", "test123456");
   process.stdout.write(" submit…");
-  await tapExact(page, "Create Account");
-  await sleep(7000);
+  await tapExact(page, "Get started");
+  await sleep(6000);
+  await tapExact(page, "Continue to app");
+  await sleep(4000);
   console.log(" done");
   return name + stamp;
 }

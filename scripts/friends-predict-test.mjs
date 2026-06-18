@@ -15,11 +15,12 @@ async function tapContains(p, re){ return p.evaluate((r)=>{const rx=new RegExp(r
 async function fill(p, prefix, val){ const okSet=await p.evaluate((pre,v)=>{const ins=[...document.querySelectorAll("input")].filter(i=>(i.placeholder||"").toLowerCase().startsWith(pre));const el=ins[ins.length-1];if(!el)return false;const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value").set;s.call(el,v);el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new Event("change",{bubbles:true}));return true;},prefix,val); if(!okSet)throw new Error("no input ~"+prefix); }
 async function signup(p, name){
   await p.goto(URL,{waitUntil:"domcontentloaded",timeout:120000});
-  await p.waitForFunction(()=>/Sign In/.test(document.body.innerText),{timeout:90000});
-  await sleep(2200); await tapExact(p,"Create one"); await sleep(1800);
+  await p.waitForFunction(()=>/Get started/.test(document.body.innerText),{timeout:90000});
+  await sleep(2400);
   const u=name+Date.now().toString(36)+Math.floor(Math.random()*900);
-  await fill(p,"username",u); await fill(p,"email",`${u}@yafoot.test`); await fill(p,"password","test123456");
-  await tapExact(p,"Create Account"); await sleep(6500);
+  await fill(p,"username",u);
+  await tapExact(p,"Get started"); await sleep(6000);
+  await tapExact(p,"Continue to app"); await sleep(4000);
   return u.toLowerCase();
 }
 
