@@ -44,7 +44,7 @@ export default function Profile() {
   );
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 130 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bgProfile }} contentContainerStyle={{ paddingBottom: 130 }}>
       <ScreenHeader
         title={t("tab_profile")}
         subtitle={t("profile_sub")}

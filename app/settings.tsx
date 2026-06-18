@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Avatar, Button, Header, Icon, Screen, ScrollView } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { useI18n, Lang } from "../lib/i18n";
@@ -55,7 +55,8 @@ export default function Settings() {
   return (
     <Screen>
       <Header title={t("settings_sub")} />
-      <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
 
         {/* avatar hero */}
         <View style={styles.avatarSection}>
@@ -138,6 +139,7 @@ export default function Settings() {
           />
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </Screen>
   );
 }

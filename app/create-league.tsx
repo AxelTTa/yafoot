@@ -217,9 +217,8 @@ export default function CreateLeagueWizard() {
 
           {/* ── STEP 3: Name ── */}
           {step === 3 && (
-            <View style={styles.stepWrap}>
+            <View style={[styles.stepWrap, { paddingTop: spacing.xl }]}>
               <Text style={styles.stepTitle}>{t("create_step3_title")}</Text>
-              <Text style={styles.stepSub}>{t("create_step3_sub")}</Text>
 
               <TextInput
                 style={[styles.input, styles.nameInput]}

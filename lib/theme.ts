@@ -3,7 +3,10 @@
 // colorful accent tiles (green / yellow / purple / orange / cyan), dark floating pill nav.
 export const colors = {
   // canvas + surfaces
-  bg: "#A6E63D",          // lime green app background
+  bg: "#A6E63D",          // lime green — Matches tab
+  bgLeagues: "#FFD87A",   // warm golden — Leagues tab
+  bgFriends: "#DDD4FF",   // soft lavender — Friends tab
+  bgProfile: "#B4DEFF",   // sky blue — Profile tab
   bgAlt: "#98DC2E",
   surface: "#FFFFFF",     // white cards
   surfaceAlt: "#F3F4EC",  // subtle off-white

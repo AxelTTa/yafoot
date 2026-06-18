@@ -48,7 +48,7 @@ export default function Social() {
   const showing = q.length >= 2 ? results : friends.accepted;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.bgFriends }}>
       <ScreenHeader
         title={t("tab_friends")}
         subtitle={t("friends_sub")}

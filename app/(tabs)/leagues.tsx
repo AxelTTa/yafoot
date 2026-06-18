@@ -54,7 +54,7 @@ export default function Leagues() {
   if (loading) return <Loading />;
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+    <View style={{ flex: 1, backgroundColor: colors.bgLeagues }}>
       <ScreenHeader title={t("tab_leagues")} subtitle={t("leagues_sub")} />
 
       <FlatList
@@ -99,9 +99,9 @@ export default function Leagues() {
 
       {/* ── Join modal ── */}
       <Modal visible={joinModal} transparent animationType="slide" onRequestClose={() => setJoinModal(false)}>
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={0}>
           <Pressable style={styles.backdrop} onPress={() => setJoinModal(false)}>
-            <Pressable style={styles.sheet} onPress={() => {}}>
+            <Pressable style={styles.sheet} onPress={() => {}} >
               <Text style={styles.sheetTitle}>{t("join_title")}</Text>
               <TextInput
                 style={styles.input}
