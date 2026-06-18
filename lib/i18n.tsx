@@ -153,7 +153,7 @@ const T = {
     stat_acc: "Accuracy",
     stat_leagues: "Leagues",
     my_forecasts: "MY FORECASTS",
-    no_forecasts: "No predictions yet — head to Predict to make your first.",
+    no_forecasts: "No predictions yet — tap a match to make your first pick.",
 
     // settings
     settings_sub: "Tweak your profile",
@@ -341,7 +341,7 @@ const T = {
     stat_acc: "Précision",
     stat_leagues: "Ligues",
     my_forecasts: "MES PRONOS",
-    no_forecasts: "Aucun prono encore — va dans Pronos pour commencer !",
+    no_forecasts: "Aucun prono encore — tape sur un match pour commencer !",
 
     // settings
     settings_sub: "Modifie ton profil",
