@@ -1,12 +1,12 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { Avatar, Button, Card, Header, Screen, ScrollView } from "../components/ui";
+import { Avatar, Button, Header, Icon, Screen, ScrollView } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { updateProfile } from "../lib/api";
 import { pickAndUploadAvatar } from "../lib/avatar";
 import { confirmAsync, notify } from "../lib/notify";
-import { colors, spacing } from "../lib/theme";
+import { colors, radius, shadow, spacing } from "../lib/theme";
 
 export default function Settings() {
   const router = useRouter();
@@ -48,37 +48,99 @@ export default function Settings() {
   return (
     <Screen>
       <Header title="Settings" />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg, paddingBottom: 60 }}>
-        <View style={{ alignItems: "center", gap: spacing.md }}>
-          <Pressable onPress={changeAvatar} style={{ alignItems: "center", gap: 8 }}>
-            <Avatar name={profile?.display_name || profile?.username} url={profile?.avatar_url} size={96} ring />
-            <Text style={styles.changePhoto}>{uploading ? "Uploading…" : "Change photo"}</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: 60 }} showsVerticalScrollIndicator={false}>
+
+        {/* avatar hero */}
+        <View style={styles.avatarSection}>
+          <Pressable onPress={changeAvatar} style={styles.avatarWrap}>
+            <Avatar name={profile?.display_name || profile?.username} url={profile?.avatar_url} size={100} ring color={colors.purple} />
+            <View style={styles.cameraChip}>
+              <Icon name={uploading ? "hourglass" : "camera"} size={14} color={colors.blanc} />
+            </View>
           </Pressable>
+          <Text style={styles.avatarName}>{profile?.display_name || profile?.username || "Player"}</Text>
+          <Text style={styles.avatarHandle}>@{profile?.username}</Text>
         </View>
 
-        <Card style={{ gap: spacing.md }}>
-          <Text style={styles.label}>DISPLAY NAME</Text>
-          <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Your name" placeholderTextColor={colors.textFaint} maxLength={24} />
-          <Text style={styles.handle}>@{profile?.username} · username can't be changed</Text>
-          <Button title="Save changes" onPress={save} loading={saving} />
-        </Card>
+        <View style={{ paddingHorizontal: spacing.lg, gap: spacing.md }}>
 
-        <Button
-          title="Sign out"
-          variant="outline"
-          onPress={async () => {
-            const ok = await confirmAsync("Sign out?", "On a username-only account, signing out on this device means starting fresh.");
-            if (ok) { await signOut(); router.replace("/(auth)/welcome"); }
-          }}
-        />
+          {/* display name card */}
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <View style={styles.iconTile}>
+                <Icon name="person" size={18} color={colors.blanc} />
+              </View>
+              <Text style={styles.sectionTitle}>Display name</Text>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={name}
+              onChangeText={setName}
+              placeholder="Your name"
+              placeholderTextColor={colors.textFaint}
+              maxLength={24}
+              returnKeyType="done"
+              onSubmitEditing={save}
+            />
+            <Text style={styles.hint}>Username @{profile?.username} cannot be changed</Text>
+            <Button title="Save changes" onPress={save} loading={saving} />
+          </View>
+
+          {/* account card */}
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <View style={[styles.iconTile, { backgroundColor: colors.orange }]}>
+                <Icon name="shield" size={18} color={colors.blanc} />
+              </View>
+              <Text style={styles.sectionTitle}>Account</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Icon name="person-circle-outline" size={18} color={colors.textDim} />
+              <Text style={styles.infoTxt}>Anonymous account — device-bound</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Icon name="warning-outline" size={18} color={colors.orange} />
+              <Text style={styles.infoTxt}>Signing out on this device means starting fresh — no recovery.</Text>
+            </View>
+          </View>
+
+          <Button
+            title="Sign out"
+            variant="outline"
+            icon="log-out-outline"
+            onPress={async () => {
+              const ok = await confirmAsync("Sign out?", "On a username-only account, signing out on this device means starting fresh.");
+              if (ok) { await signOut(); router.replace("/(auth)/welcome"); }
+            }}
+          />
+        </View>
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  changePhoto: { color: colors.bleu, fontWeight: "800", fontSize: 14 },
-  label: { color: colors.textDim, fontSize: 11, fontWeight: "800", letterSpacing: 1 },
-  input: { backgroundColor: colors.bg, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: spacing.lg, height: 52, color: colors.text, fontSize: 16, fontWeight: "700" },
-  handle: { color: colors.textFaint, fontSize: 12 },
+  avatarSection: { alignItems: "center", paddingVertical: spacing.xl, gap: spacing.sm },
+  avatarWrap: { position: "relative" },
+  cameraChip: { position: "absolute", bottom: 2, right: 2, width: 28, height: 28, borderRadius: 14, backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: colors.bg },
+  avatarName: { color: colors.ink, fontSize: 22, fontWeight: "900", marginTop: spacing.xs },
+  avatarHandle: { color: colors.textDim, fontSize: 14, fontWeight: "700" },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md, ...shadow },
+  row: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  iconTile: { width: 36, height: 36, borderRadius: 12, backgroundColor: colors.greenDark, alignItems: "center", justifyContent: "center" },
+  sectionTitle: { color: colors.ink, fontSize: 17, fontWeight: "900" },
+  input: {
+    backgroundColor: colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    height: 52,
+    color: colors.ink,
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  hint: { color: colors.textFaint, fontSize: 12, fontWeight: "600" },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.sm },
+  infoTxt: { flex: 1, color: colors.textDim, fontSize: 13, fontWeight: "600", lineHeight: 18 },
 });

@@ -1,20 +1,24 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
-import { Avatar, Button, Card, Empty, Icon, IconTile, Loading, ScreenHeader } from "../../components/ui";
+import { Avatar, Button, Card, Empty, Icon, IconTile, Loading, QRModal, ScreenHeader } from "../../components/ui";
 import { fetchFriends, respondFriend, searchUsers, sendFriendRequest } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { notify } from "../../lib/notify";
+import { inviteLink } from "../../lib/invite";
+import { useAuth } from "../../lib/auth";
 import { accentFor, colors, radius, spacing } from "../../lib/theme";
 
 export default function Social() {
   const router = useRouter();
+  const { profile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [friends, setFriends] = useState<any>({ accepted: [], incoming: [], outgoing: [] });
   const [q, setQ] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [searching, setSearching] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   const load = useCallback(async () => {
     try { setFriends(await fetchFriends()); } catch {}
@@ -43,7 +47,22 @@ export default function Social() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScreenHeader title="Friends" subtitle="Add rivals & challenge them" />
+      <ScreenHeader
+        title="Friends"
+        subtitle="Add rivals & challenge them"
+        right={
+          <Pressable onPress={() => setShowQR(true)} style={styles.qrBtn} hitSlop={8}>
+            <Icon name="qr-code" size={20} color={colors.ink} />
+          </Pressable>
+        }
+      />
+      <QRModal
+        visible={showQR}
+        onClose={() => setShowQR(false)}
+        value={profile?.username ? inviteLink(profile.username) : ""}
+        title="My invite QR"
+        subtitle="Friend scans this to add you instantly"
+      />
       <View style={styles.searchWrap}>
         <Icon name="search" size={18} color={colors.textFaint} />
         <TextInput style={styles.search} placeholder="Search by username" placeholderTextColor={colors.textFaint} autoCapitalize="none" value={q} onChangeText={doSearch} />
@@ -111,6 +130,7 @@ export default function Social() {
 }
 
 const styles = StyleSheet.create({
+  qrBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
   searchWrap: { flexDirection: "row", alignItems: "center", gap: 8, marginHorizontal: spacing.lg, marginBottom: spacing.md, backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: spacing.lg, height: 50 },
   search: { flex: 1, color: colors.ink, fontSize: 15, fontWeight: "600" },
   sectionLabel: { color: colors.textDim, fontWeight: "900", fontSize: 12, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: spacing.xs },

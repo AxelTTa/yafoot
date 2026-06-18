@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Button, Screen, Tricolor } from "../../components/ui";
 import { Logo } from "../../components/Brand";
 import { supabase } from "../../lib/supabase";
@@ -24,7 +24,6 @@ export default function Welcome() {
     if (u.length < 3) return setError("Pick a username (at least 3 characters).");
     if (!/^[a-zA-Z0-9_]+$/.test(u)) return setError("Letters, numbers and underscores only.");
     setLoading(true);
-    // username-only: anonymous account, username carried in metadata for the profile trigger
     const { error: e } = await supabase.auth.signInAnonymously({
       options: { data: { username: u.toLowerCase(), display_name: u } },
     });
@@ -33,7 +32,6 @@ export default function Welcome() {
       setError(e.message);
       return;
     }
-    // ensure the profile has the chosen username (trigger may have used a default)
     const { data: who } = await supabase.auth.getUser();
     if (who.user?.id) {
       await supabase.from("profiles").update({ username: u.toLowerCase(), display_name: u }).eq("id", who.user.id);
@@ -47,42 +45,54 @@ export default function Welcome() {
   return (
     <Screen>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1, justifyContent: "center", padding: spacing.xl }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
       >
-        <View style={{ alignItems: "center", marginBottom: spacing.xxl }}>
-          <Logo size={48} />
-          <Text style={styles.tag}>
-            {invited ? "A friend invited you" : "Predict the World Cup. Beat your friends."}
-          </Text>
-        </View>
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center", padding: spacing.xl }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={{ alignItems: "center", marginBottom: spacing.xl }}>
+            <Logo size={48} />
+            <Text style={styles.tag}>
+              {invited ? "A friend invited you" : "Predict the World Cup. Beat your friends."}
+            </Text>
+          </View>
 
-        <Text style={styles.label}>CHOOSE YOUR USERNAME</Text>
-        <View style={styles.inputRow}>
-          <Text style={styles.at}>@</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="username"
-            placeholderTextColor={colors.textFaint}
-            autoCapitalize="none"
-            autoCorrect={false}
-            value={username}
-            onChangeText={(t) => { setUsername(t); setError(null); }}
-            onSubmitEditing={start}
-            maxLength={20}
+          <Text style={styles.label}>CHOOSE YOUR USERNAME</Text>
+          <View style={styles.inputRow}>
+            <Text style={styles.at}>@</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="username"
+              placeholderTextColor={colors.textFaint}
+              autoCapitalize="none"
+              autoCorrect={false}
+              value={username}
+              onChangeText={(t) => { setUsername(t); setError(null); }}
+              onSubmitEditing={start}
+              maxLength={20}
+              returnKeyType="go"
+            />
+          </View>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Button
+            title={invited ? "Join & add friend" : "Get started"}
+            onPress={start}
+            loading={loading}
+            style={{ marginTop: spacing.lg }}
           />
-        </View>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Button title={invited ? "Join & add friend" : "Get started"} onPress={start} loading={loading} style={{ marginTop: spacing.lg }} />
-        <Text style={styles.fine}>No email, no password. Just pick a name and play.</Text>
-        <View style={{ alignItems: "center", marginTop: spacing.xl }}><Tricolor width={70} /></View>
+          <Text style={styles.fine}>No email, no password. Just pick a name and play.</Text>
+          <View style={{ alignItems: "center", marginTop: spacing.lg }}><Tricolor width={70} /></View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  tag: { color: colors.textDim, marginTop: spacing.lg, fontSize: 15, fontWeight: "600", textAlign: "center" },
+  tag: { color: colors.textDim, marginTop: spacing.md, fontSize: 15, fontWeight: "600", textAlign: "center" },
   label: { color: colors.textDim, fontSize: 11, fontWeight: "800", letterSpacing: 1.2, marginBottom: spacing.sm, marginLeft: spacing.xs },
   inputRow: {
     flexDirection: "row", alignItems: "center", backgroundColor: colors.surface,

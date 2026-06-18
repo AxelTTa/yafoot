@@ -2,7 +2,9 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -108,35 +110,46 @@ export default function Leagues() {
       />
 
       <Modal visible={modal !== null} transparent animationType="slide" onRequestClose={() => setModal(null)}>
-        <Pressable style={styles.backdrop} onPress={() => setModal(null)}>
-          <Pressable style={styles.sheet} onPress={() => {}}>
-            <Text style={styles.sheetTitle}>{modal === "create" ? "Create a league" : "Join a league"}</Text>
-            {modal === "create" ? (
-              <>
-                <TextInput
-                  style={styles.input}
-                  placeholder="League name (e.g. Office Cup)"
-                  placeholderTextColor={colors.textFaint}
-                  value={name}
-                  onChangeText={setName}
-                />
-                <Button title="Create League" onPress={doCreate} loading={busy} />
-              </>
-            ) : (
-              <>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter 6-char code"
-                  placeholderTextColor={colors.textFaint}
-                  autoCapitalize="characters"
-                  value={code}
-                  onChangeText={setCode}
-                />
-                <Button title="Join League" variant="purple" onPress={doJoin} loading={busy} />
-              </>
-            )}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <Pressable style={styles.backdrop} onPress={() => setModal(null)}>
+            <Pressable style={styles.sheet} onPress={() => {}}>
+              <Text style={styles.sheetTitle}>{modal === "create" ? "Create a league" : "Join a league"}</Text>
+              {modal === "create" ? (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="League name (e.g. Office Cup)"
+                    placeholderTextColor={colors.textFaint}
+                    value={name}
+                    onChangeText={setName}
+                    autoFocus
+                    returnKeyType="done"
+                    onSubmitEditing={doCreate}
+                  />
+                  <Button title="Create League" onPress={doCreate} loading={busy} />
+                </>
+              ) : (
+                <>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter 6-char code"
+                    placeholderTextColor={colors.textFaint}
+                    autoCapitalize="characters"
+                    value={code}
+                    onChangeText={setCode}
+                    autoFocus
+                    returnKeyType="done"
+                    onSubmitEditing={doJoin}
+                  />
+                  <Button title="Join League" variant="purple" onPress={doJoin} loading={busy} />
+                </>
+              )}
+            </Pressable>
           </Pressable>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

@@ -10,7 +10,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Avatar, Empty, Header, Loading, Screen } from "../../components/ui";
+import { Avatar, Empty, Header, Icon, Loading, QRModal, Screen } from "../../components/ui";
+import { inviteBase } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
 import { notify } from "../../lib/notify";
 import { leagueLeaderboard } from "../../lib/api";
@@ -27,6 +28,7 @@ export default function LeagueDetail() {
   const me = session?.user?.id;
   const [tab, setTab] = useState<"standings" | "chat">("standings");
   const [league, setLeague] = useState<{ name: string; code: string } | null>(null);
+  const [showQR, setShowQR] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
@@ -92,7 +94,25 @@ export default function LeagueDetail() {
 
   return (
     <Screen>
-      <Header title={league?.name ?? "League"} />
+      <Header
+        title={league?.name ?? "League"}
+        right={
+          league ? (
+            <Pressable onPress={() => setShowQR(true)} hitSlop={8} style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center" }}>
+              <Icon name="qr-code" size={20} color={colors.blanc} />
+            </Pressable>
+          ) : undefined
+        }
+      />
+      {league ? (
+        <QRModal
+          visible={showQR}
+          onClose={() => setShowQR(false)}
+          value={`${inviteBase()}/join/${league.code}`}
+          title="League QR"
+          subtitle={`Scan to join ${league.name}`}
+        />
+      ) : null}
       <View style={styles.tabs}>
         {(["standings", "chat"] as const).map((t) => (
           <Pressable key={t} onPress={() => setTab(t)} style={[styles.tab, tab === t && styles.tabActive]}>

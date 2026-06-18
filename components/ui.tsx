@@ -4,6 +4,7 @@ import React from "react";
 import {
   ActivityIndicator,
   Image,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,6 +14,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import QRCode from "react-native-qrcode-svg";
 import { accentFor, colors, radius, shadow, spacing } from "../lib/theme";
 
 export function Icon({ name, size = 22, color = colors.ink }: { name: any; size?: number; color?: string }) {
@@ -203,7 +205,41 @@ export function Tricolor({ width = 60 }: { width?: number; height?: number }) {
   );
 }
 
+export function QRModal({ visible, onClose, value, title, subtitle }: { visible: boolean; onClose: () => void; value: string; title: string; subtitle?: string }) {
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={qrStyles.backdrop} onPress={onClose}>
+        <Pressable style={qrStyles.sheet} onPress={() => {}}>
+          <View style={qrStyles.header}>
+            <Text style={qrStyles.title}>{title}</Text>
+            {subtitle ? <Text style={qrStyles.sub}>{subtitle}</Text> : null}
+          </View>
+          <View style={qrStyles.qrWrap}>
+            {value ? <QRCode value={value} size={220} backgroundColor="#fff" color="#14130E" /> : null}
+          </View>
+          <Text style={qrStyles.hint}>Scan with any camera app</Text>
+          <Pressable onPress={onClose} style={({ pressed }) => [qrStyles.closeBtn, pressed && { opacity: 0.8 }]}>
+            <Text style={qrStyles.closeTxt}>Close</Text>
+          </Pressable>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 export { ScrollView };
+
+const qrStyles = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", alignItems: "center", justifyContent: "center", padding: spacing.xl },
+  sheet: { backgroundColor: colors.surface, borderRadius: radius.xxl, padding: spacing.xl, alignItems: "center", gap: spacing.md, width: "100%", maxWidth: 340, ...shadow },
+  header: { alignItems: "center", gap: 4 },
+  title: { color: colors.ink, fontSize: 20, fontWeight: "900" },
+  sub: { color: colors.textDim, fontSize: 13, fontWeight: "600", textAlign: "center" },
+  qrWrap: { backgroundColor: colors.blanc, borderRadius: radius.lg, padding: spacing.lg, ...shadow },
+  hint: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
+  closeBtn: { backgroundColor: colors.surfaceDark, borderRadius: radius.pill, paddingHorizontal: spacing.xl, paddingVertical: spacing.sm + 2, marginTop: spacing.xs },
+  closeTxt: { color: colors.blanc, fontWeight: "900", fontSize: 15 },
+});
 
 const styles = StyleSheet.create({
   screenHeader: { flexDirection: "row", alignItems: "flex-end", paddingHorizontal: spacing.lg, paddingTop: 58, paddingBottom: spacing.lg, gap: spacing.md },
