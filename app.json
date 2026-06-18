@@ -31,7 +31,8 @@
     "plugins": [
       "expo-router",
       "expo-asset",
-      ["expo-font", { "fonts": ["./assets/fonts/Ionicons.ttf"] }]
+      ["expo-font", { "fonts": ["./assets/fonts/Ionicons.ttf"] }],
+      ["expo-image-picker", { "photosPermission": "YaFoot uses your photos to set your profile picture." }]
     ],
     "extra": {
       "supabaseUrl": "https://zfsgclwyaapgwxjtzvyd.supabase.co",

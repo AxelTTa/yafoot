@@ -1,13 +1,13 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Card, Chip, Header, Loading, Screen, ScrollView } from "../../components/ui";
+import { Header, Loading, Screen, ScrollView } from "../../components/ui";
 import { fetchMatch } from "../../lib/api";
 import { matchProbabilities } from "../../lib/odds";
 import { supabase } from "../../lib/supabase";
 import { prettyTeam, teamFlag } from "../../lib/teams";
 import { Match } from "../../lib/types";
-import { colors, radius, spacing } from "../../lib/theme";
+import { colors, radius, shadow, spacing } from "../../lib/theme";
 
 export default function MatchStats() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -30,108 +30,132 @@ export default function MatchStats() {
 
   const model = matchProbabilities(match.home_code, match.away_code);
   const hw = Math.round(model.homeWin * 100), dr = Math.round(model.draw * 100), aw = Math.round(model.awayWin * 100);
+  const fav = hw >= dr && hw >= aw ? "home" : aw >= dr ? "away" : "draw";
+  const homeN = prettyTeam(match.home_team), awayN = prettyTeam(match.away_team);
   const cTotal = crowd?.total ?? 0;
-  const cpct = (n: number) => (cTotal ? Math.round((n / cTotal) * 100) : 0);
 
   return (
     <Screen>
-      <Header title="Match Stats" />
+      <Header title="Match Insights" />
       <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg, paddingBottom: 60 }}>
-        <Card variant="hero" style={{ alignItems: "center", gap: 10 }}>
-          <Text style={styles.group}>{match.group_name ?? match.stage?.replace(/_/g, " ")}</Text>
-          <View style={styles.fixtureRow}>
-            <View style={styles.side}><Text style={styles.bigFlag}>{teamFlag(match.home_team, match.home_flag)}</Text><Text style={styles.sideName}>{prettyTeam(match.home_team)}</Text></View>
-            <Text style={styles.vs}>vs</Text>
-            <View style={styles.side}><Text style={styles.bigFlag}>{teamFlag(match.away_team, match.away_flag)}</Text><Text style={styles.sideName}>{prettyTeam(match.away_team)}</Text></View>
+        {/* fixture hero */}
+        <View style={styles.hero}>
+          <View style={styles.heroSide}>
+            <Text style={styles.heroFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
+            <Text style={styles.heroName} numberOfLines={1}>{homeN}</Text>
           </View>
-        </Card>
+          <View style={styles.vsWrap}><Text style={styles.vs}>VS</Text></View>
+          <View style={styles.heroSide}>
+            <Text style={styles.heroFlag}>{teamFlag(match.away_team, match.away_flag)}</Text>
+            <Text style={styles.heroName} numberOfLines={1}>{awayN}</Text>
+          </View>
+        </View>
 
-        {/* Win probability (model) */}
-        <Card style={{ gap: spacing.md }}>
-          <View style={styles.cardHead}>
-            <Text style={styles.cardTitle}>Win probability</Text>
-            <Chip label="YaFoot model" color={colors.purple} bg="rgba(155,93,229,0.12)" />
-          </View>
-          <View style={styles.bar}>
-            <View style={{ width: `${hw}%`, backgroundColor: colors.green }} />
-            <View style={{ width: `${dr}%`, backgroundColor: colors.yellow }} />
-            <View style={{ width: `${aw}%`, backgroundColor: colors.purple }} />
-          </View>
-          <View style={styles.legendRow}>
-            <Legend color={colors.green} label={prettyTeam(match.home_team)} val={hw} />
-            <Legend color={colors.yellow} label="Draw" val={dr} />
-            <Legend color={colors.purple} label={prettyTeam(match.away_team)} val={aw} />
-          </View>
-        </Card>
+        {/* win probability — three bold colored blocks */}
+        <Text style={styles.sectionTitle}>Win probability</Text>
+        <View style={styles.probRow}>
+          <ProbBlock color={colors.green} flag={teamFlag(match.home_team, match.home_flag)} label={homeN} pct={hw} fav={fav === "home"} />
+          <ProbBlock color={colors.yellow} dark label="Draw" pct={dr} fav={fav === "draw"} icon="remove" />
+          <ProbBlock color={colors.purple} flag={teamFlag(match.away_team, match.away_flag)} label={awayN} pct={aw} fav={fav === "away"} />
+        </View>
+        <View style={styles.segBar}>
+          <View style={{ flex: hw, backgroundColor: colors.green }} />
+          <View style={{ flex: dr, backgroundColor: colors.yellow }} />
+          <View style={{ flex: aw, backgroundColor: colors.purple }} />
+        </View>
 
-        {/* Projected score */}
-        <Card style={{ gap: spacing.md }}>
-          <Text style={styles.cardTitle}>Projected score</Text>
-          <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: spacing.lg }}>
-            <Score flag={teamFlag(match.home_team, match.home_flag)} val={model.expHome} />
-            <Text style={styles.dash}>:</Text>
-            <Score flag={teamFlag(match.away_team, match.away_flag)} val={model.expAway} />
+        {/* projected score */}
+        <View style={styles.scoreCard}>
+          <Text style={styles.cardLabel}>PROJECTED SCORE</Text>
+          <View style={styles.scoreRow}>
+            <Text style={styles.scoreFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
+            <Text style={styles.scoreNum}>{model.expHome}</Text>
+            <Text style={styles.scoreDash}>–</Text>
+            <Text style={styles.scoreNum}>{model.expAway}</Text>
+            <Text style={styles.scoreFlag}>{teamFlag(match.away_team, match.away_flag)}</Text>
           </View>
-          <Text style={styles.note}>Most likely scorelines</Text>
-          {model.topScores.map((s, i) => (
-            <View key={i} style={styles.popRow}>
-              <Text style={styles.popScore}>{s.score}</Text>
-              <View style={styles.popBarBg}><View style={[styles.popBarFill, { width: `${Math.max(Math.round(s.p * 100), 4)}%` }]} /></View>
-              <Text style={styles.popPct}>{Math.round(s.p * 100)}%</Text>
+        </View>
+
+        {/* likely scorelines */}
+        <View style={styles.card}>
+          <Text style={styles.cardLabel}>MOST LIKELY SCORELINES</Text>
+          {model.topScores.map((s, i) => {
+            const pct = Math.round(s.p * 100);
+            const c = [colors.green, colors.purple, colors.orange, colors.cyan, colors.greenDark][i];
+            return (
+              <View key={i} style={styles.popRow}>
+                <View style={[styles.scorePill, { backgroundColor: c }]}><Text style={styles.scorePillTxt}>{s.score}</Text></View>
+                <View style={styles.popBarBg}><View style={[styles.popBarFill, { width: `${Math.max(pct, 5)}%`, backgroundColor: c }]} /></View>
+                <Text style={styles.popPct}>{pct}%</Text>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* community */}
+        <View style={[styles.card, styles.communityCard]}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <View style={styles.peopleDot}><Text style={{ fontSize: 16 }}>👥</Text></View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.commTitle}>Community</Text>
+              <Text style={styles.commSub}>
+                {cTotal === 0 ? "Be the first fan to predict this match" : `${cTotal} ${cTotal === 1 ? "fan has" : "fans have"} predicted this match`}
+              </Text>
             </View>
-          ))}
-        </Card>
-
-        {/* Community forecast (if any) */}
-        <Card style={{ gap: spacing.sm }}>
-          <View style={styles.cardHead}>
-            <Text style={styles.cardTitle}>Community forecast</Text>
-            <Chip label={`${cTotal} ${cTotal === 1 ? "pick" : "picks"}`} color={colors.greenDark} bg={colors.bleuSoft} />
+            {cTotal > 0 ? (
+              <Text style={styles.commPct}>{Math.round(((crowd.home_win || 0) / cTotal) * 100)}% / {Math.round(((crowd.draw || 0) / cTotal) * 100)}% / {Math.round(((crowd.away_win || 0) / cTotal) * 100)}%</Text>
+            ) : null}
           </View>
-          {cTotal === 0 ? (
-            <Text style={styles.note}>No fan predictions yet — be the first to predict this match.</Text>
-          ) : (
-            <View style={styles.legendRow}>
-              <Legend color={colors.green} label="Home" val={cpct(crowd.home_win)} />
-              <Legend color={colors.yellow} label="Draw" val={cpct(crowd.draw)} />
-              <Legend color={colors.purple} label="Away" val={cpct(crowd.away_win)} />
-            </View>
-          )}
-        </Card>
+        </View>
       </ScrollView>
     </Screen>
   );
 }
 
-const Legend = ({ color, label, val }: { color: string; label: string; val: number }) => (
-  <View style={{ alignItems: "center", flex: 1 }}>
-    <Text style={{ color, fontSize: 24, fontWeight: "900" }}>{val}%</Text>
-    <Text style={{ color: colors.textDim, fontSize: 11, fontWeight: "800", textAlign: "center" }} numberOfLines={1}>{label}</Text>
-  </View>
-);
-const Score = ({ flag, val }: { flag: string; val: number }) => (
-  <View style={{ alignItems: "center", gap: 4 }}>
-    <Text style={{ fontSize: 36 }}>{flag}</Text>
-    <Text style={{ color: colors.ink, fontSize: 32, fontWeight: "900" }}>{val}</Text>
-  </View>
-);
+function ProbBlock({ color, flag, label, pct, fav, dark, icon }: { color: string; flag?: string; label: string; pct: number; fav?: boolean; dark?: boolean; icon?: string }) {
+  const txt = dark ? colors.ink : colors.blanc;
+  return (
+    <View style={[styles.probBlock, { backgroundColor: color }, fav && styles.favBlock]}>
+      {fav ? <View style={styles.favBadge}><Text style={styles.favTxt}>FAV</Text></View> : null}
+      <Text style={{ fontSize: 22 }}>{flag ?? "🤝"}</Text>
+      <Text style={[styles.probPct, { color: txt }]}>{pct}%</Text>
+      <Text style={[styles.probLabel, { color: txt }]} numberOfLines={1}>{label}</Text>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-  group: { color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: "800", letterSpacing: 0.5 },
-  fixtureRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%" },
-  side: { flex: 1, alignItems: "center", gap: 6 },
-  bigFlag: { fontSize: 46 },
-  sideName: { color: colors.blanc, fontSize: 14, fontWeight: "800", textAlign: "center" },
-  vs: { color: "rgba(255,255,255,0.6)", fontSize: 16, fontWeight: "900", paddingHorizontal: 8 },
-  cardHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  cardTitle: { color: colors.ink, fontSize: 16, fontWeight: "900" },
-  bar: { flexDirection: "row", height: 18, borderRadius: 9, overflow: "hidden", backgroundColor: colors.surfaceAlt },
-  legendRow: { flexDirection: "row", gap: spacing.sm },
-  dash: { color: colors.textFaint, fontSize: 28, fontWeight: "900" },
-  note: { color: colors.textDim, fontSize: 12, textAlign: "center", fontWeight: "600" },
+  hero: { flexDirection: "row", alignItems: "center", backgroundColor: colors.surfaceDark, borderRadius: radius.xl, padding: spacing.xl, ...shadow },
+  heroSide: { flex: 1, alignItems: "center", gap: 8 },
+  heroFlag: { fontSize: 52 },
+  heroName: { color: colors.blanc, fontSize: 15, fontWeight: "900", textAlign: "center" },
+  vsWrap: { paddingHorizontal: spacing.sm },
+  vs: { color: "rgba(255,255,255,0.5)", fontSize: 18, fontWeight: "900" },
+  sectionTitle: { color: colors.ink, fontSize: 20, fontWeight: "900", letterSpacing: -0.3, marginBottom: -spacing.sm },
+  probRow: { flexDirection: "row", gap: spacing.sm },
+  probBlock: { flex: 1, borderRadius: radius.lg, paddingVertical: spacing.lg, alignItems: "center", gap: 4, ...shadow },
+  favBlock: { transform: [{ scale: 1.04 }] },
+  favBadge: { position: "absolute", top: 6, right: 6, backgroundColor: "rgba(0,0,0,0.25)", borderRadius: radius.pill, paddingHorizontal: 6, paddingVertical: 1 },
+  favTxt: { color: colors.blanc, fontSize: 9, fontWeight: "900" },
+  probPct: { fontSize: 28, fontWeight: "900", letterSpacing: -1 },
+  probLabel: { fontSize: 11, fontWeight: "800", paddingHorizontal: 4 },
+  segBar: { flexDirection: "row", height: 12, borderRadius: 6, overflow: "hidden" },
+  scoreCard: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, alignItems: "center", gap: spacing.sm, ...shadow },
+  cardLabel: { color: colors.textDim, fontSize: 11, fontWeight: "900", letterSpacing: 1 },
+  scoreRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  scoreFlag: { fontSize: 32 },
+  scoreNum: { color: colors.ink, fontSize: 40, fontWeight: "900", letterSpacing: -1 },
+  scoreDash: { color: colors.textFaint, fontSize: 30, fontWeight: "900" },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm, ...shadow },
   popRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  popScore: { color: colors.ink, fontWeight: "900", width: 40, fontSize: 15 },
-  popBarBg: { flex: 1, height: 10, borderRadius: 5, backgroundColor: colors.surfaceAlt, overflow: "hidden" },
-  popBarFill: { height: 10, backgroundColor: colors.green, borderRadius: 5 },
-  popPct: { color: colors.textDim, fontWeight: "800", width: 38, textAlign: "right", fontSize: 13 },
+  scorePill: { width: 50, borderRadius: radius.pill, paddingVertical: 5, alignItems: "center" },
+  scorePillTxt: { color: colors.blanc, fontWeight: "900", fontSize: 14 },
+  popBarBg: { flex: 1, height: 12, borderRadius: 6, backgroundColor: colors.surfaceAlt, overflow: "hidden" },
+  popBarFill: { height: 12, borderRadius: 6 },
+  popPct: { color: colors.ink, fontWeight: "900", width: 40, textAlign: "right", fontSize: 14 },
+  communityCard: { backgroundColor: colors.bleuSoft },
+  peopleDot: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  commTitle: { color: colors.ink, fontWeight: "900", fontSize: 15 },
+  commSub: { color: colors.textDim, fontWeight: "600", fontSize: 12 },
+  commPct: { color: colors.greenDark, fontWeight: "900", fontSize: 12 },
 });

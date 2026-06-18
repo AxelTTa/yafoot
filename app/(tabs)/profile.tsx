@@ -1,12 +1,12 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Avatar, Card, Icon, ScreenHeader, ScrollView, Tricolor } from "../../components/ui";
+import { Avatar, Icon, ScreenHeader, ScrollView } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { fetchMyForecasts } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { prettyTeam } from "../../lib/teams";
-import { colors, radius, spacing } from "../../lib/theme";
+import { colors, radius, shadow, spacing } from "../../lib/theme";
 
 export default function Profile() {
   const router = useRouter();
@@ -34,7 +34,7 @@ export default function Profile() {
   const scored = forecasts.filter((f) => f.scored);
   const accuracy = scored.length ? Math.round((stats.correct / scored.length) * 100) : 0;
 
-  const Stat = ({ label, value, color = colors.text }: { label: string; value: number | string; color?: string }) => (
+  const StatTile = ({ label, value, color }: { label: string; value: number | string; color: string }) => (
     <View style={styles.stat}>
       <Text style={[styles.statVal, { color }]}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
@@ -42,87 +42,95 @@ export default function Profile() {
   );
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 110 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.bg }} contentContainerStyle={{ paddingBottom: 130 }}>
       <ScreenHeader
         title="Profile"
         right={
           <Pressable onPress={() => router.push("/settings")} style={styles.gear} hitSlop={8}>
-            <Icon name="settings-outline" size={20} color={colors.ink} />
+            <Icon name="settings-sharp" size={20} color={colors.ink} />
           </Pressable>
         }
       />
 
       <View style={{ alignItems: "center", gap: 6, paddingBottom: spacing.lg }}>
-        <Avatar name={profile?.display_name || profile?.username} url={profile?.avatar_url} size={96} ring />
+        <Avatar name={profile?.display_name || profile?.username} url={profile?.avatar_url} size={104} ring color={colors.purple} />
         <Text style={styles.name}>{profile?.display_name || profile?.username || "Player"}</Text>
         <Text style={styles.handle}>@{profile?.username}</Text>
-        <Tricolor width={56} />
       </View>
 
-      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.lg }}>
-        <Card variant="hero">
-          <Text style={styles.heroLabel}>TOTAL POINTS</Text>
-          <Text style={styles.heroPoints}>{profile?.total_points ?? 0}</Text>
-          <Text style={styles.heroSub}>Exact score = 3 pts · Correct result = 1 pt</Text>
-        </Card>
+      <View style={{ paddingHorizontal: spacing.lg, gap: spacing.md }}>
+        {/* points hero — vivid purple card, white text reads cleanly */}
+        <View style={styles.hero}>
+          <View style={styles.heroIcon}><Icon name="trophy" size={26} color={colors.yellow} /></View>
+          <View>
+            <Text style={styles.heroLabel}>TOTAL POINTS</Text>
+            <Text style={styles.heroPoints}>{profile?.total_points ?? 0}</Text>
+          </View>
+        </View>
 
         <View style={styles.statsRow}>
-          <Stat label="Predictions" value={stats.predictions} />
-          <Stat label="Exact" value={stats.exact} color={colors.gold} />
-          <Stat label="Accuracy" value={`${accuracy}%`} color={colors.live} />
-          <Stat label="Leagues" value={stats.leagues} color={colors.bleu} />
+          <StatTile label="Predictions" value={stats.predictions} color={colors.greenDark} />
+          <StatTile label="Exact" value={stats.exact} color={colors.orange} />
+          <StatTile label="Accuracy" value={`${accuracy}%`} color={colors.purple} />
+          <StatTile label="Leagues" value={stats.leagues} color={colors.cyan} />
         </View>
 
-        <View>
-          <Text style={styles.section}>MY FORECASTS</Text>
-          {forecasts.length === 0 ? (
-            <Card variant="flat"><Text style={{ color: colors.textDim }}>No predictions yet. Head to Predict to make your first one.</Text></Card>
-          ) : (
-            <View style={{ gap: spacing.sm }}>
-              {forecasts.slice(0, 12).map((f, i) => {
-                const m = f.matches;
-                if (!m) return null;
-                return (
-                  <Card key={i} variant="flat" style={styles.fc}>
-                    <Text style={styles.fcTeams} numberOfLines={1}>
-                      {m.home_flag} {prettyTeam(m.home_team)} v {prettyTeam(m.away_team)} {m.away_flag}
-                    </Text>
-                    <View style={{ alignItems: "flex-end" }}>
-                      <Text style={styles.fcPick}>{f.pred_home}-{f.pred_away}</Text>
-                      {f.scored ? (
-                        <Text style={[styles.fcPts, { color: f.points_awarded >= 3 ? colors.gold : f.points_awarded > 0 ? colors.live : colors.textFaint }]}>
-                          +{f.points_awarded}
-                        </Text>
-                      ) : (
-                        <Text style={styles.fcPending}>pending</Text>
-                      )}
-                    </View>
-                  </Card>
-                );
-              })}
-            </View>
-          )}
-        </View>
+        <Text style={styles.section}>MY FORECASTS</Text>
+        {forecasts.length === 0 ? (
+          <View style={styles.emptyFc}>
+            <Icon name="create-outline" size={20} color={colors.textDim} />
+            <Text style={styles.emptyTxt}>No predictions yet — head to Predict to make your first.</Text>
+          </View>
+        ) : (
+          <View style={{ gap: spacing.sm }}>
+            {forecasts.slice(0, 15).map((f, i) => {
+              const m = f.matches;
+              if (!m) return null;
+              return (
+                <View key={i} style={styles.fc}>
+                  <Text style={styles.fcTeams} numberOfLines={1}>
+                    {m.home_flag} {prettyTeam(m.home_team)} v {prettyTeam(m.away_team)} {m.away_flag}
+                  </Text>
+                  <View style={styles.fcRight}>
+                    <Text style={styles.fcPick}>{f.pred_home}-{f.pred_away}</Text>
+                    {f.scored ? (
+                      <View style={[styles.fcBadge, { backgroundColor: f.points_awarded >= 3 ? colors.green : f.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
+                        <Text style={[styles.fcBadgeTxt, { color: f.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{f.points_awarded}</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.fcPending}>•••</Text>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  gear: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
-  name: { color: colors.text, fontSize: 24, fontWeight: "900", marginTop: spacing.sm },
-  handle: { color: colors.textDim, fontSize: 14, fontWeight: "600" },
-  heroLabel: { color: "rgba(255,255,255,0.8)", fontSize: 11, fontWeight: "800", letterSpacing: 1 },
-  heroPoints: { color: colors.blanc, fontSize: 52, fontWeight: "900", letterSpacing: -1 },
-  heroSub: { color: "rgba(255,255,255,0.85)", fontSize: 12, fontWeight: "600" },
+  gear: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center", ...shadow },
+  name: { color: colors.ink, fontSize: 24, fontWeight: "900", marginTop: spacing.sm },
+  handle: { color: colors.textDim, fontSize: 14, fontWeight: "700" },
+  hero: { flexDirection: "row", alignItems: "center", gap: spacing.lg, backgroundColor: colors.purple, borderRadius: radius.xl, padding: spacing.xl, ...shadow },
+  heroIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
+  heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 12, fontWeight: "900", letterSpacing: 1 },
+  heroPoints: { color: colors.blanc, fontSize: 44, fontWeight: "900", letterSpacing: -1, marginTop: -2 },
   statsRow: { flexDirection: "row", gap: spacing.sm },
-  stat: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.md, alignItems: "center" },
+  stat: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, alignItems: "center", ...shadow },
   statVal: { fontSize: 22, fontWeight: "900" },
-  statLabel: { color: colors.textDim, fontSize: 11, fontWeight: "700", marginTop: 2 },
-  section: { color: colors.textDim, fontSize: 12, fontWeight: "800", letterSpacing: 1, marginBottom: spacing.sm },
-  fc: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: spacing.md },
-  fcTeams: { flex: 1, color: colors.text, fontSize: 14, fontWeight: "700", marginRight: spacing.md },
-  fcPick: { color: colors.text, fontSize: 15, fontWeight: "900" },
-  fcPts: { fontSize: 12, fontWeight: "900" },
-  fcPending: { color: colors.bleu, fontSize: 11, fontWeight: "700" },
+  statLabel: { color: colors.textDim, fontSize: 10, fontWeight: "800", marginTop: 2 },
+  section: { color: colors.textDim, fontSize: 12, fontWeight: "900", letterSpacing: 1, marginTop: spacing.sm },
+  emptyFc: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg },
+  emptyTxt: { color: colors.textDim, fontSize: 13, fontWeight: "600", flex: 1 },
+  fc: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, ...shadow },
+  fcTeams: { flex: 1, color: colors.ink, fontSize: 14, fontWeight: "800", marginRight: spacing.md },
+  fcRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  fcPick: { color: colors.ink, fontSize: 15, fontWeight: "900" },
+  fcBadge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2, minWidth: 28, alignItems: "center" },
+  fcBadgeTxt: { fontSize: 12, fontWeight: "900" },
+  fcPending: { color: colors.textFaint, fontSize: 14, fontWeight: "900" },
 });

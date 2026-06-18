@@ -6,8 +6,17 @@ import { colors } from "../../lib/theme";
 
 function TabIcon({ name, focused }: { name: any; focused: boolean }) {
   return (
-    <View style={{ width: 50, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: focused ? colors.green : "transparent" }}>
-      <Ionicons name={name} size={22} color={focused ? colors.blanc : "rgba(255,255,255,0.6)"} />
+    <View
+      style={{
+        width: 44,
+        height: 28,
+        borderRadius: 14,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: focused ? colors.green : "transparent",
+      }}
+    >
+      <Ionicons name={name} size={19} color={focused ? colors.blanc : "rgba(255,255,255,0.6)"} />
     </View>
   );
 }
@@ -19,16 +28,16 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.blanc,
-        tabBarInactiveTintColor: "rgba(255,255,255,0.6)",
+        tabBarInactiveTintColor: "rgba(255,255,255,0.55)",
         tabBarStyle: {
           backgroundColor: colors.surfaceDark,
           borderTopWidth: 0,
-          borderRadius: 30,
-          height: 64,
-          paddingTop: 8,
-          paddingBottom: 8,
+          borderRadius: 28,
+          height: 70 + insets.bottom,
+          paddingTop: 9,
+          paddingBottom: insets.bottom + 9,
           marginHorizontal: 14,
-          marginBottom: insets.bottom + 8,
+          marginBottom: insets.bottom > 0 ? 6 : 12,
           position: "absolute",
           elevation: 12,
           shadowColor: "#000",
@@ -36,7 +45,9 @@ export default function TabsLayout() {
           shadowRadius: 16,
           shadowOffset: { width: 0, height: 8 },
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: "800", marginTop: 0 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: "800" },
+        tabBarItemStyle: { paddingTop: 2 },
+        tabBarIconStyle: { marginBottom: 2 },
       }}
     >
       <Tabs.Screen name="index" options={{ title: "Matches", tabBarIcon: ({ focused }) => <TabIcon name="football" focused={focused} /> }} />
