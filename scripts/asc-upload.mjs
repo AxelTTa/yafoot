@@ -144,7 +144,6 @@ async function main() {
         keywords: "world cup,football,soccer,predictions,2026,FIFA,league,friends,scores,pronostics",
         supportUrl: "https://dist-five-zeta-92i4a6g3xx.vercel.app",
         marketingUrl: "https://dist-five-zeta-92i4a6g3xx.vercel.app",
-        whatsNew: "First release — pick scores for all 104 World Cup 2026 matches and compete with friends.",
       },
     },
   });
@@ -273,7 +272,6 @@ async function main() {
           attributes: {
             fileSize,
             fileName: `${prefix}_0${i+1}.png`,
-            sourceFileChecksum: md5,
           },
           relationships: {
             appScreenshotSet: { data: { type: "appScreenshotSets", id: setId } },
@@ -316,26 +314,18 @@ async function main() {
     return setId;
   }
 
-  await uploadScreenshots("APP_IPHONE_65", "iphone");
+  await uploadScreenshots("APP_IPHONE_67", "iphone");
   await uploadScreenshots("APP_IPAD_PRO_3GEN_129", "ipad");
 
   console.log("\n── Step g: submit for review ──");
   try {
-    const submission = await api("POST", "/appStoreVersionSubmissions", {
-      data: {
-        type: "appStoreVersionSubmissions",
-        relationships: {
-          appStoreVersion: { data: { type: "appStoreVersions", id: versionId } },
-        },
-      },
-    });
-    console.log("Submitted for review!", JSON.stringify(submission.data?.attributes || {}, null, 2));
-  } catch (e) {
-    console.error("Submit for review failed:", e.message);
-    // Try alternate endpoint
-    try {
-      console.log("Trying reviewSubmissions endpoint…");
-      const sub2 = await api("POST", "/reviewSubmissions", {
+    // Check for existing review submission
+    const existingResp = await api("GET", `/reviewSubmissions?filter[app]=${APP_ID}&limit=5`).catch(() => null);
+    let reviewId = existingResp?.data?.find(s => s.attributes?.state === "READY_FOR_REVIEW" || s.attributes?.state === "WAITING_FOR_REVIEW")?.id;
+
+    if (!reviewId) {
+      console.log("Creating new review submission…");
+      const sub = await api("POST", "/reviewSubmissions", {
         data: {
           type: "reviewSubmissions",
           attributes: { platform: "IOS" },
@@ -344,9 +334,20 @@ async function main() {
           },
         },
       });
-      const reviewId = sub2.data.id;
+      reviewId = sub.data.id;
       console.log("Review submission created:", reviewId);
-      // Add the version item
+    } else {
+      console.log("Using existing review submission:", reviewId);
+    }
+
+    // Check if version item already exists
+    const itemsResp = await api("GET", `/reviewSubmissions/${reviewId}/items?limit=10`).catch(() => null);
+    const hasVersionItem = itemsResp?.data?.some(item =>
+      item.relationships?.appStoreVersion?.data?.id === versionId
+    );
+
+    if (!hasVersionItem) {
+      console.log("Adding version item to submission…");
       await api("POST", "/reviewSubmissionItems", {
         data: {
           type: "reviewSubmissionItems",
@@ -355,19 +356,21 @@ async function main() {
             appStoreVersion: { data: { type: "appStoreVersions", id: versionId } },
           },
         },
-      });
-      // Confirm submission
-      await api("PATCH", `/reviewSubmissions/${reviewId}`, {
-        data: {
-          type: "reviewSubmissions",
-          id: reviewId,
-          attributes: { submitted: true },
-        },
-      });
-      console.log("Submitted for review via reviewSubmissions!");
-    } catch (e2) {
-      console.error("Both submit paths failed:", e2.message);
+      }).catch(e => console.warn("Add version item:", e.message));
     }
+
+    // Confirm (submit) the review submission
+    console.log("Submitting for review…");
+    await api("PATCH", `/reviewSubmissions/${reviewId}`, {
+      data: {
+        type: "reviewSubmissions",
+        id: reviewId,
+        attributes: { submitted: true },
+      },
+    });
+    console.log("Submitted for review!");
+  } catch (e) {
+    console.error("Submit failed:", e.message.slice(0, 500));
   }
 
   console.log("\nDONE.");

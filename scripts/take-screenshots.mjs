@@ -7,52 +7,99 @@ const BASE_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app";
 const OUT_DIR = "/tmp/screenshots";
 mkdirSync(OUT_DIR, { recursive: true });
 
-const IPHONE = { width: 430, height: 932, deviceScaleFactor: 3 };   // 1290×2796 saved
-const IPAD   = { width: 1024, height: 1366, deviceScaleFactor: 2 }; // 2048×2732 saved
+const IPHONE = { width: 430, height: 932, deviceScaleFactor: 3 };
+const IPAD   = { width: 1024, height: 1366, deviceScaleFactor: 2 };
 
-async function shoot(browser, viewport, outFile, action) {
-  const page = await browser.newPage();
-  await page.setViewport(viewport);
-  await page.goto(BASE_URL, { waitUntil: "networkidle2", timeout: 30000 });
-  await new Promise(r => setTimeout(r, 3000));
+async function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-  // Try to do onboarding if needed (username prompt may appear)
-  try {
-    // If there's an onboarding/auth screen, just skip past it by filling username
-    const usernameInput = await page.$('input[placeholder*="username" i], input[placeholder*="Username" i]');
-    if (usernameInput) {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-      await page.evaluate((el, val) => {
-        Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(el, val);
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-      }, usernameInput, `screenshotter_${Date.now()}`);
-      // click Continue
-      await page.click('button, [role="button"]');
-      await new Promise(r => setTimeout(r, 2000));
+function clickTabIndex(page, text) {
+  return page.evaluate((t) => {
+    const el = [...document.querySelectorAll('[tabindex="0"]')].find(e => e.textContent?.trim().includes(t));
+    if (el) { el.click(); return el.textContent?.slice(0, 40); }
+    return null;
+  }, text);
+}
+
+async function doOnboarding(page) {
+  await delay(2500);
+
+  // Language screen: click English
+  const lang = await clickTabIndex(page, "English");
+  if (lang) { console.log("  Lang:", lang); await delay(1500); }
+
+  // Username screen: fill + submit
+  const input = await page.$('input');
+  if (input) {
+    const username = `shot${Date.now().toString().slice(-5)}`;
+    await page.evaluate((el, val) => {
+      Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, val);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, input, username);
+    await delay(300);
+    const btn = await clickTabIndex(page, "go");
+    console.log("  Submit:", btn);
+    await delay(5000); // wait for auth + navigation to invite screen
+  }
+
+  // Invite screen: click "Continue to app"
+  const cont = await clickTabIndex(page, "Continue");
+  if (cont) { console.log("  Continue:", cont); await delay(2000); }
+
+  // Wait for tabs to appear
+  await delay(1500);
+  console.log("  URL:", await page.evaluate(() => location.href));
+}
+
+async function clickTabByText(page, label) {
+  // In the tab bar, items have specific text labels (Matches/Leagues/Friends/Profile)
+  // Try navigating directly to the URL as fallback
+  const result = await page.evaluate((lbl) => {
+    const all = [...document.querySelectorAll('*')];
+    // look for tab-bar-like elements (non-nested text match)
+    for (const el of all) {
+      if (el.children.length <= 2 && el.textContent?.trim() === lbl) {
+        el.click();
+        return "clicked:" + lbl;
+      }
     }
-  } catch (_) {}
+    return null;
+  }, label);
+  if (result) { console.log("  Tab:", result); await delay(2000); return; }
 
-  if (action) await action(page);
+  // Fallback: navigate via URL
+  const paths = { Leagues: "/(tabs)/leagues", Friends: "/(tabs)/social", Profile: "/(tabs)/profile" };
+  const path = paths[label];
+  if (path) {
+    await page.evaluate((p) => {
+      // use expo-router's navigation
+      window.__expo_router_navigate?.(p);
+    }, path);
+    // Fallback to hash/pushState
+    const url = `${BASE_URL}${path}`;
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 15000 }).catch(() => {});
+    await delay(2000);
+  }
+}
+
+async function shoot(browser, viewport, outFile, tabUrl) {
+  const ctx = await browser.createBrowserContext();
+  const page = await ctx.newPage();
+  await page.setViewport(viewport);
+  console.log("  Loading...");
+  await page.goto(BASE_URL, { waitUntil: "networkidle2", timeout: 30000 });
+  await doOnboarding(page);
+
+  if (tabUrl) {
+    // Navigate to the specific tab URL directly
+    await page.goto(tabUrl, { waitUntil: "networkidle2", timeout: 20000 });
+    await delay(2000);
+    console.log("  Navigated to:", tabUrl);
+  }
 
   await page.screenshot({ path: outFile, type: "png" });
   await page.close();
-  console.log("Saved:", outFile);
-}
-
-async function clickTab(page, label) {
-  // Try clicking tab by text content
-  const clicked = await page.evaluate((text) => {
-    const els = [...document.querySelectorAll("*")];
-    for (const el of els) {
-      if (el.children.length === 0 && el.textContent?.trim() === text) {
-        el.click();
-        return true;
-      }
-    }
-    return false;
-  }, label);
-  if (!clicked) console.warn("Tab not found:", label);
-  await new Promise(r => setTimeout(r, 2500));
+  await ctx.close();
+  console.log("  Saved:", outFile);
 }
 
 async function run() {
@@ -61,22 +108,27 @@ async function run() {
     args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
   });
 
-  // iPhone screenshots
-  console.log("--- iPhone 6.5\" screenshots ---");
-  await shoot(browser, IPHONE, `${OUT_DIR}/iphone_01.png`, null);
-  await shoot(browser, IPHONE, `${OUT_DIR}/iphone_02.png`, p => clickTab(p, "Predict"));
-  await shoot(browser, IPHONE, `${OUT_DIR}/iphone_03.png`, p => clickTab(p, "Leagues"));
-  await shoot(browser, IPHONE, `${OUT_DIR}/iphone_04.png`, p => clickTab(p, "Profile"));
+  const TABS = [
+    { label: "Matches", url: null },                                           // home tab
+    { label: "Leagues", url: `${BASE_URL}/leagues` },
+    { label: "Friends", url: `${BASE_URL}/social` },
+    { label: "Profile", url: `${BASE_URL}/profile` },
+  ];
 
-  // iPad screenshots
+  console.log("--- iPhone 6.5\" screenshots ---");
+  for (let i = 0; i < TABS.length; i++) {
+    console.log(`Shot ${i+1}: ${TABS[i].label}`);
+    await shoot(browser, IPHONE, `${OUT_DIR}/iphone_0${i+1}.png`, TABS[i].url);
+  }
+
   console.log("--- iPad Pro 12.9\" screenshots ---");
-  await shoot(browser, IPAD, `${OUT_DIR}/ipad_01.png`, null);
-  await shoot(browser, IPAD, `${OUT_DIR}/ipad_02.png`, p => clickTab(p, "Predict"));
-  await shoot(browser, IPAD, `${OUT_DIR}/ipad_03.png`, p => clickTab(p, "Leagues"));
-  await shoot(browser, IPAD, `${OUT_DIR}/ipad_04.png`, p => clickTab(p, "Profile"));
+  for (let i = 0; i < TABS.length; i++) {
+    console.log(`Shot ${i+1}: ${TABS[i].label}`);
+    await shoot(browser, IPAD, `${OUT_DIR}/ipad_0${i+1}.png`, TABS[i].url);
+  }
 
   await browser.close();
-  console.log("All screenshots saved to", OUT_DIR);
+  console.log("\nAll screenshots saved to", OUT_DIR);
 }
 
 run().catch(e => { console.error(e); process.exit(1); });
