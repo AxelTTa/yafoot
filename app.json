@@ -15,7 +15,8 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yafoot.app"
+      "bundleIdentifier": "com.axelcassou.yafoot",
+      "buildNumber": "1"
     },
     "android": {
       "package": "com.yafoot.app",
