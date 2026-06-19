@@ -16,7 +16,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.axelcassou.yafoot",
-      "buildNumber": "1"
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Choose a profile photo for your YaFoot account",
+        "NSCameraUsageDescription": "Take a profile photo for your YaFoot account"
+      }
     },
     "android": {
       "package": "com.yafoot.app",

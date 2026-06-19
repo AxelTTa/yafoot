@@ -2,9 +2,9 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from "react-native";
 import { Avatar, Button, Card, Empty, Icon, IconTile, Loading, QRModal, ScreenHeader } from "../../components/ui";
-import { fetchFriends, respondFriend, searchUsers, sendFriendRequest } from "../../lib/api";
+import { fetchFriends, respondFriend, searchUsers, sendFriendRequest, blockUser } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
-import { notify } from "../../lib/notify";
+import { notify, confirmAsync } from "../../lib/notify";
 import { inviteLink } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
@@ -39,6 +39,18 @@ export default function Social() {
     setResults(await searchUsers(text.trim()));
     setSearching(false);
   }
+  async function handleBlock(uid: string, name: string) {
+    const ok = await confirmAsync(t("block_confirm_title"), t("block_confirm_msg"));
+    if (!ok) return;
+    try {
+      await blockUser(uid);
+      notify(t("block_done"));
+      load();
+    } catch (e: any) {
+      notify("Could not block", e.message);
+    }
+  }
+
   async function add(uid: string) {
     try {
       await sendFriendRequest(uid);
@@ -118,7 +130,7 @@ export default function Social() {
               <Button title={t("btn_add")} variant="green" icon="person-add" onPress={() => add(item.id)} style={{ height: 40, paddingHorizontal: 16 }} />
             </Card>
           ) : (
-            <Card style={styles.row} onPress={() => router.push(`/chat/${item.id}`)}>
+            <Card style={styles.row} onPress={() => router.push(`/chat/${item.id}`)} onLongPress={() => handleBlock(item.id, item.display_name || item.username)}>
               <Avatar name={item.display_name || item.username} url={item.avatar_url} size={44} color={accentFor(index)} />
               <View style={{ flex: 1 }}>
                 <Text style={styles.name}>{item.display_name || item.username}</Text>

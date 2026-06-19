@@ -118,6 +118,31 @@ export async function respondFriend(id: number, accept: boolean) {
   }
 }
 
+export async function deleteMyAccount() {
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) throw error;
+}
+
+export async function reportMessage(messageId: number, messageType: "dm" | "league_message", reportedUserId: string) {
+  const { data: u } = await supabase.auth.getUser();
+  const { error } = await supabase.from("reports").insert({
+    reporter_id: u.user!.id,
+    reported_user_id: reportedUserId,
+    message_id: messageId,
+    message_type: messageType,
+  });
+  if (error) throw error;
+}
+
+export async function blockUser(blockedId: string) {
+  const { data: u } = await supabase.auth.getUser();
+  const { error } = await supabase.from("blocks").insert({
+    blocker_id: u.user!.id,
+    blocked_id: blockedId,
+  });
+  if (error) throw error;
+}
+
 export async function fetchFriends() {
   const { data: u } = await supabase.auth.getUser();
   const uid = u.user!.id;

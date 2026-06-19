@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActionSheetIOS,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -14,8 +15,8 @@ import { Avatar, Empty, Header, Icon, Loading, QRModal, Screen } from "../../com
 import { inviteBase } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
-import { notify } from "../../lib/notify";
-import { leagueLeaderboard } from "../../lib/api";
+import { notify, confirmAsync } from "../../lib/notify";
+import { leagueLeaderboard, reportMessage } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
 
@@ -78,6 +79,30 @@ export default function LeagueDetail() {
       supabase.removeChannel(ch);
     };
   }, [leagueId, loadBoard, loadMsgs]);
+
+  async function reportMsg(msg: Msg) {
+    if (msg.sender_id === me) return;
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: ["Cancel", "Report message"], cancelButtonIndex: 0, destructiveButtonIndex: 1 },
+        async (idx) => {
+          if (idx === 1) await doReportMsg(msg);
+        }
+      );
+    } else {
+      const ok = await confirmAsync("Report message?", "Flag this message for review?");
+      if (ok) await doReportMsg(msg);
+    }
+  }
+
+  async function doReportMsg(msg: Msg) {
+    try {
+      await reportMessage(msg.id, "league_message", msg.sender_id);
+      notify("Message reported", "Thank you. Our team will review it.");
+    } catch (e: any) {
+      notify("Could not report", e.message);
+    }
+  }
 
   async function send() {
     const body = text.trim();
@@ -202,9 +227,13 @@ export default function LeagueDetail() {
             renderItem={({ item }) => {
               const mine = item.sender_id === me;
               return (
-                <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
+                <Pressable
+                  onLongPress={() => reportMsg(item)}
+                  delayLongPress={400}
+                  style={[styles.bubble, mine ? styles.mine : styles.theirs]}
+                >
                   <Text style={[styles.msgText, mine && { color: colors.blanc }]}>{item.body}</Text>
-                </View>
+                </Pressable>
               );
             }}
             ListEmptyComponent={<Empty icon="chatbubbles-outline" title="No messages yet" sub="Say hi to your league!" />}

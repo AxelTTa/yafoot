@@ -73,11 +73,13 @@ export function Card({
   style,
   variant = "default",
   onPress,
+  onLongPress,
 }: {
   children: React.ReactNode;
   style?: ViewStyle;
   variant?: "default" | "hero" | "flat";
   onPress?: () => void;
+  onLongPress?: () => void;
 }) {
   const v =
     variant === "hero"
@@ -85,9 +87,9 @@ export function Card({
       : variant === "flat"
       ? { backgroundColor: colors.surfaceAlt }
       : { backgroundColor: colors.surface };
-  const Comp: any = onPress ? Pressable : View;
+  const Comp: any = onPress || onLongPress ? Pressable : View;
   return (
-    <Comp onPress={onPress} style={({ pressed }: any) => [styles.card, shadow, v, pressed && onPress && { opacity: 0.93 }, style]}>
+    <Comp onPress={onPress} onLongPress={onLongPress} style={({ pressed }: any) => [styles.card, shadow, v, pressed && (onPress || onLongPress) && { opacity: 0.93 }, style]}>
       {children}
     </Comp>
   );
@@ -113,7 +115,7 @@ export function Button({
 }: {
   title: string;
   onPress?: () => void;
-  variant?: "primary" | "green" | "yellow" | "purple" | "dark" | "outline" | "ghost";
+  variant?: "primary" | "green" | "yellow" | "purple" | "dark" | "outline" | "ghost" | "danger";
   loading?: boolean;
   disabled?: boolean;
   icon?: any;
@@ -127,6 +129,7 @@ export function Button({
     dark: { bg: colors.surfaceDark, fg: colors.blanc },
     outline: { bg: "transparent", fg: colors.ink, border: colors.ink },
     ghost: { bg: "transparent", fg: colors.textDim },
+    danger: { bg: "transparent", fg: colors.rouge, border: colors.rouge },
   };
   const c = map[variant];
   return (

@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ActionSheetIOS,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -12,7 +13,8 @@ import {
 } from "react-native";
 import { Empty, Header, Loading, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
-import { notify } from "../../lib/notify";
+import { notify, confirmAsync } from "../../lib/notify";
+import { reportMessage } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, spacing } from "../../lib/theme";
 
@@ -65,6 +67,30 @@ export default function Chat() {
     };
   }, [load, me, friendId]);
 
+  async function reportMsg(msg: DM) {
+    if (msg.sender_id === me) return;
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        { options: ["Cancel", "Report message"], cancelButtonIndex: 0, destructiveButtonIndex: 1 },
+        async (idx) => {
+          if (idx === 1) await doReport(msg);
+        }
+      );
+    } else {
+      const ok = await confirmAsync("Report message?", "Flag this message for review?");
+      if (ok) await doReport(msg);
+    }
+  }
+
+  async function doReport(msg: DM) {
+    try {
+      await reportMessage(msg.id, "dm", msg.sender_id);
+      notify("Message reported", "Thank you. Our team will review it.");
+    } catch (e: any) {
+      notify("Could not report", e.message);
+    }
+  }
+
   async function send() {
     const body = text.trim();
     if (!body || !me) return;
@@ -95,9 +121,13 @@ export default function Chat() {
           renderItem={({ item }) => {
             const mine = item.sender_id === me;
             return (
-              <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
+              <Pressable
+                onLongPress={() => reportMsg(item)}
+                delayLongPress={400}
+                style={[styles.bubble, mine ? styles.mine : styles.theirs]}
+              >
                 <Text style={[styles.msgText, mine && { color: colors.blanc }]}>{item.body}</Text>
-              </View>
+              </Pressable>
             );
           }}
           ListEmptyComponent={<Empty icon="chatbubbles-outline" title="Start the conversation" />}
