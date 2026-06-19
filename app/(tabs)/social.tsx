@@ -40,8 +40,15 @@ export default function Social() {
     setSearching(false);
   }
   async function add(uid: string) {
-    try { await sendFriendRequest(uid); notify(t("req_sent")); setResults((r) => r.filter((u) => u.id !== uid)); load(); }
-    catch (e: any) { notify(t("req_sent"), e.message); }
+    try {
+      await sendFriendRequest(uid);
+      notify(t("req_sent"));
+      // Clear search so the friends list is visible — when the request is accepted,
+      // the realtime subscription updates friends.accepted and the friend appears.
+      setQ("");
+      setResults([]);
+      load();
+    } catch (e: any) { notify(t("req_sent"), e.message); }
   }
 
   if (loading) return <Loading />;
