@@ -9,12 +9,25 @@ import { supabase } from "../../lib/supabase";
 import { prettyTeam } from "../../lib/teams";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
 
+type ForecastTab = "all" | "upcoming";
+
+function kickoffLabel(iso: string | null) {
+  if (!iso) return "TBD";
+  const d = new Date(iso);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (sameDay) return `Today ${time}`;
+  return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
+}
+
 export default function Profile() {
   const router = useRouter();
   const { profile, session, refreshProfile } = useAuth();
   const { t } = useI18n();
   const [stats, setStats] = useState({ predictions: 0, exact: 0, leagues: 0, correct: 0 });
   const [forecasts, setForecasts] = useState<any[]>([]);
+  const [forecastTab, setForecastTab] = useState<ForecastTab>("all");
 
   const load = useCallback(async () => {
     const uid = session?.user?.id;
@@ -78,36 +91,91 @@ export default function Profile() {
         </View>
 
         <Text style={styles.section}>{t("my_forecasts")}</Text>
-        {forecasts.length === 0 ? (
-          <View style={styles.emptyFc}>
-            <Icon name="create-outline" size={20} color={colors.textDim} />
-            <Text style={styles.emptyTxt}>{t("no_forecasts")}</Text>
-          </View>
-        ) : (
-          <View style={{ gap: spacing.sm }}>
-            {forecasts.slice(0, 15).map((f, i) => {
-              const m = f.matches;
-              if (!m) return null;
-              return (
-                <View key={i} style={styles.fc}>
-                  <Text style={styles.fcTeams} numberOfLines={1}>
-                    {m.home_flag} {prettyTeam(m.home_team)} v {prettyTeam(m.away_team)} {m.away_flag}
-                  </Text>
-                  <View style={styles.fcRight}>
-                    <Text style={styles.fcPick}>{f.pred_home}-{f.pred_away}</Text>
-                    {f.scored ? (
-                      <View style={[styles.fcBadge, { backgroundColor: f.points_awarded >= 3 ? colors.green : f.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
-                        <Text style={[styles.fcBadgeTxt, { color: f.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{f.points_awarded}</Text>
-                      </View>
-                    ) : (
-                      <Text style={styles.fcPending}>•••</Text>
-                    )}
+
+        {/* Tab selector */}
+        <View style={styles.tabRow}>
+          {(["all", "upcoming"] as ForecastTab[]).map((tab) => (
+            <Pressable
+              key={tab}
+              onPress={() => setForecastTab(tab)}
+              style={[styles.tabPill, forecastTab === tab && styles.tabPillActive]}
+            >
+              <Text style={[styles.tabPillTxt, forecastTab === tab && styles.tabPillTxtActive]}>
+                {tab === "all" ? "All" : "Upcoming"}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {forecastTab === "all" ? (
+          forecasts.length === 0 ? (
+            <View style={styles.emptyFc}>
+              <Icon name="create-outline" size={20} color={colors.textDim} />
+              <Text style={styles.emptyTxt}>{t("no_forecasts")}</Text>
+            </View>
+          ) : (
+            <View style={{ gap: spacing.sm }}>
+              {forecasts.slice(0, 15).map((f, i) => {
+                const m = f.matches;
+                if (!m) return null;
+                return (
+                  <View key={i} style={styles.fc}>
+                    <Text style={styles.fcTeams} numberOfLines={1}>
+                      {m.home_flag} {prettyTeam(m.home_team)} v {prettyTeam(m.away_team)} {m.away_flag}
+                    </Text>
+                    <View style={styles.fcRight}>
+                      <Text style={styles.fcPick}>{f.pred_home}-{f.pred_away}</Text>
+                      {f.scored ? (
+                        <View style={[styles.fcBadge, { backgroundColor: f.points_awarded >= 3 ? colors.green : f.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
+                          <Text style={[styles.fcBadgeTxt, { color: f.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{f.points_awarded}</Text>
+                        </View>
+                      ) : (
+                        <Text style={styles.fcPending}>•••</Text>
+                      )}
+                    </View>
                   </View>
-                </View>
-              );
-            })}
-          </View>
-        )}
+                );
+              })}
+            </View>
+          )
+        ) : (() => {
+          const upcoming = forecasts
+            .filter((f) => f.matches?.status === "SCHEDULED" || f.matches?.status === "TIMED")
+            .sort((a, b) => {
+              const ta = a.matches?.utc_kickoff ?? "";
+              const tb = b.matches?.utc_kickoff ?? "";
+              return ta < tb ? -1 : ta > tb ? 1 : 0;
+            });
+          if (upcoming.length === 0) {
+            return (
+              <View style={styles.emptyFc}>
+                <Icon name="time-outline" size={20} color={colors.textDim} />
+                <Text style={styles.emptyTxt}>No upcoming predictions yet</Text>
+              </View>
+            );
+          }
+          return (
+            <View style={{ gap: spacing.sm }}>
+              {upcoming.map((f, i) => {
+                const m = f.matches;
+                if (!m) return null;
+                return (
+                  <View key={i} style={styles.fc}>
+                    <View style={{ flex: 1, marginRight: spacing.md }}>
+                      <Text style={styles.fcTeams} numberOfLines={1}>
+                        {m.home_flag} {prettyTeam(m.home_team)} v {prettyTeam(m.away_team)} {m.away_flag}
+                      </Text>
+                      <Text style={styles.fcKickoff}>{kickoffLabel(m.utc_kickoff)}</Text>
+                    </View>
+                    <View style={styles.fcRight}>
+                      <Text style={styles.fcPick}>{f.pred_home}-{f.pred_away}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          );
+        })()}
       </View>
     </ScrollView>
   );
@@ -126,6 +194,12 @@ const styles = StyleSheet.create({
   statVal: { fontSize: 22, fontWeight: "900" },
   statLabel: { color: colors.textDim, fontSize: 10, fontWeight: "800", marginTop: 2 },
   section: { color: colors.textDim, fontSize: 12, fontWeight: "900", letterSpacing: 1, marginTop: spacing.sm },
+  tabRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.sm },
+  tabPill: { paddingHorizontal: spacing.lg, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.surface, ...shadow },
+  tabPillActive: { backgroundColor: colors.surfaceDark },
+  tabPillTxt: { fontSize: 13, fontWeight: "800", color: colors.textDim },
+  tabPillTxtActive: { color: colors.blanc },
+  fcKickoff: { color: colors.textFaint, fontSize: 11, fontWeight: "700", marginTop: 2 },
   emptyFc: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg },
   emptyTxt: { color: colors.textDim, fontSize: 13, fontWeight: "600", flex: 1 },
   fc: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, ...shadow },
