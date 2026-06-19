@@ -162,7 +162,7 @@ export default function CreateLeagueWizard() {
             <Text style={styles.stepTitle}>{t("create_step2_title")}</Text>
             {/* Context banner */}
             <View style={styles.contextBanner}>
-              <Icon name="person" size={16} color={colors.orange} />
+              <Icon name="person" size={16} color={colors.blanc} />
               <Text style={styles.contextTxt}>
                 {t("pun_context") ?? "This happens to the person who finishes dead last."}
               </Text>
@@ -171,36 +171,32 @@ export default function CreateLeagueWizard() {
 
           <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl }}
+            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: 10 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* No punishment */}
+            {/* No punishment card */}
             <Pressable
               onPress={() => { setSelectedPunishment(null); setCustomPunishment(""); }}
-              style={[styles.punRow, !activePunishment && styles.punRowActive]}
+              style={[styles.punCard, styles.punCardSkip, !activePunishment && styles.punCardSkipActive]}
             >
-              <View style={[styles.radio, !activePunishment && { backgroundColor: colors.greenDark, borderColor: colors.greenDark }]}>
-                {!activePunishment ? <View style={styles.radioDot} /> : null}
-              </View>
-              <Text style={[styles.punTxt, !activePunishment && { color: colors.greenDark, fontWeight: "900" }]}>
+              <Text style={[styles.punCardText, styles.punCardTextSkip, !activePunishment && styles.punCardTextSkipActive]}>
                 {t("pun_skip")}
               </Text>
+              {!activePunishment ? <Icon name="checkmark-circle" size={22} color={colors.orange} /> : null}
             </Pressable>
 
-            {/* Presets */}
+            {/* Preset cards */}
             {punishments.map((p, i) => {
               const active = selectedPunishment === p && !customPunishment.trim();
               return (
                 <Pressable
                   key={i}
                   onPress={() => { setSelectedPunishment(p); setCustomPunishment(""); }}
-                  style={[styles.punRow, active && styles.punRowActive]}
+                  style={[styles.punCard, active && styles.punCardActive]}
                 >
-                  <View style={[styles.radio, active && { backgroundColor: colors.orange, borderColor: colors.orange }]}>
-                    {active ? <View style={styles.radioDot} /> : null}
-                  </View>
-                  <Text style={[styles.punTxt, active && { color: colors.orange, fontWeight: "900" }]}>{p}</Text>
+                  <Text style={[styles.punCardText, active && styles.punCardTextActive]}>{p}</Text>
+                  {active ? <Icon name="checkmark-circle" size={22} color={colors.orange} /> : null}
                 </Pressable>
               );
             })}
@@ -320,23 +316,28 @@ const styles = StyleSheet.create({
 
   // ── Step 2 ──
   contextBanner: {
-    flexDirection: "row", alignItems: "flex-start", gap: spacing.sm,
-    backgroundColor: "rgba(251,140,60,0.1)", borderRadius: radius.md,
-    padding: spacing.md, borderWidth: 1, borderColor: "rgba(251,140,60,0.25)",
+    flexDirection: "row", alignItems: "center", gap: spacing.sm,
+    backgroundColor: colors.orange, borderRadius: radius.md, padding: 12,
   },
-  contextTxt: { flex: 1, color: colors.ink, fontSize: 13, fontWeight: "700", lineHeight: 18 },
-  punRow: {
-    flexDirection: "row", alignItems: "flex-start", gap: spacing.md,
-    paddingVertical: spacing.sm + 2, paddingHorizontal: spacing.sm,
-    borderRadius: radius.md, marginBottom: 2,
+  contextTxt: { flex: 1, color: colors.blanc, fontSize: 14, fontWeight: "900", lineHeight: 20 },
+  punCard: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    backgroundColor: colors.surface, borderRadius: radius.xl,
+    paddingVertical: 18, paddingHorizontal: 20, ...shadow,
   },
-  punRowActive: { backgroundColor: colors.surface },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: colors.border, alignItems: "center", justifyContent: "center", marginTop: 1, flexShrink: 0 },
-  radioDot: { width: 9, height: 9, borderRadius: 5, backgroundColor: colors.blanc },
-  punTxt: { flex: 1, color: colors.textDim, fontSize: 14, fontWeight: "700", lineHeight: 22 },
+  punCardActive: { backgroundColor: colors.surfaceDark },
+  punCardSkip: {
+    borderStyle: "dashed" as const, borderWidth: 1.5, borderColor: colors.border,
+    backgroundColor: "transparent", shadowOpacity: 0, elevation: 0,
+  },
+  punCardSkipActive: { backgroundColor: colors.surface, borderStyle: "solid" as const },
+  punCardText: { flex: 1, fontSize: 16, fontWeight: "800" as const, color: colors.ink },
+  punCardTextActive: { color: colors.blanc },
+  punCardTextSkip: { color: colors.textDim, fontStyle: "italic" as const },
+  punCardTextSkipActive: { color: colors.ink, fontStyle: "normal" as const },
   orCustomLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "800", marginTop: spacing.lg, marginBottom: spacing.sm },
   input: {
-    backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: colors.surface, borderWidth: 2, borderColor: colors.border,
     borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     color: colors.text, fontSize: 15, minHeight: 52,
   },
