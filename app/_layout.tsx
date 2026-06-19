@@ -53,6 +53,7 @@ function RootNav() {
       <Stack.Screen name="create-league" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
+      <Stack.Screen name="privacy" />
     </Stack>
   );
 }
