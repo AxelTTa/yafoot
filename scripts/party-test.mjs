@@ -26,27 +26,39 @@ async function bodyText(page) {
   return page.evaluate(() => document.body.innerText);
 }
 
-// Click via real mouse events using element bounding rect
-async function mouseClick(page, selector_or_eval) {
-  let rect;
-  if (typeof selector_or_eval === "string") {
-    rect = await page.evaluate((t) => {
-      const candidates = [...document.querySelectorAll("*")].filter((n) => {
-        const txt = (n.textContent || "").trim();
-        return txt.includes(t) && n.offsetParent !== null && n.offsetHeight > 0;
-      });
-      // Prefer smallest element (leaf-most) that is actually visible
-      const sorted = candidates.sort((a, b) => (a.offsetWidth * a.offsetHeight) - (b.offsetWidth * b.offsetHeight));
-      const el = sorted[0];
-      if (!el) return null;
-      const r = el.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2, tag: el.tagName, txt: el.textContent?.trim().slice(0, 40) };
-    }, selector_or_eval);
-  } else {
-    rect = await page.evaluate(selector_or_eval);
-  }
+// Real mouse click by finding element containing text (smallest matching element)
+async function mouseClick(page, text) {
+  const rect = await page.evaluate((t) => {
+    const candidates = [...document.querySelectorAll("*")].filter((n) => {
+      const txt = (n.textContent || "").trim();
+      return txt.includes(t) && n.offsetParent !== null && n.offsetHeight > 0;
+    });
+    candidates.sort((a, b) => (a.offsetWidth * a.offsetHeight) - (b.offsetWidth * b.offsetHeight));
+    const el = candidates[0];
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, tag: el.tagName, txt: (el.textContent||"").trim().slice(0,40) };
+  }, text);
   if (!rect) return false;
-  console.log(`    [click] "${selector_or_eval}" → ${rect.tag} "${rect.txt}" at (${Math.round(rect.x)},${Math.round(rect.y)})`);
+  console.log(`    [click] "${text}" → ${rect.tag} "${rect.txt}" at (${Math.round(rect.x)},${Math.round(rect.y)})`);
+  await page.mouse.click(rect.x, rect.y);
+  return true;
+}
+
+// Click by position of the Nth large button on page
+async function clickNthBigButton(page, n) {
+  const rect = await page.evaluate((nth) => {
+    const btns = [...document.querySelectorAll("*")].filter((el) => {
+      return el.offsetHeight > 60 && el.offsetHeight < 200 && el.offsetWidth > 200 && el.offsetParent !== null;
+    });
+    btns.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+    const el = btns[nth];
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, txt: (el.textContent||"").trim().slice(0,50) };
+  }, n);
+  if (!rect) return false;
+  console.log(`    [bigbtn ${n}] "${rect.txt}" at (${Math.round(rect.x)},${Math.round(rect.y)})`);
   await page.mouse.click(rect.x, rect.y);
   return true;
 }
@@ -93,44 +105,45 @@ async function onboard(page, username) {
 
   let t = await bodyText(page);
 
-  // Language picker
+  // Language picker — pick English
   if (t.includes("language") || t.includes("langue") || t.includes("English")) {
     await mouseClick(page, "English");
     await sleep(2000);
-    t = await bodyText(page);
   }
 
-  // Fill username
+  // Fill username (last input)
   const filled = await fillLast(page, username);
   console.log(`  [onboard:${username.slice(0, 12)}] fill:`, filled);
   await sleep(400);
 
-  // Tap "Let's go!" or similar
+  // Tap submit button (Let's go! or similar)
   let submitted = false;
   for (const label of ["go!", "Get started", "Continue", "Commencer"]) {
     const clicked = await mouseClick(page, label);
     if (clicked) { submitted = true; break; }
   }
-  if (!submitted) console.log("  [onboard] WARNING: no submit button found");
+  if (!submitted) {
+    // Try clicking the first big button
+    await clickNthBigButton(page, 0);
+  }
 
-  // Wait for navigation away from welcome (up to 10s)
+  // Wait for navigation away from welcome
   let i = 0;
   while (i++ < 20) {
     await sleep(500);
     const url = page.url();
     const txt = await bodyText(page);
-    if (!url.includes("/welcome") && !txt.includes("YOUR NAME")) break;
-    // Retry fill+tap if stuck
+    if (!url.includes("/welcome") && !txt.includes("YOUR NAME") && !txt.includes("Let's go!")) break;
     if (i === 10) {
       await fillLast(page, username);
-      await sleep(300);
+      await sleep(200);
       await mouseClick(page, "go!");
     }
   }
 
   // Skip invite screen
   const t2 = await bodyText(page);
-  if (t2.includes("Continue to app") || t2.includes("invite link")) {
+  if (t2.includes("Continue to app") || t2.includes("invite link") || t2.includes("Share invite")) {
     await mouseClick(page, "Continue to app");
     await sleep(2000);
   }
@@ -173,59 +186,51 @@ async function onboard(page, username) {
     await shot(p1, "host-soiree-landing");
 
     const landingText = await bodyText(p1);
-    console.log("  Landing text:", landingText.slice(0, 200).replace(/\n/g, " "));
-    ok(landingText.includes("Organiser") || landingText.includes("Party"), "Soirée landing loaded");
+    console.log("  Landing:", landingText.slice(0, 150).replace(/\n/g, " "));
+    ok(landingText.includes("Soirée") || landingText.includes("Party"), "Soirée page loaded");
 
-    // Tap Organiser button (via real mouse click)
-    await mouseClick(p1, "Organiser une Soirée");
+    // Click the HOST button — try specific text, avoid header
+    const hostClicked = await mouseClick(p1, "Host a Soirée") || await mouseClick(p1, "Organiser une") || await mouseClick(p1, "Host a");
+    console.log("  Host btn clicked:", hostClicked);
     await sleep(2500);
     await shot(p1, "host-modal-open");
 
-    // Check modal opened
-    const modalText = await bodyText(p1);
-    console.log("  After modal tap:", modalText.slice(0, 300).replace(/\n/g, " "));
-    const modalOpen = modalText.includes("Choisis le match") || modalText.includes("loading") || modalText.includes("vs");
-    console.log("  Modal opened:", modalOpen);
-
-    // Wait for matches to load
+    const afterModal = await bodyText(p1);
+    // Wait for match list
     await sleep(2500);
-    const withMatches = await bodyText(p1);
-    console.log("  With matches:", withMatches.slice(0, 300).replace(/\n/g, " "));
 
-    // Click first "vs" match
+    // Click first match row (has "vs" in text)
     const matchRect = await p1.evaluate(() => {
       const els = [...document.querySelectorAll("*")].filter((n) => {
         const t = (n.textContent || "").trim();
         return t.includes("vs") && n.offsetParent !== null && n.offsetHeight > 20 && n.offsetHeight < 100;
       });
-      // Sort by vertical position, take top-most visible match row
       els.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
       const el = els[0];
       if (!el) return null;
       const r = el.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height, txt: el.textContent?.trim().slice(0, 50) };
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2, txt: (el.textContent||"").trim().slice(0,50) };
     });
-    console.log("  Match element:", matchRect);
+    console.log("  Match:", matchRect?.txt);
     if (matchRect) await p1.mouse.click(matchRect.x, matchRect.y);
-    await sleep(1000);
+    await sleep(800);
 
-    // Click 'Créer la Soirée'
-    await mouseClick(p1, "Créer");
+    // Click create button ("Create Soirée" or "Créer la Soirée")
+    const created = await mouseClick(p1, "Create") || await mouseClick(p1, "Créer");
+    console.log("  Created:", created);
     await sleep(5000);
 
     soireeUrl = p1.url();
-    console.log("  URL:", soireeUrl);
     ok(soireeUrl !== `${URL}/soiree` && soireeUrl.includes("/soiree/"), "Navigated to soirée room");
 
     await shot(p1, "host-lobby");
     const lobbyText = await bodyText(p1);
-    console.log("  Lobby text:", lobbyText.slice(0, 400).replace(/\n/g, " "));
+    console.log("  Lobby:", lobbyText.slice(0, 350).replace(/\n/g, " "));
 
     const codeMatch = lobbyText.match(/Code:\s*([A-Z0-9]{6})/);
     soireeCode = codeMatch?.[1];
-    console.log("  Join code:", soireeCode);
-    ok(soireeCode?.length === 6, `Join code found: ${soireeCode}`);
-    ok(lobbyText.includes("Démarrer") || lobbyText.includes("DANS LA SALLE"), "Lobby state visible");
+    ok(soireeCode?.length === 6, `Join code: ${soireeCode}`);
+    ok(lobbyText.includes("Start") || lobbyText.includes("Démarrer") || lobbyText.includes("DANS") || lobbyText.includes("IN THE ROOM"), "Lobby visible");
 
   } catch (e) {
     console.error("[User 1] Error:", e.message);
@@ -256,30 +261,36 @@ async function onboard(page, username) {
     ]);
     await sleep(1500);
 
-    // Open join modals
-    await Promise.all([mouseClick(p2, "Rejoindre une Soirée"), mouseClick(p3, "Rejoindre une Soirée")]);
+    // Click JOIN button — use specific text
+    await Promise.all([
+      mouseClick(p2, "Join a Soirée").then(c => c || mouseClick(p2, "Rejoindre une")),
+      mouseClick(p3, "Join a Soirée").then(c => c || mouseClick(p3, "Rejoindre une")),
+    ]);
     await sleep(1500);
 
-    // Fill code (the large code input has placeholder "ABC123")
+    // Fill code input — placeholder is "6-letter code" (EN) or "Code de 6 lettres" (FR)
     const [f2, f3] = await Promise.all([
-      fillPlaceholder(p2, "ABC", soireeCode),
-      fillPlaceholder(p3, "ABC", soireeCode),
+      fillPlaceholder(p2, "6-letter", soireeCode).then(c => c || fillPlaceholder(p2, "Code de", soireeCode)),
+      fillPlaceholder(p3, "6-letter", soireeCode).then(c => c || fillPlaceholder(p3, "Code de", soireeCode)),
     ]);
     console.log("  Code fill p2:", f2, "p3:", f3);
     await sleep(600);
 
-    // Tap join button (the bottom "Rejoindre" button in modal)
-    await Promise.all([mouseClick(p2, "Rejoindre"), mouseClick(p3, "Rejoindre")]);
+    // Tap join action button (smallest element matching "Join" or "Rejoindre")
+    await Promise.all([
+      mouseClick(p2, "Rejoindre").then(c => c || mouseClick(p2, "Join")),
+      mouseClick(p3, "Rejoindre").then(c => c || mouseClick(p3, "Join")),
+    ]);
     await sleep(5000);
 
     const [u2, u3] = [p2.url(), p3.url()];
-    ok(u2.includes("/soiree/") && u2 !== `${URL}/soiree`, `User 2 joined (${u2.split("/").pop()})`);
-    ok(u3.includes("/soiree/") && u3 !== `${URL}/soiree`, `User 3 joined (${u3.split("/").pop()})`);
+    ok(u2.includes("/soiree/") && u2 !== `${URL}/soiree`, `User 2 joined`);
+    ok(u3.includes("/soiree/") && u3 !== `${URL}/soiree`, `User 3 joined`);
 
     await Promise.all([shot(p2, "guest2-lobby"), shot(p3, "guest3-lobby")]);
     const [t2, t3] = await Promise.all([bodyText(p2), bodyText(p3)]);
-    ok(t2.includes("attente") || t2.includes("Code") || t2.includes("Soirée"), "User 2 sees lobby");
-    ok(t3.includes("attente") || t3.includes("Code") || t3.includes("Soirée"), "User 3 sees lobby");
+    ok(t2.includes("Code:") || t2.includes("Soirée") || t2.includes("attente") || t2.includes("Waiting"), "User 2 in lobby");
+    ok(t3.includes("Code:") || t3.includes("Soirée") || t3.includes("attente") || t3.includes("Waiting"), "User 3 in lobby");
 
   } catch (e) {
     console.error("[Users 2&3] Error:", e.message);
@@ -289,16 +300,22 @@ async function onboard(page, username) {
   // ── USER 1: Start Game ──────────────────────────────────────────────────────
   console.log("\n[User 1] Starting game...");
   try {
-    await p1.reload({ waitUntil: "networkidle2" });
+    // Navigate fresh to soiree URL (more reliable than reload in headless Puppeteer)
+    await p1.goto(soireeUrl, { waitUntil: "networkidle2", timeout: 20000 });
     await sleep(2000);
     await shot(p1, "host-before-start");
 
-    await mouseClick(p1, "Démarrer la partie");
-    await sleep(3500);
-
+    // "Start the game" (EN) or "Démarrer la partie" (FR)
+    const startClicked = await mouseClick(p1, "Start the game") || await mouseClick(p1, "Démarrer");
+    console.log("  Start clicked:", startClicked);
+    // Wait for idle state (preset grid)
+    const idleVisible = await waitForText(p1, "CHALLENGE", 8000) || await waitForText(p1, "DÉFI", 2000);
     const afterStart = await bodyText(p1);
-    console.log("  After start:", afterStart.slice(0, 250).replace(/\n/g, " "));
-    ok(afterStart.includes("défi") || afterStart.includes("Prochain") || afterStart.includes("LANCER"), "Preset round grid visible");
+    console.log("  After start:", afterStart.slice(0, 200).replace(/\n/g, " "));
+    ok(
+      afterStart.includes("CHALLENGE") || afterStart.includes("DÉFI") || afterStart.includes("Next goal") || afterStart.includes("Prochain"),
+      "Preset round grid visible"
+    );
     await shot(p1, "host-idle-state");
 
   } catch (e) {
@@ -307,14 +324,38 @@ async function onboard(page, username) {
   }
 
   // ── USER 1: Open Round ─────────────────────────────────────────────────────
-  console.log("\n[User 1] Opening round 'Prochain but ?'...");
+  console.log("\n[User 1] Opening first round (Next goal / Prochain but)...");
+  let firstRoundOption1 = "Home team"; // English default
+  let firstRoundOption2 = "Away team";
+  const roundOpenedAt = Date.now();
   try {
-    await mouseClick(p1, "Prochain but");
-    await sleep(3500);
+    // Try English then French
+    const opened = await mouseClick(p1, "Next goal") || await mouseClick(p1, "Prochain but");
+    console.log("  Round opened:", opened);
+
+    // Wait for host's page to show the round (realtime), fallback: navigate fresh
+    let roundVisible = await waitForText(p1, "seconds left", 6000) || await waitForText(p1, "secondes", 2000);
+    if (!roundVisible) {
+      console.log("  [fallback] Navigating host fresh to see round...");
+      await p1.goto(soireeUrl, { waitUntil: "networkidle2", timeout: 15000 });
+      await sleep(2000);
+      roundVisible = await waitForText(p1, "seconds left", 5000) || await waitForText(p1, "secondes", 2000);
+    }
 
     const roundText = await bodyText(p1);
     console.log("  Round text:", roundText.slice(0, 250).replace(/\n/g, " "));
-    ok(roundText.includes("secondes") || roundText.includes("Prochain but"), "Round opened");
+
+    // Detect language from round text
+    if (roundText.includes("Home team")) {
+      firstRoundOption1 = "Home team";
+      firstRoundOption2 = "Away team";
+    } else if (roundText.includes("Équipe")) {
+      firstRoundOption1 = "Équipe dom.";
+      firstRoundOption2 = "Équipe ext.";
+    }
+    console.log("  Options:", firstRoundOption1, "/", firstRoundOption2);
+
+    ok(roundVisible, "Round opened — countdown visible");
     await shot(p1, "host-round-open");
 
   } catch (e) {
@@ -322,8 +363,8 @@ async function onboard(page, username) {
     fail++;
   }
 
-  // ── USERS 2 & 3: Load + Bet ────────────────────────────────────────────────
-  console.log("\n[Users 2 & 3] Joining open round and betting...");
+  // ── USERS 2 & 3: Load room + bet ───────────────────────────────────────────
+  console.log("\n[Users 2 & 3] Betting...");
   try {
     await Promise.all([
       p2.goto(soireeUrl, { waitUntil: "networkidle2", timeout: 15000 }),
@@ -333,22 +374,22 @@ async function onboard(page, username) {
 
     await Promise.all([shot(p2, "guest2-round-open"), shot(p3, "guest3-round-open")]);
     const [t2, t3] = await Promise.all([bodyText(p2), bodyText(p3)]);
-    console.log("  User 2:", t2.slice(0, 180).replace(/\n/g, " "));
-    ok(t2.includes("secondes") || t2.includes("Prochain but"), "User 2 sees open round");
-    ok(t3.includes("secondes") || t3.includes("Prochain but"), "User 3 sees open round");
+    console.log("  User 2:", t2.slice(0, 150).replace(/\n/g, " "));
+    ok(t2.includes("seconds") || t2.includes("secondes") || t2.includes("goal") || t2.includes("but"), "User 2 sees open round");
+    ok(t3.includes("seconds") || t3.includes("secondes") || t3.includes("goal") || t3.includes("but"), "User 3 sees open round");
 
-    // User 2 bets "Équipe dom."
-    await mouseClick(p2, "Équipe dom.");
+    // User 2 bets option 1
+    await mouseClick(p2, firstRoundOption1);
     await sleep(2000);
     const after2 = await bodyText(p2);
-    ok(after2.includes("pari") || after2.includes("dom") || after2.includes("toi)"), "User 2 bet placed");
+    ok(after2.includes("bet") || after2.includes("pari") || after2.includes("Home") || after2.includes("dom"), "User 2 bet placed");
     await shot(p2, "guest2-bet-placed");
 
-    // User 3 bets "Équipe ext."
-    await mouseClick(p3, "Équipe ext.");
+    // User 3 bets option 2
+    await mouseClick(p3, firstRoundOption2);
     await sleep(2000);
     const after3 = await bodyText(p3);
-    ok(after3.includes("pari") || after3.includes("ext") || after3.includes("toi)"), "User 3 bet placed");
+    ok(after3.includes("bet") || after3.includes("pari") || after3.includes("Away") || after3.includes("ext"), "User 3 bet placed");
     await shot(p3, "guest3-bet-placed");
 
   } catch (e) {
@@ -356,25 +397,47 @@ async function onboard(page, username) {
     fail++;
   }
 
-  // ── USER 1: Wait for auto-lock then resolve ─────────────────────────────────
-  console.log("\n[User 1] Waiting for round auto-lock (45s)...");
+  // ── USER 1: Wait for lock, then resolve ────────────────────────────────────
+  console.log("\n[User 1] Waiting for round to lock (auto at 45s)...");
   try {
-    const locked = await waitForText(p1, "bonne réponse", 55000);
-    ok(locked, "Round auto-locked after 45s countdown");
+    // Wait for "right answer" text — the locked state header
+    // Round was opened at roundOpenedAt; give 60s total from then
+    const elapsed = Date.now() - roundOpenedAt;
+    const remainingWait = Math.max(0, 55000 - elapsed);
+    console.log(`  Elapsed since round open: ${Math.round(elapsed/1000)}s, waiting up to ${Math.round(remainingWait/1000)}s more`);
+
+    let locked = await waitForText(p1, "right answer", remainingWait)
+      || await waitForText(p1, "bonne réponse", 2000)
+      || await waitForText(p1, "What's", 2000);
+
+    if (!locked) {
+      // Fallback: navigate host fresh and wait for locked state
+      console.log("  [fallback] Navigating host fresh to see locked round...");
+      await p1.goto(soireeUrl, { waitUntil: "networkidle2", timeout: 15000 });
+      await sleep(2000);
+      locked = await waitForText(p1, "right answer", 30000)
+        || await waitForText(p1, "bonne réponse", 2000)
+        || await waitForText(p1, "What's", 2000);
+    }
+
+    ok(locked, "Round locked — resolve UI visible");
     await shot(p1, "host-round-locked");
 
     const lockText = await bodyText(p1);
     console.log("  Lock text:", lockText.slice(0, 300).replace(/\n/g, " "));
 
-    // Resolve: tap "Équipe dom." as correct answer
-    await mouseClick(p1, "Équipe dom.");
-    await sleep(4000);
+    // Resolve: tap option 1 (the correct answer) — it appears in the resolve buttons
+    const resolved = await mouseClick(p1, firstRoundOption1);
+    console.log("  Resolve click:", resolved);
+    await sleep(5000);
 
     const resolvedText = await bodyText(p1);
-    console.log("  Resolved text:", resolvedText.slice(0, 300).replace(/\n/g, " "));
+    console.log("  Resolved:", resolvedText.slice(0, 300).replace(/\n/g, " "));
     ok(
-      resolvedText.includes("raison") || resolvedText.includes("Bonne réponse") || resolvedText.includes("Punition"),
-      "Round resolved — winner/punishments visible"
+      resolvedText.includes("right") || resolvedText.includes("raison") ||
+      resolvedText.includes("Punishment") || resolvedText.includes("Punition") ||
+      resolvedText.includes("got it"),
+      "Round resolved — winner/punishments shown"
     );
     await shot(p1, "host-round-resolved");
 
@@ -384,7 +447,7 @@ async function onboard(page, username) {
     fail++;
   }
 
-  // ── Verify final state ───────────────────────────────────────────────────────
+  // ── Verify ──────────────────────────────────────────────────────────────────
   console.log("\n[All] Verifying points and punishments...");
   try {
     await sleep(2000);
@@ -397,12 +460,15 @@ async function onboard(page, username) {
 
     const [t1, t2, t3] = await Promise.all([bodyText(p1), bodyText(p2), bodyText(p3)]);
 
-    ok([t1, t2, t3].some((t) => /\d+\s*pts/.test(t)), "Points visible in leaderboard");
+    ok([t1, t2, t3].some((t) => /\d+\s*pts/.test(t)), "Points (N pts) in leaderboard");
     ok(
-      [t1, t2, t3].some((t) => t.includes("Punition") || t.includes("shot") || t.includes("pompe") || t.includes("story")),
-      "Punishment text visible"
+      [t1, t2, t3].some((t) =>
+        t.includes("Punishment") || t.includes("Punition") || t.includes("shot") ||
+        t.includes("pompe") || t.includes("story") || t.includes("Punishments")
+      ),
+      "Punishments shown"
     );
-    ok([t1, t2, t3].some((t) => t.includes("raison")), "Winner shown");
+    ok([t1, t2, t3].some((t) => t.includes("right") || t.includes("raison")), "Winner shown");
     ok([t1, t2, t3].some((t) => /[1-9]\d*\s*pts/.test(t)), "Non-zero points awarded");
 
   } catch (e) {
