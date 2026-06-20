@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Icon } from "./ui";
+import { savePrediction } from "../lib/api";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 import { Match, Prediction, isFinished, isLive } from "../lib/types";
 import { prettyTeam, teamFlag } from "../lib/teams";
@@ -14,6 +15,71 @@ function kickoffLabel(iso: string | null) {
   if (sameDay) return `Today ${time}`;
   return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
 }
+
+function MiniStep({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  return (
+    <View style={il.stepper}>
+      <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={il.btn} hitSlop={6}>
+        <Text style={il.sign}>−</Text>
+      </Pressable>
+      <Text style={il.val}>{value}</Text>
+      <Pressable onPress={() => onChange(Math.min(20, value + 1))} style={il.btn} hitSlop={6}>
+        <Text style={il.sign}>+</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function InlinePrediction({ matchId, prediction }: { matchId: number; prediction?: Prediction }) {
+  const [home, setHome] = useState(prediction?.pred_home ?? 0);
+  const [away, setAway] = useState(prediction?.pred_away ?? 0);
+  const [saved, setSaved] = useState(false);
+  const lastSaved = useRef({ h: prediction?.pred_home ?? 0, a: prediction?.pred_away ?? 0 });
+
+  useEffect(() => {
+    const h = prediction?.pred_home ?? 0;
+    const a = prediction?.pred_away ?? 0;
+    setHome(h); setAway(a);
+    lastSaved.current = { h, a };
+  }, [prediction?.pred_home, prediction?.pred_away]);
+
+  useEffect(() => {
+    if (home === lastSaved.current.h && away === lastSaved.current.a) return;
+    const t = setTimeout(async () => {
+      try {
+        await savePrediction(matchId, home, away);
+        lastSaved.current = { h: home, a: away };
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } catch {}
+    }, 800);
+    return () => clearTimeout(t);
+  }, [home, away, matchId]);
+
+  return (
+    <View style={il.wrap}>
+      <MiniStep value={home} onChange={setHome} />
+      <Text style={il.dash}>–</Text>
+      <MiniStep value={away} onChange={setAway} />
+      {saved ? (
+        <View style={il.savedBadge}>
+          <Text style={il.savedTxt}>Saved</Text>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+const il = StyleSheet.create({
+  wrap: { flexDirection: "row", alignItems: "center", gap: 6 },
+  stepper: { flexDirection: "row", alignItems: "center", gap: 4 },
+  btn: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center" },
+  sign: { color: colors.ink, fontSize: 17, fontWeight: "900", lineHeight: 19 },
+  val: { color: colors.ink, fontSize: 19, fontWeight: "900", minWidth: 24, textAlign: "center" },
+  dash: { color: colors.textFaint, fontSize: 15, fontWeight: "800" },
+  savedBadge: { backgroundColor: colors.green, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
+  savedTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
+});
 
 export default function MatchCard({
   match,
@@ -66,7 +132,9 @@ export default function MatchCard({
 
       <View style={styles.footer}>
         <View style={{ flex: 1 }}>
-          {prediction ? (
+          {!live && !finished ? (
+            <InlinePrediction matchId={match.id} prediction={prediction} />
+          ) : prediction ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
               {prediction.scored ? (
@@ -74,13 +142,8 @@ export default function MatchCard({
                   <Text style={[styles.ptsText, { color: prediction.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{prediction.points_awarded}</Text>
                 </View>
               ) : (
-                <Text style={styles.locked}>locked</Text>
+                <Text style={styles.locked}>awaiting</Text>
               )}
-            </View>
-          ) : !finished && !live ? (
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-              <Icon name="create-outline" size={15} color={colors.greenDark} />
-              <Text style={styles.tapHint}>Tap to predict</Text>
             </View>
           ) : (
             <Text style={styles.locked}>{finished ? "Full time" : "In play"}</Text>
@@ -119,7 +182,6 @@ const styles = StyleSheet.create({
   ptsPill: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   ptsText: { fontSize: 12, fontWeight: "900" },
   locked: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
-  tapHint: { color: colors.greenDark, fontSize: 13, fontWeight: "900" },
   statsBtn: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(155,93,229,0.12)", borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6 },
   statsText: { color: colors.purple, fontSize: 12, fontWeight: "900" },
 });
