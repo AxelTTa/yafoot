@@ -4,12 +4,39 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 export type Lang = "en" | "fr";
 const LANG_KEY = "yafoot.lang";
 
+// ─── punishment types ─────────────────────────────────────────────────────────
+export type PunishmentSeverity = "mild" | "daring" | "savage";
+export type Punishment = { text: string; subtitle: string; severity: PunishmentSeverity };
+
+export const PUNISHMENTS: Punishment[] = [
+  // MILD
+  { text: "Offre le prochain verre", subtitle: "He's buying the next round", severity: "mild" },
+  { text: "Cul sec obligatoire", subtitle: "Down it. Now.", severity: "mild" },
+  { text: "Prends un shot", subtitle: "Take a shot, no excuses", severity: "mild" },
+  { text: "Finis ton verre avant le prochain but", subtitle: "Finish your drink before the next goal", severity: "mild" },
+  { text: "T'as perdu t'offres une bière à quelqu'un", subtitle: "You lost, you're buying someone a beer", severity: "mild" },
+  // DARING
+  { text: "Poste une photo de toi sur ta story sans légende", subtitle: "Post a photo on your story, no caption, no context", severity: "daring" },
+  { text: "Filer ton tel à un pote pendant 2 min", subtitle: "Hand your phone to a mate for 2 mins, they do what they want", severity: "daring" },
+  { text: "Envoie un vocal de 30 secondes à quelqu'un au hasard dans tes contacts", subtitle: "Voice note someone random in your contacts", severity: "daring" },
+  { text: "Poste un mème sur ton insta story", subtitle: "Post a meme on your story right now", severity: "daring" },
+  { text: "Change ta bio Instagram pendant 24h avec ce que le groupe décide", subtitle: "Let the group write your Instagram bio for 24h", severity: "daring" },
+  { text: "Lance des oeufs", subtitle: "Obvious", severity: "daring" },
+  { text: "Appelle quelqu'un et dis-leur que t'as quelque chose d'important à dire... et raccroche", subtitle: "Call someone, tell them you have something important, then hang up", severity: "daring" },
+  // SAVAGE
+  { text: "Poste une photo de ton crush sur ta story avec des coeurs", subtitle: "Post a photo of your crush on your story with hearts", severity: "savage" },
+  { text: "Envoie un message à ton ex juste: '...'", subtitle: "Text your ex just '...'", severity: "savage" },
+  { text: "Mets une photo de soirée cringe en photo de profil pendant 24h", subtitle: "Cringe party photo as your profile pic for 24h", severity: "savage" },
+  { text: "Écris un message vocal gênant à quelqu'un que le groupe choisit", subtitle: "The group picks who you send a voice note to", severity: "savage" },
+  { text: "Poste sur ta story: 'J'ai perdu un pari, demandez-moi ce que j'ai fait'", subtitle: "Post on your story admitting you lost a bet", severity: "savage" },
+];
+
 // ─── translations ────────────────────────────────────────────────────────────
 // EN: casual fun.  FR: goofy youth-speak ("potes", "bro", "t'as", etc.)
 
 const T = {
   en: {
-    // lang picker (en)
+    // lang picker
     lang_pick: "Pick your language",
     lang_en: "English 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     lang_fr: "Français 🇫🇷",
@@ -23,13 +50,13 @@ const T = {
     handle_preview: "Your handle: @{h}",
     btn_start: "Let's go!",
     btn_join_friend: "Join & add friend",
-    welcome_fine: "No email needed. Just your name and you're in.",
+    welcome_fine: "No email. No drama. Just your name.",
     err_short: "Need at least 2 characters.",
     err_chars: "That username is already taken — try a different name.",
 
     // invite
-    invite_congrats: "You're in, @{u}!",
-    invite_sub: "Way better with mates. Share your link — they tap it, you're instantly connected.",
+    invite_congrats: "Welcome to the arena, @{u}!",
+    invite_sub: "More fun with rivals. Share your link — they tap it, you're instantly connected.",
     invite_link_label: "YOUR INVITE LINK",
     btn_copy: "Copy",
     btn_copied: "Copied!",
@@ -51,13 +78,13 @@ const T = {
     filter_results: "Results",
 
     // predict
-    predict_sub: "Earn points. Climb your leagues.",
-    predict_round: "Predicted this round",
-    predict_empty_title: "All caught up!",
-    predict_empty: "No upcoming matches to predict right now.",
+    predict_sub: "Rack up points. Outpredict everyone.",
+    predict_round: "Your picks this round",
+    predict_empty_title: "Nothing to predict right now.",
+    predict_empty: "Sit tight — the next matches drop soon.",
 
     // leagues
-    leagues_sub: "Compete with your mates",
+    leagues_sub: "Compete with your crew. Last place suffers.",
     btn_create: "Create",
     btn_join: "Join",
     create_title: "Create a league",
@@ -67,8 +94,8 @@ const T = {
     btn_create_league: "Create League",
     btn_join_league: "Join League",
     err_name: "Name needs at least 2 characters.",
-    no_leagues: "No leagues yet",
-    no_leagues_sub: "Create a league and invite mates, or join one with a code.",
+    no_leagues: "Flying solo? Fix that.",
+    no_leagues_sub: "Create a league and rope in your crew, or find one that'll humble you.",
 
     // create wizard
     create_step1_title: "How long?",
@@ -80,8 +107,8 @@ const T = {
     create_done_share: "Share with mates",
     create_done_go: "Go to league",
     btn_next: "Next",
-    pun_skip: "Skip — no punishment",
-    pun_context: "This happens to the person who finishes dead last.",
+    pun_skip: "No punishment — boring, but OK",
+    pun_context: "Dead last gets this. Zero mercy.",
 
     // join (unauthenticated)
     join_need_account: "Create an account first",
@@ -103,25 +130,8 @@ const T = {
     // punishment
     pun_section: "LOSER'S PUNISHMENT",
     pun_none: "No punishment (boring)",
-    pun_custom_ph: "Invent your own punishment…",
-    pun_or_custom: "or write your own below",
-    punishment_list: [
-      "Take a shot",
-      "Post a cringe selfie on your story",
-      "Send a risky text to your crush",
-      "Everyone gets to slap the loser",
-      "Get a stranger's Instagram on the street",
-      "Take a laxative 💊",
-      "Jump in the nearest river",
-      "Try every flavour at an ice cream shop",
-      "Give your phone to a mate (ears blocked), call a random contact and guide them through the convo",
-      "Go on a spontaneous day trip",
-      "Get your nails done",
-      "Go to a trampoline park",
-      "Post \"I lost a bet\" on all your stories",
-      "Get tied to a tree while everyone throws eggs at you",
-      "Give laxatives to pigeons in a public park",
-    ] as string[],
+    pun_custom_ph: "Invent something worse than these...",
+    pun_or_custom: "or cook up something worse",
 
     // league detail
     invite_code: "INVITE CODE",
@@ -131,7 +141,7 @@ const T = {
     qr_league: "League QR",
 
     // friends
-    friends_sub: "Add rivals & challenge them",
+    friends_sub: "Add your rivals. Let the trash talk begin.",
     search_ph: "Search by username",
     searching: "Searching…",
     requests: "Requests",
@@ -139,9 +149,9 @@ const T = {
     btn_accept: "Accept",
     btn_add: "Add",
     req_sent: "Request sent",
-    no_friends: "No friends yet",
-    no_friends_sub: "Search a username, or tap the QR icon to show your invite code.",
-    no_players: "No players found",
+    no_friends: "No rivals yet",
+    no_friends_sub: "Who are you proving wrong? Search a username or flash your QR code.",
+    no_players: "Nobody here. Try a different name.",
     qr_friend_title: "My invite QR",
     qr_friend_sub: "Mate scans this → added instantly",
 
@@ -153,10 +163,10 @@ const T = {
     stat_acc: "Accuracy",
     stat_leagues: "Leagues",
     my_forecasts: "MY FORECASTS",
-    no_forecasts: "No predictions yet — tap a match to make your first pick.",
+    no_forecasts: "Still scared to commit? Pick a score.",
 
     // settings
-    settings_sub: "Tweak your profile",
+    settings_sub: "Make it yours",
     sec_name: "Display name",
     name_label: "DISPLAY NAME",
     name_ph: "Your name",
@@ -167,7 +177,7 @@ const T = {
     err_name_short: "Name's too short",
     sec_account: "Account",
     account_type: "Anonymous — device-bound",
-    account_warn: "Signing out = fresh start. No recovery.",
+    account_warn: "Sign out = poof, gone. No coming back.",
     sec_lang: "LANGUAGE",
     btn_signout: "Sign out",
     signout_title: "Sign out?",
@@ -223,13 +233,13 @@ const T = {
     handle_preview: "Ton pseudo : @{h}",
     btn_start: "C'est parti !",
     btn_join_friend: "Rejoindre & ajouter",
-    welcome_fine: "Pas d'email. Juste ton prénom et t'es dans la place.",
+    welcome_fine: "Pas d'email. Pas de prise de tête. Juste ton prénom.",
     err_short: "Faut au moins 2 caractères.",
     err_chars: "Ce pseudo est déjà pris — essaie un autre prénom.",
 
     // invite
-    invite_congrats: "T'es dans la place, @{u} !",
-    invite_sub: "C'est mieux avec des potes. Partage ton lien — ils cliquent et vous êtes connectés direct.",
+    invite_congrats: "Bienvenue dans l'arène, @{u} !",
+    invite_sub: "C'est mieux avec des rivaux. Partage ton lien — ils cliquent et vous êtes connectés direct.",
     invite_link_label: "TON LIEN D'INVITATION",
     btn_copy: "Copier",
     btn_copied: "Copié !",
@@ -251,13 +261,13 @@ const T = {
     filter_results: "Résultats",
 
     // predict
-    predict_sub: "Gagne des points. Monte dans les classements.",
-    predict_round: "Pronos ce tour",
-    predict_empty_title: "T'es à jour !",
-    predict_empty: "Pas de matchs à prédire pour l'instant.",
+    predict_sub: "Gratte des points. Écrase tes potes.",
+    predict_round: "Tes pronos ce tour",
+    predict_empty_title: "Rien à jouer pour l'instant.",
+    predict_empty: "Souffle un peu — les matchs arrivent.",
 
     // leagues
-    leagues_sub: "Affronte tes potes",
+    leagues_sub: "Affronte tes potes. Le dernier trinque.",
     btn_create: "Créer",
     btn_join: "Rejoindre",
     create_title: "Créer une ligue",
@@ -267,8 +277,8 @@ const T = {
     btn_create_league: "Créer la ligue",
     btn_join_league: "Rejoindre",
     err_name: "Au moins 2 caractères, s'il te plaît.",
-    no_leagues: "Pas encore de ligues",
-    no_leagues_sub: "Crée une ligue et invite tes potes, ou rejoins-en une avec un code.",
+    no_leagues: "Tout seul ? Pas pour longtemps.",
+    no_leagues_sub: "Crée une ligue et ramène tes potes, ou rejoins-en une qui va t'humilier.",
 
     // create wizard
     create_step1_title: "Sur combien de matchs ?",
@@ -280,8 +290,8 @@ const T = {
     create_done_share: "Partager avec les potes",
     create_done_go: "Voir la ligue",
     btn_next: "Suivant",
-    pun_skip: "Passer — pas de punition",
-    pun_context: "C'est ce qui arrive à celui qui finit bon dernier.",
+    pun_skip: "Passer — t'as peur ou quoi ?",
+    pun_context: "Le dernier de la ligue se prend ça. Pas de pitié.",
 
     // join (unauthenticated)
     join_need_account: "Crée un compte d'abord",
@@ -303,25 +313,8 @@ const T = {
     // punishment
     pun_section: "PUNITION DU DERNIER",
     pun_none: "Pas de punition (t'es chiant)",
-    pun_custom_ph: "Invente ta propre punition…",
-    pun_or_custom: "ou écris la tienne ci-dessous",
-    punishment_list: [
-      "Cul-sec obligatoire",
-      "Poster une photo cringe en story",
-      "Envoyer un SMS à ton crush que t'assumes pas",
-      "Tout le monde donne une claque au perdant",
-      "Ramener un Instagram à un inconnu dans la rue",
-      "Prendre un laxatif 💊",
-      "Sauter dans la rivière la plus proche",
-      "Tester toutes les glaces d'un glacier",
-      "Filer ton tel à un pote (oreilles bouchées), appeler un contact random et le guider dans la conv sans qu'il entende rien",
-      "Partir en road trip surprise",
-      "Se faire faire les ongles",
-      "Aller dans un parc de trampolines",
-      "Poster \"J'ai perdu un pari\" sur toutes ses stories",
-      "Se faire attacher à un arbre pendant que tout le monde te lance des œufs",
-      "Donner des laxatifs aux pigeons dans un parc pour enfants",
-    ] as string[],
+    pun_custom_ph: "Invente quelque chose de pire...",
+    pun_or_custom: "ou invente pire ci-dessous",
 
     // league detail
     invite_code: "CODE D'INVITATION",
@@ -331,7 +324,7 @@ const T = {
     qr_league: "QR de la ligue",
 
     // friends
-    friends_sub: "Ajoute des rivaux et défie-les",
+    friends_sub: "Trouve tes rivaux. Le trash-talk commence.",
     search_ph: "Chercher par pseudo",
     searching: "Recherche…",
     requests: "Demandes",
@@ -339,9 +332,9 @@ const T = {
     btn_accept: "Accepter",
     btn_add: "Ajouter",
     req_sent: "Demande envoyée",
-    no_friends: "Pas encore de potes",
-    no_friends_sub: "Cherche un pseudo ou tape le QR pour inviter quelqu'un.",
-    no_players: "Aucun joueur trouvé",
+    no_friends: "Pas encore de rivaux",
+    no_friends_sub: "T'es en train de prouver quoi ? Cherche un pseudo ou montre ton QR.",
+    no_players: "Personne ici. Essaie un autre pseudo.",
     qr_friend_title: "Mon QR d'invitation",
     qr_friend_sub: "Un pote le scanne et vous êtes connectés direct",
 
@@ -353,10 +346,10 @@ const T = {
     stat_acc: "Précision",
     stat_leagues: "Ligues",
     my_forecasts: "MES PRONOS",
-    no_forecasts: "Aucun prono encore — tape sur un match pour commencer !",
+    no_forecasts: "T'as pas encore osé ? Tape sur un match et mets un score.",
 
     // settings
-    settings_sub: "Modifie ton profil",
+    settings_sub: "Fais de ce profil le tien",
     sec_name: "Nom affiché",
     name_label: "NOM AFFICHÉ",
     name_ph: "Ton prénom ou surnom",
@@ -367,7 +360,7 @@ const T = {
     err_name_short: "Nom trop court",
     sec_account: "Compte",
     account_type: "Compte anonyme — lié à l'appareil",
-    account_warn: "Te déco = repartir de zéro. Pas de récup.",
+    account_warn: "Te déco = pouf, disparu. Sans retour.",
     sec_lang: "LANGUE",
     btn_signout: "Se déconnecter",
     signout_title: "Te déconnecter ?",
@@ -418,12 +411,12 @@ const I18nCtx = createContext<{
   lang: Lang;
   setLang: (l: Lang) => void;
   t: (key: TKey, vars?: Vars) => string;
-  punishments: string[];
+  punishments: Punishment[];
 }>({
   lang: "en",
   setLang: () => {},
   t: (k) => k,
-  punishments: T.en.punishment_list as string[],
+  punishments: PUNISHMENTS,
 });
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
@@ -452,12 +445,10 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     [lang]
   );
 
-  const punishments = (T[lang].punishment_list as string[]);
-
   if (!ready) return null;
 
   return (
-    <I18nCtx.Provider value={{ lang, setLang, t, punishments }}>
+    <I18nCtx.Provider value={{ lang, setLang, t, punishments: PUNISHMENTS }}>
       {children}
     </I18nCtx.Provider>
   );

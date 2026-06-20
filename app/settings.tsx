@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput,
 import { Avatar, Button, Header, Icon, Screen, ScrollView } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { useI18n, Lang } from "../lib/i18n";
-import { updateProfile, deleteMyAccount } from "../lib/api";
+import { updateProfile } from "../lib/api";
 import { pickAndUploadAvatar } from "../lib/avatar";
 import { confirmAsync, notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
@@ -16,7 +16,6 @@ export default function Settings() {
   const [name, setName] = useState(profile?.display_name ?? profile?.username ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   async function save() {
     if (name.trim().length < 2) return notify(t("err_name_short"));
@@ -29,24 +28,6 @@ export default function Settings() {
       notify("Could not save", e.message);
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleDeleteAccount() {
-    const ok = await confirmAsync(
-      t("delete_account_title"),
-      t("delete_account_msg")
-    );
-    if (!ok) return;
-    setDeleting(true);
-    try {
-      await deleteMyAccount();
-      await signOut();
-      router.replace("/(auth)/welcome");
-    } catch (e: any) {
-      notify("Could not delete account", e.message);
-    } finally {
-      setDeleting(false);
     }
   }
 
@@ -157,21 +138,6 @@ export default function Settings() {
             }}
           />
 
-          {/* Delete Account — Apple Guideline 5.1.1 mandatory */}
-          <View style={styles.card}>
-            <View style={styles.row}>
-              <View style={[styles.iconTile, { backgroundColor: colors.rouge }]}><Icon name="trash" size={18} color={colors.blanc} /></View>
-              <Text style={[styles.sectionTitle, { color: colors.rouge }]}>{t("danger_zone")}</Text>
-            </View>
-            <Text style={[styles.hint, { lineHeight: 18 }]}>{t("delete_account_warn")}</Text>
-            <Button
-              title={t("btn_delete_account")}
-              variant="danger"
-              icon="trash-outline"
-              loading={deleting}
-              onPress={handleDeleteAccount}
-            />
-          </View>
         </View>
       </ScrollView>
       </KeyboardAvoidingView>

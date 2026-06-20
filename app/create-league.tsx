@@ -14,7 +14,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Icon, QRModal } from "../components/ui";
 import { createLeague } from "../lib/api";
-import { useI18n } from "../lib/i18n";
+import { useI18n, PunishmentSeverity } from "../lib/i18n";
 import { inviteBase } from "../lib/invite";
 import { notify } from "../lib/notify";
 import { supabase } from "../lib/supabase";
@@ -24,6 +24,29 @@ type Step = 1 | 2 | 3 | 4;
 type DurKey = "full" | "groups" | "weekend" | "custom";
 const DUR_MATCHES: Record<DurKey, number | null> = { full: null, groups: 48, weekend: 8, custom: 0 };
 const DUR_NUM: Record<DurKey, string> = { full: "104", groups: "48", weekend: "8", custom: "?" };
+
+const SEV_CHIP_BG: Record<PunishmentSeverity, string> = {
+  mild: "rgba(34,197,94,0.13)",
+  daring: "rgba(251,140,60,0.13)",
+  savage: colors.surfaceDark,
+};
+const SEV_CHIP_TEXT: Record<PunishmentSeverity, string> = {
+  mild: colors.green,
+  daring: colors.orange,
+  savage: colors.blanc,
+};
+const SEV_FILTER_BG: Record<"all" | PunishmentSeverity, string> = {
+  all: colors.ink,
+  mild: colors.green,
+  daring: colors.orange,
+  savage: colors.surfaceDark,
+};
+const SEV_LABEL: Record<"all" | PunishmentSeverity, string> = {
+  all: "All",
+  mild: "Mild",
+  daring: "Daring",
+  savage: "Savage",
+};
 
 export default function CreateLeagueWizard() {
   const router = useRouter();
@@ -35,12 +58,17 @@ export default function CreateLeagueWizard() {
   const [customMatches, setCustomMatches] = useState(1);
   const [selectedPunishment, setSelectedPunishment] = useState<string | null>(null);
   const [customPunishment, setCustomPunishment] = useState("");
+  const [severityFilter, setSeverityFilter] = useState<"all" | PunishmentSeverity>("all");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [doneLeague, setDoneLeague] = useState<{ id: number; code: string; name: string } | null>(null);
   const [showQR, setShowQR] = useState(false);
 
   const stepAccent: Record<Step, string> = { 1: colors.cyan, 2: colors.orange, 3: colors.purple, 4: colors.green };
+
+  const filteredPunishments = severityFilter === "all"
+    ? punishments
+    : punishments.filter((p) => p.severity === severityFilter);
 
   function back() {
     if (step === 1) router.back();
@@ -114,7 +142,6 @@ export default function CreateLeagueWizard() {
             <Text style={styles.stepSub}>{t("create_step1_sub")}</Text>
           </View>
 
-          {/* Big 2×2 grid */}
           <View style={styles.durGrid}>
             {durOptions.map((o) => {
               const active = dur === o.key;
@@ -133,7 +160,6 @@ export default function CreateLeagueWizard() {
             })}
           </View>
 
-          {/* Custom stepper — shown inline below the grid when custom is selected */}
           {dur === "custom" ? (
             <View style={styles.stepper}>
               <Pressable onPress={() => setCustomMatches((n) => Math.max(1, n - 1))} style={styles.stepperBtn}>
@@ -160,13 +186,28 @@ export default function CreateLeagueWizard() {
         <View style={{ flex: 1 }}>
           <View style={styles.stepHead}>
             <Text style={styles.stepTitle}>{t("create_step2_title")}</Text>
-            {/* Context banner */}
             <View style={styles.contextBanner}>
               <Icon name="person" size={16} color={colors.blanc} />
-              <Text style={styles.contextTxt}>
-                {t("pun_context") ?? "This happens to the person who finishes dead last."}
-              </Text>
+              <Text style={styles.contextTxt}>{t("pun_context")}</Text>
             </View>
+          </View>
+
+          {/* Severity filter pills */}
+          <View style={styles.sevFilterRow}>
+            {(["all", "mild", "daring", "savage"] as const).map((sev) => {
+              const active = severityFilter === sev;
+              return (
+                <Pressable
+                  key={sev}
+                  onPress={() => setSeverityFilter(sev)}
+                  style={[styles.sevFilterBtn, active && { backgroundColor: SEV_FILTER_BG[sev] }]}
+                >
+                  <Text style={[styles.sevFilterTxt, active && styles.sevFilterTxtActive]}>
+                    {SEV_LABEL[sev]}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
 
           <ScrollView
@@ -186,35 +227,53 @@ export default function CreateLeagueWizard() {
               {!activePunishment ? <Icon name="checkmark-circle" size={22} color={colors.orange} /> : null}
             </Pressable>
 
-            {/* Preset cards */}
-            {punishments.map((p, i) => {
-              const active = selectedPunishment === p && !customPunishment.trim();
+            {/* Punishment cards with severity chips */}
+            {filteredPunishments.map((p, i) => {
+              const active = selectedPunishment === p.text && !customPunishment.trim();
               return (
                 <Pressable
                   key={i}
-                  onPress={() => { setSelectedPunishment(p); setCustomPunishment(""); }}
+                  onPress={() => { setSelectedPunishment(p.text); setCustomPunishment(""); }}
                   style={[styles.punCard, active && styles.punCardActive]}
                 >
-                  <Text style={[styles.punCardText, active && styles.punCardTextActive]}>{p}</Text>
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <View style={[styles.sevChip, { backgroundColor: SEV_CHIP_BG[p.severity] }]}>
+                      <Text style={[styles.sevChipTxt, { color: SEV_CHIP_TEXT[p.severity] }]}>
+                        {p.severity.toUpperCase()}
+                      </Text>
+                    </View>
+                    <Text style={[styles.punCardText, active && styles.punCardTextActive]}>{p.text}</Text>
+                    <Text style={[styles.punCardSub, active && styles.punCardSubActive]}>{p.subtitle}</Text>
+                  </View>
                   {active ? <Icon name="checkmark-circle" size={22} color={colors.orange} /> : null}
                 </Pressable>
               );
             })}
 
-            {/* Custom */}
-            <Text style={styles.orCustomLabel}>{t("pun_or_custom")}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder={t("pun_custom_ph")}
-              placeholderTextColor={colors.textFaint}
-              value={customPunishment}
-              onChangeText={(v) => { setCustomPunishment(v); if (v.trim()) setSelectedPunishment(null); }}
-              multiline
-              numberOfLines={2}
-            />
+            {/* Prominent custom punishment */}
+            <View style={styles.customCard}>
+              <View style={styles.customCardHeader}>
+                <Icon name="create-outline" size={20} color={colors.purple} />
+                <Text style={styles.customCardTitle}>{t("pun_or_custom")}</Text>
+              </View>
+              <TextInput
+                style={[styles.customInput, customPunishment.trim() && styles.customInputActive]}
+                placeholder={t("pun_custom_ph")}
+                placeholderTextColor={colors.textFaint}
+                value={customPunishment}
+                onChangeText={(v) => { setCustomPunishment(v); if (v.trim()) setSelectedPunishment(null); }}
+                multiline
+                numberOfLines={3}
+              />
+              {customPunishment.trim() ? (
+                <View style={styles.customActiveChip}>
+                  <Icon name="checkmark-circle" size={15} color={colors.green} />
+                  <Text style={styles.customActiveTxt}>Custom punishment set</Text>
+                </View>
+              ) : null}
+            </View>
           </ScrollView>
 
-          {/* Sticky Next at bottom */}
           <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
             <Button title={t("btn_next")} variant="green" icon="arrow-forward" onPress={() => setStep(3)} />
           </View>
@@ -320,10 +379,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.orange, borderRadius: radius.md, padding: 12,
   },
   contextTxt: { flex: 1, color: colors.blanc, fontSize: 14, fontWeight: "900", lineHeight: 20 },
+
+  // severity filter
+  sevFilterRow: {
+    flexDirection: "row", gap: spacing.sm,
+    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+  },
+  sevFilterBtn: {
+    flex: 1, alignItems: "center", paddingVertical: 8, borderRadius: radius.pill,
+    backgroundColor: colors.surface, ...shadow,
+  },
+  sevFilterTxt: { fontSize: 12, fontWeight: "800", color: colors.textDim, letterSpacing: 0.2 },
+  sevFilterTxtActive: { color: colors.blanc },
+
+  // punishment cards
   punCard: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between",
     backgroundColor: colors.surface, borderRadius: radius.xl,
-    paddingVertical: 18, paddingHorizontal: 20, ...shadow,
+    paddingVertical: 16, paddingHorizontal: 18, ...shadow, gap: spacing.sm,
   },
   punCardActive: { backgroundColor: colors.surfaceDark },
   punCardSkip: {
@@ -331,18 +404,43 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent", shadowOpacity: 0, elevation: 0,
   },
   punCardSkipActive: { backgroundColor: colors.surface, borderStyle: "solid" as const },
-  punCardText: { flex: 1, fontSize: 16, fontWeight: "800" as const, color: colors.ink },
+  punCardText: { fontSize: 15, fontWeight: "800" as const, color: colors.ink },
   punCardTextActive: { color: colors.blanc },
   punCardTextSkip: { color: colors.textDim, fontStyle: "italic" as const },
   punCardTextSkipActive: { color: colors.ink, fontStyle: "normal" as const },
-  orCustomLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "800", marginTop: spacing.lg, marginBottom: spacing.sm },
+  punCardSub: { fontSize: 12, fontWeight: "600" as const, color: colors.textFaint },
+  punCardSubActive: { color: "rgba(255,255,255,0.55)" },
+
+  // severity chip inside card
+  sevChip: {
+    alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 3,
+    borderRadius: radius.pill, marginBottom: 2,
+  },
+  sevChipTxt: { fontSize: 10, fontWeight: "900", letterSpacing: 0.8 },
+
+  // custom punishment area
+  customCard: {
+    backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg,
+    gap: spacing.md, marginTop: spacing.md, ...shadow,
+    borderWidth: 2, borderColor: colors.purple + "33",
+  },
+  customCardHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  customCardTitle: { color: colors.purple, fontSize: 14, fontWeight: "900", letterSpacing: 0.2 },
+  customInput: {
+    backgroundColor: colors.surfaceAlt, borderWidth: 2, borderColor: colors.border,
+    borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
+    color: colors.text, fontSize: 17, fontWeight: "700", minHeight: 80, textAlignVertical: "top",
+  },
+  customInputActive: { borderColor: colors.purple },
+  customActiveChip: { flexDirection: "row", alignItems: "center", gap: 6 },
+  customActiveTxt: { color: colors.green, fontSize: 12, fontWeight: "800" },
+
+  // ── Step 3 ──
   input: {
     backgroundColor: colors.surface, borderWidth: 2, borderColor: colors.border,
     borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     color: colors.text, fontSize: 15, minHeight: 52,
   },
-
-  // ── Step 3 ──
   nameInput: { fontSize: 22, fontWeight: "800", height: 66 },
 
   // ── Sticky bottom ──
