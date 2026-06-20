@@ -295,6 +295,8 @@ export default function SoireeRoom() {
         bet_deadline: deadline,
       });
       if (error) throw error;
+      // Immediately reflect the new round on host's screen (don't wait for realtime)
+      await loadActiveRound();
     } catch (e: any) {
       notify("Erreur lancement", e.message);
     } finally {
