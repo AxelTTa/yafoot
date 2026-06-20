@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Header, Icon, IconTile, Loading } from "../../components/ui";
+import { useI18n } from "../../lib/i18n";
 import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
@@ -22,6 +23,7 @@ import { Match } from "../../lib/types";
 export default function SoireeIndex() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { t } = useI18n();
   const [matches, setMatches] = useState<Match[]>([]);
   const [loadingMatches, setLoadingMatches] = useState(false);
   const [showHost, setShowHost] = useState(false);
@@ -48,12 +50,12 @@ export default function SoireeIndex() {
   }
 
   async function doHost() {
-    if (!selectedMatch) { notify("Sélectionne un match"); return; }
+    if (!selectedMatch) { notify(t("soiree_sign_in_req")); return; }
     const name = soireeName.trim() || `Soirée ${selectedMatch.home_team} vs ${selectedMatch.away_team}`;
     setBusy(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) { notify("Connexion requise"); return; }
+      if (!u.user) { notify(t("soiree_sign_in_req")); return; }
       const { data, error } = await supabase
         .from("soirees")
         .insert({ match_id: selectedMatch.id, host_id: u.user.id, name })
@@ -66,7 +68,7 @@ export default function SoireeIndex() {
       setSelectedMatch(null);
       router.push(`/soiree/${data.id}`);
     } catch (e: any) {
-      notify("Erreur création", e.message);
+      notify(t("soiree_err_generic"), e.message);
     } finally {
       setBusy(false);
     }
@@ -74,17 +76,17 @@ export default function SoireeIndex() {
 
   async function doJoin() {
     const code = joinCode.trim().toUpperCase();
-    if (code.length !== 6) { notify("Entrez un code de 6 caractères"); return; }
+    if (code.length !== 6) { notify(t("soiree_code_ph")); return; }
     setBusy(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) { notify("Connexion requise"); return; }
+      if (!u.user) { notify(t("soiree_sign_in_req")); return; }
       const { data: soiree, error } = await supabase
         .from("soirees")
         .select("id, name")
         .eq("join_code", code)
         .single();
-      if (error || !soiree) { notify("Soirée introuvable", "Vérifie le code et réessaie."); return; }
+      if (error || !soiree) { notify(t("soiree_not_found")); return; }
       await supabase
         .from("soiree_members")
         .upsert({ soiree_id: soiree.id, user_id: u.user.id }, { onConflict: "soiree_id,user_id" });
@@ -92,7 +94,7 @@ export default function SoireeIndex() {
       setJoinCode("");
       router.push(`/soiree/${soiree.id}`);
     } catch (e: any) {
-      notify("Erreur", e.message);
+      notify(t("soiree_err_generic"), e.message);
     } finally {
       setBusy(false);
     }
@@ -102,25 +104,22 @@ export default function SoireeIndex() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#1A0A2E" }}>
-      <Header title="Soirée Mode" />
+      <Header title={t("soiree_title")} />
 
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40, gap: spacing.lg }}>
         {/* Hero */}
         <View style={S.hero}>
           <IconTile name="football" color={colors.purple} size={72} />
-          <Text style={S.heroTitle}>Party Mode</Text>
-          <Text style={S.heroSub}>
-            Regardez un match ensemble. L'hôte lance des défis entre les buts.
-            Les perdants trinquent.
-          </Text>
+          <Text style={S.heroTitle}>{t("soiree_title")}</Text>
+          <Text style={S.heroSub}>{t("soiree_hero_sub")}</Text>
         </View>
 
         {/* Host button */}
         <Pressable style={[S.bigBtn, { backgroundColor: colors.orange }]} onPress={() => setShowHost(true)}>
           <IconTile name="mic" color="rgba(255,255,255,0.25)" size={52} />
           <View style={{ flex: 1 }}>
-            <Text style={S.bigBtnTitle}>Organiser une Soirée</Text>
-            <Text style={S.bigBtnSub}>Choisis un match, partage le code</Text>
+            <Text style={S.bigBtnTitle}>{t("soiree_host_btn")}</Text>
+            <Text style={S.bigBtnSub}>{t("soiree_host_sub")}</Text>
           </View>
           <Icon name="chevron-forward" size={24} color={colors.blanc} />
         </Pressable>
@@ -129,24 +128,24 @@ export default function SoireeIndex() {
         <Pressable style={[S.bigBtn, { backgroundColor: colors.purple }]} onPress={() => setShowJoin(true)}>
           <IconTile name="enter-outline" color="rgba(255,255,255,0.25)" size={52} />
           <View style={{ flex: 1 }}>
-            <Text style={S.bigBtnTitle}>Rejoindre une Soirée</Text>
-            <Text style={S.bigBtnSub}>Entre le code de 6 lettres de l'hôte</Text>
+            <Text style={S.bigBtnTitle}>{t("soiree_join_btn")}</Text>
+            <Text style={S.bigBtnSub}>{t("soiree_join_sub")}</Text>
           </View>
           <Icon name="chevron-forward" size={24} color={colors.blanc} />
         </Pressable>
 
         {/* How it works */}
         <View style={S.howCard}>
-          <Text style={S.howTitle}>Comment ça marche</Text>
-          {[
-            { icon: "trophy", label: "Bonne réponse = +10 pts, le plus rapide = +15 pts" },
-            { icon: "timer-outline", label: "45 secondes pour parier par round" },
-            { icon: "flame", label: "Mauvaise réponse = punition pour le perdant" },
-            { icon: "flash", label: "Tout en temps réel — tout le monde voit les mises à jour" },
-          ].map(({ icon, label }) => (
-            <View key={label} style={S.howRow}>
-              <Icon name={icon as any} size={18} color={colors.purple} />
-              <Text style={S.howText}>{label}</Text>
+          <Text style={S.howTitle}>{t("soiree_how_title")}</Text>
+          {([
+            { icon: "trophy", key: "soiree_how_1" },
+            { icon: "timer-outline", key: "soiree_how_2" },
+            { icon: "flame", key: "soiree_how_3" },
+            { icon: "flash", key: "soiree_how_4" },
+          ] as const).map(({ icon, key }) => (
+            <View key={key} style={S.howRow}>
+              <Icon name={icon} size={18} color={colors.purple} />
+              <Text style={S.howText}>{t(key)}</Text>
             </View>
           ))}
         </View>
@@ -157,8 +156,8 @@ export default function SoireeIndex() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <Pressable style={S.backdrop} onPress={() => setShowHost(false)}>
             <Pressable style={[S.sheet, { paddingBottom: insets.bottom + 16 }]} onPress={() => {}}>
-              <Text style={S.sheetTitle}>Organiser une Soirée</Text>
-              <Text style={S.sheetSub}>Choisis le match que vous regardez</Text>
+              <Text style={S.sheetTitle}>{t("soiree_host_btn")}</Text>
+              <Text style={S.sheetSub}>{t("soiree_host_sub")}</Text>
 
               {loadingMatches ? (
                 <Loading />
@@ -183,7 +182,7 @@ export default function SoireeIndex() {
                   )}
                   ListEmptyComponent={
                     <Text style={{ color: colors.textFaint, textAlign: "center", padding: 16 }}>
-                      Aucun match disponible
+                      {t("soiree_no_matches")}
                     </Text>
                   }
                 />
@@ -191,20 +190,20 @@ export default function SoireeIndex() {
 
               <TextInput
                 style={S.input}
-                placeholder="Nom de la soirée (optionnel)"
+                placeholder={t("soiree_name_ph")}
                 placeholderTextColor={colors.textFaint}
                 value={soireeName}
                 onChangeText={setSoireeName}
                 returnKeyType="done"
               />
               <Button
-                title="Créer la Soirée"
+                title={t("soiree_create_btn")}
                 variant="purple"
                 onPress={doHost}
                 loading={busy}
                 disabled={!selectedMatch}
               />
-              <Button title="Annuler" variant="ghost" onPress={() => setShowHost(false)} style={{ marginTop: 4 }} />
+              <Button title={t("soiree_cancel")} variant="ghost" onPress={() => setShowHost(false)} style={{ marginTop: 4 }} />
             </Pressable>
           </Pressable>
         </KeyboardAvoidingView>
@@ -215,28 +214,28 @@ export default function SoireeIndex() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <Pressable style={S.backdrop} onPress={() => setShowJoin(false)}>
             <Pressable style={[S.sheet, { paddingBottom: insets.bottom + 16 }]} onPress={() => {}}>
-              <Text style={S.sheetTitle}>Rejoindre une Soirée</Text>
-              <Text style={S.sheetSub}>Demande le code de 6 caractères à l'hôte</Text>
+              <Text style={S.sheetTitle}>{t("soiree_join_modal_title")}</Text>
+              <Text style={S.sheetSub}>{t("soiree_join_sub")}</Text>
               <TextInput
                 style={[S.input, S.codeInput]}
-                placeholder="ABC123"
+                placeholder={t("soiree_code_ph")}
                 placeholderTextColor={colors.textFaint}
                 autoCapitalize="characters"
                 value={joinCode}
-                onChangeText={(t) => setJoinCode(t.toUpperCase())}
+                onChangeText={(v) => setJoinCode(v.toUpperCase())}
                 autoFocus
                 returnKeyType="go"
                 onSubmitEditing={doJoin}
                 maxLength={6}
               />
               <Button
-                title="Rejoindre"
+                title={t("soiree_join_action")}
                 variant="purple"
                 onPress={doJoin}
                 loading={busy}
                 disabled={!joinReady}
               />
-              <Button title="Annuler" variant="ghost" onPress={() => setShowJoin(false)} style={{ marginTop: 4 }} />
+              <Button title={t("soiree_cancel")} variant="ghost" onPress={() => setShowJoin(false)} style={{ marginTop: 4 }} />
             </Pressable>
           </Pressable>
         </KeyboardAvoidingView>
