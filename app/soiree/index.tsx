@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button, Card, Header, Icon, IconTile, Loading } from "../../components/ui";
+import { Button, Header, Icon, IconTile, Loading } from "../../components/ui";
 import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
@@ -48,26 +48,25 @@ export default function SoireeIndex() {
   }
 
   async function doHost() {
-    if (!selectedMatch) { notify("Pick a match first"); return; }
+    if (!selectedMatch) { notify("Sélectionne un match"); return; }
     const name = soireeName.trim() || `Soirée ${selectedMatch.home_team} vs ${selectedMatch.away_team}`;
     setBusy(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) { notify("Sign in required"); return; }
+      if (!u.user) { notify("Connexion requise"); return; }
       const { data, error } = await supabase
         .from("soirees")
         .insert({ match_id: selectedMatch.id, host_id: u.user.id, name })
         .select()
         .single();
       if (error) throw error;
-      // auto-join as member
       await supabase.from("soiree_members").insert({ soiree_id: data.id, user_id: u.user.id });
       setShowHost(false);
       setSoireeName("");
       setSelectedMatch(null);
       router.push(`/soiree/${data.id}`);
     } catch (e: any) {
-      notify("Error", e.message);
+      notify("Erreur création", e.message);
     } finally {
       setBusy(false);
     }
@@ -75,17 +74,17 @@ export default function SoireeIndex() {
 
   async function doJoin() {
     const code = joinCode.trim().toUpperCase();
-    if (code.length !== 6) { notify("Enter a 6-character code"); return; }
+    if (code.length !== 6) { notify("Entrez un code de 6 caractères"); return; }
     setBusy(true);
     try {
       const { data: u } = await supabase.auth.getUser();
-      if (!u.user) { notify("Sign in required"); return; }
+      if (!u.user) { notify("Connexion requise"); return; }
       const { data: soiree, error } = await supabase
         .from("soirees")
         .select("id, name")
         .eq("join_code", code)
         .single();
-      if (error || !soiree) { notify("Soirée not found", "Check the code and try again."); return; }
+      if (error || !soiree) { notify("Soirée introuvable", "Vérifie le code et réessaie."); return; }
       await supabase
         .from("soiree_members")
         .upsert({ soiree_id: soiree.id, user_id: u.user.id }, { onConflict: "soiree_id,user_id" });
@@ -93,11 +92,13 @@ export default function SoireeIndex() {
       setJoinCode("");
       router.push(`/soiree/${soiree.id}`);
     } catch (e: any) {
-      notify("Error", e.message);
+      notify("Erreur", e.message);
     } finally {
       setBusy(false);
     }
   }
+
+  const joinReady = joinCode.trim().length === 6;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#1A0A2E" }}>
@@ -105,59 +106,59 @@ export default function SoireeIndex() {
 
       <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40, gap: spacing.lg }}>
         {/* Hero */}
-        <View style={styles.hero}>
-          <IconTile name="football" color={colors.purple} size={64} />
-          <Text style={styles.heroTitle}>Party Mode</Text>
-          <Text style={styles.heroSub}>
-            Watch a match with mates. Between goals, host fires a 30-second challenge —
-            wrong answers get dares.
+        <View style={S.hero}>
+          <IconTile name="football" color={colors.purple} size={72} />
+          <Text style={S.heroTitle}>Party Mode</Text>
+          <Text style={S.heroSub}>
+            Regardez un match ensemble. L'hôte lance des défis entre les buts.
+            Les perdants trinquent.
           </Text>
         </View>
 
         {/* Host button */}
-        <Pressable style={[styles.bigBtn, { backgroundColor: colors.orange }]} onPress={() => setShowHost(true)}>
+        <Pressable style={[S.bigBtn, { backgroundColor: colors.orange }]} onPress={() => setShowHost(true)}>
           <IconTile name="mic" color="rgba(255,255,255,0.25)" size={52} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.bigBtnTitle}>Host a Soirée</Text>
-            <Text style={styles.bigBtnSub}>Pick a match, get a code, invite the gang</Text>
+            <Text style={S.bigBtnTitle}>Organiser une Soirée</Text>
+            <Text style={S.bigBtnSub}>Choisis un match, partage le code</Text>
           </View>
           <Icon name="chevron-forward" size={24} color={colors.blanc} />
         </Pressable>
 
         {/* Join button */}
-        <Pressable style={[styles.bigBtn, { backgroundColor: colors.purple }]} onPress={() => setShowJoin(true)}>
+        <Pressable style={[S.bigBtn, { backgroundColor: colors.purple }]} onPress={() => setShowJoin(true)}>
           <IconTile name="enter-outline" color="rgba(255,255,255,0.25)" size={52} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.bigBtnTitle}>Join a Soirée</Text>
-            <Text style={styles.bigBtnSub}>Enter the 6-char code from the host</Text>
+            <Text style={S.bigBtnTitle}>Rejoindre une Soirée</Text>
+            <Text style={S.bigBtnSub}>Entre le code de 6 lettres de l'hôte</Text>
           </View>
           <Icon name="chevron-forward" size={24} color={colors.blanc} />
         </Pressable>
 
         {/* How it works */}
-        <View style={styles.howCard}>
-          <Text style={styles.howTitle}>How it works</Text>
+        <View style={S.howCard}>
+          <Text style={S.howTitle}>Comment ça marche</Text>
           {[
-            { icon: "trophy", label: "Correct bet = +10 pts, fastest = +15 pts" },
-            { icon: "timer-outline", label: "30-second countdown per round" },
-            { icon: "flame", label: "Wrong bets = dare/punishment for losers" },
-            { icon: "flash", label: "Realtime — all players see updates live" },
+            { icon: "trophy", label: "Bonne réponse = +10 pts, le plus rapide = +15 pts" },
+            { icon: "timer-outline", label: "45 secondes pour parier par round" },
+            { icon: "flame", label: "Mauvaise réponse = punition pour le perdant" },
+            { icon: "flash", label: "Tout en temps réel — tout le monde voit les mises à jour" },
           ].map(({ icon, label }) => (
-            <View key={label} style={styles.howRow}>
+            <View key={label} style={S.howRow}>
               <Icon name={icon as any} size={18} color={colors.purple} />
-              <Text style={styles.howText}>{label}</Text>
+              <Text style={S.howText}>{label}</Text>
             </View>
           ))}
         </View>
       </ScrollView>
 
-      {/* ── Host modal ── */}
+      {/* Host modal */}
       <Modal visible={showHost} transparent animationType="slide" onRequestClose={() => setShowHost(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-          <Pressable style={styles.backdrop} onPress={() => setShowHost(false)}>
-            <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]} onPress={() => {}}>
-              <Text style={styles.sheetTitle}>Host a Soirée</Text>
-              <Text style={styles.sheetSub}>Pick the match you're watching</Text>
+          <Pressable style={S.backdrop} onPress={() => setShowHost(false)}>
+            <Pressable style={[S.sheet, { paddingBottom: insets.bottom + 16 }]} onPress={() => {}}>
+              <Text style={S.sheetTitle}>Organiser une Soirée</Text>
+              <Text style={S.sheetSub}>Choisis le match que vous regardez</Text>
 
               {loadingMatches ? (
                 <Loading />
@@ -165,63 +166,77 @@ export default function SoireeIndex() {
                 <FlatList
                   data={matches}
                   keyExtractor={(m) => String(m.id)}
-                  style={{ maxHeight: 220, marginBottom: spacing.md }}
+                  style={{ maxHeight: 240, marginBottom: spacing.md }}
                   renderItem={({ item }) => (
                     <Pressable
-                      style={[styles.matchRow, selectedMatch?.id === item.id && styles.matchRowSelected]}
+                      style={[S.matchRow, selectedMatch?.id === item.id && S.matchRowSelected]}
                       onPress={() => setSelectedMatch(item)}
                     >
-                      <Text style={styles.matchFlag}>{item.home_flag ?? ""} {item.away_flag ?? ""}</Text>
-                      <Text style={[styles.matchName, selectedMatch?.id === item.id && { color: colors.purple }]}>
+                      <Text style={S.matchFlag}>{item.home_flag ?? ""} {item.away_flag ?? ""}</Text>
+                      <Text style={[S.matchName, selectedMatch?.id === item.id && { color: colors.purple }]}>
                         {item.home_team} vs {item.away_team}
                       </Text>
                       {(item.status === "IN_PLAY" || item.status === "PAUSED") && (
-                        <View style={styles.liveChip}>
-                          <Text style={styles.liveTxt}>LIVE</Text>
-                        </View>
+                        <View style={S.liveChip}><Text style={S.liveTxt}>LIVE</Text></View>
                       )}
                     </Pressable>
                   )}
-                  ListEmptyComponent={<Text style={{ color: colors.textFaint, textAlign: "center", padding: 16 }}>No upcoming or live matches</Text>}
+                  ListEmptyComponent={
+                    <Text style={{ color: colors.textFaint, textAlign: "center", padding: 16 }}>
+                      Aucun match disponible
+                    </Text>
+                  }
                 />
               )}
 
               <TextInput
-                style={styles.input}
-                placeholder="Soirée name (optional)"
+                style={S.input}
+                placeholder="Nom de la soirée (optionnel)"
                 placeholderTextColor={colors.textFaint}
                 value={soireeName}
                 onChangeText={setSoireeName}
                 returnKeyType="done"
               />
-              <Button title="Create Soirée" variant="purple" onPress={doHost} loading={busy} />
-              <Button title="Cancel" variant="ghost" onPress={() => setShowHost(false)} style={{ marginTop: 4 }} />
+              <Button
+                title="Créer la Soirée"
+                variant="purple"
+                onPress={doHost}
+                loading={busy}
+                disabled={!selectedMatch}
+              />
+              <Button title="Annuler" variant="ghost" onPress={() => setShowHost(false)} style={{ marginTop: 4 }} />
             </Pressable>
           </Pressable>
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* ── Join modal ── */}
+      {/* Join modal */}
       <Modal visible={showJoin} transparent animationType="slide" onRequestClose={() => setShowJoin(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-          <Pressable style={styles.backdrop} onPress={() => setShowJoin(false)}>
-            <Pressable style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]} onPress={() => {}}>
-              <Text style={styles.sheetTitle}>Join a Soirée</Text>
-              <Text style={styles.sheetSub}>Ask the host for the 6-character code</Text>
+          <Pressable style={S.backdrop} onPress={() => setShowJoin(false)}>
+            <Pressable style={[S.sheet, { paddingBottom: insets.bottom + 16 }]} onPress={() => {}}>
+              <Text style={S.sheetTitle}>Rejoindre une Soirée</Text>
+              <Text style={S.sheetSub}>Demande le code de 6 caractères à l'hôte</Text>
               <TextInput
-                style={styles.input}
-                placeholder="6-char code (e.g. ABC123)"
+                style={[S.input, S.codeInput]}
+                placeholder="ABC123"
                 placeholderTextColor={colors.textFaint}
                 autoCapitalize="characters"
                 value={joinCode}
-                onChangeText={setJoinCode}
+                onChangeText={(t) => setJoinCode(t.toUpperCase())}
                 autoFocus
-                returnKeyType="done"
+                returnKeyType="go"
                 onSubmitEditing={doJoin}
                 maxLength={6}
               />
-              <Button title="Join Soirée" variant="purple" onPress={doJoin} loading={busy} />
-              <Button title="Cancel" variant="ghost" onPress={() => setShowJoin(false)} style={{ marginTop: 4 }} />
+              <Button
+                title="Rejoindre"
+                variant="purple"
+                onPress={doJoin}
+                loading={busy}
+                disabled={!joinReady}
+              />
+              <Button title="Annuler" variant="ghost" onPress={() => setShowJoin(false)} style={{ marginTop: 4 }} />
             </Pressable>
           </Pressable>
         </KeyboardAvoidingView>
@@ -230,54 +245,35 @@ export default function SoireeIndex() {
   );
 }
 
-const styles = StyleSheet.create({
-  hero: {
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingVertical: spacing.xl,
-  },
-  heroTitle: { color: colors.blanc, fontSize: 32, fontWeight: "900", letterSpacing: -0.6 },
-  heroSub: { color: "rgba(255,255,255,0.6)", textAlign: "center", fontSize: 14, fontWeight: "600", lineHeight: 21 },
+const S = StyleSheet.create({
+  hero: { alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xl },
+  heroTitle: { color: colors.blanc, fontSize: 34, fontWeight: "900", letterSpacing: -0.6 },
+  heroSub: { color: "rgba(255,255,255,0.6)", textAlign: "center", fontSize: 14, fontWeight: "600", lineHeight: 22 },
   bigBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    ...shadow,
+    flexDirection: "row", alignItems: "center", gap: spacing.md,
+    borderRadius: radius.xl, padding: spacing.lg, ...shadow,
   },
   bigBtnTitle: { color: colors.blanc, fontSize: 18, fontWeight: "900" },
   bigBtnSub: { color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: "600", marginTop: 2 },
   howCard: {
-    backgroundColor: "rgba(255,255,255,0.07)",
-    borderRadius: radius.xl,
-    padding: spacing.lg,
-    gap: spacing.sm,
+    backgroundColor: "rgba(255,255,255,0.07)", borderRadius: radius.xl,
+    padding: spacing.lg, gap: spacing.sm,
   },
   howTitle: { color: colors.blanc, fontSize: 16, fontWeight: "900", marginBottom: spacing.xs },
   howRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   howText: { color: "rgba(255,255,255,0.7)", fontSize: 14, fontWeight: "600", flex: 1 },
-  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "flex-end" },
+  backdrop: { flex: 1, backgroundColor: "rgba(0,0,0,0.75)", justifyContent: "flex-end" },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.xl,
-    gap: spacing.sm,
+    backgroundColor: colors.surface, borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl, padding: spacing.xl, gap: spacing.sm,
   },
   sheetTitle: { color: colors.ink, fontSize: 22, fontWeight: "900" },
   sheetSub: { color: colors.textDim, fontSize: 14, fontWeight: "600", marginBottom: spacing.sm },
   matchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 2,
-    borderColor: "transparent",
-    backgroundColor: colors.surfaceAlt,
-    marginBottom: 6,
+    flexDirection: "row", alignItems: "center", gap: spacing.sm,
+    paddingVertical: spacing.sm, paddingHorizontal: spacing.md,
+    borderRadius: radius.md, borderWidth: 2, borderColor: "transparent",
+    backgroundColor: colors.surfaceAlt, marginBottom: 6,
   },
   matchRowSelected: { borderColor: colors.purple, backgroundColor: "rgba(155,93,229,0.1)" },
   matchFlag: { fontSize: 18 },
@@ -285,13 +281,9 @@ const styles = StyleSheet.create({
   liveChip: { backgroundColor: colors.live, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 },
   liveTxt: { color: colors.blanc, fontSize: 10, fontWeight: "900" },
   input: {
-    backgroundColor: colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    height: 52,
-    color: colors.text,
-    fontSize: 16,
+    backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border,
+    borderRadius: radius.md, paddingHorizontal: spacing.lg, height: 52,
+    color: colors.text, fontSize: 16,
   },
+  codeInput: { fontSize: 28, fontWeight: "900", textAlign: "center", letterSpacing: 8, height: 70 },
 });

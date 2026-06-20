@@ -249,7 +249,7 @@ async function rapidTap(page, label, times = 3) {
     await sleep(1500);
     // Scroll and tap rapidly
     for (let j = 0; j < 2; j++) {
-      await p.evaluate(() => window.scrollTo(0, 200 * j));
+      await p.evaluate((offset) => window.scrollTo(0, offset), 200 * j);
       const clicked = await tapContains(p, /vs\.|Group [A-L]/i).catch(() => false);
       if (clicked) { await sleep(2000); await p.goBack().catch(() => {}); await sleep(1000); }
     }
