@@ -64,8 +64,12 @@ export default function LeagueDetail() {
       .then(({ data }) => data && setLeague(data as typeof league));
     loadBoard();
     loadMsgs();
+    // Use a unique channel name per mount to avoid the race condition where
+    // supabase.channel(name) returns the still-being-cleaned-up previous channel,
+    // causing "cannot add postgres_changes callbacks after subscribe()" errors.
+    const chName = `league-${leagueId}-${Math.random().toString(36).slice(2)}`;
     const ch = supabase
-      .channel(`league-${leagueId}`)
+      .channel(chName)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "league_messages", filter: `league_id=eq.${leagueId}` },
