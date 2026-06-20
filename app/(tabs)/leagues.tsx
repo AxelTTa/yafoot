@@ -65,9 +65,19 @@ export default function Leagues() {
           <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.greenDark} />
         }
         ListHeaderComponent={
-          <View style={{ flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md }}>
-            <Button title={t("btn_create")} icon="add" variant="green" onPress={() => router.push("/create-league")} style={{ flex: 1, height: 48 }} />
-            <Button title={t("btn_join")} icon="enter-outline" variant="purple" onPress={() => setJoinModal(true)} style={{ flex: 1, height: 48 }} />
+          <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
+            <Pressable style={styles.soireeBtn} onPress={() => router.push("/soiree")}>
+              <IconTile name="mic" color={colors.purple} size={44} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.soireeBtnTitle}>Soirée Mode</Text>
+                <Text style={styles.soireeBtnSub}>Party micro-challenges en live</Text>
+              </View>
+              <Icon name="chevron-forward" size={20} color={colors.blanc} />
+            </Pressable>
+            <View style={{ flexDirection: "row", gap: spacing.sm }}>
+              <Button title={t("btn_create")} icon="add" variant="green" onPress={() => router.push("/create-league")} style={{ flex: 1, height: 48 }} />
+              <Button title={t("btn_join")} icon="enter-outline" variant="purple" onPress={() => setJoinModal(true)} style={{ flex: 1, height: 48 }} />
+            </View>
           </View>
         }
         renderItem={({ item, index }) => (
@@ -125,6 +135,16 @@ export default function Leagues() {
 }
 
 const styles = StyleSheet.create({
+  soireeBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.surfaceDark,
+    borderRadius: radius.xl,
+    padding: spacing.md,
+  },
+  soireeBtnTitle: { color: colors.blanc, fontSize: 16, fontWeight: "900" },
+  soireeBtnSub: { color: "rgba(255,255,255,0.55)", fontSize: 12, fontWeight: "600" },
   lgName: { color: colors.text, fontSize: 16, fontWeight: "800" },
   lgCode: { color: colors.textDim, fontSize: 12 },
   chip: { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: "rgba(251,140,60,0.1)", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },

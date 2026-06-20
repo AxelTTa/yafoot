@@ -51,6 +51,8 @@ function RootNav() {
       <Stack.Screen name="league/[id]" />
       <Stack.Screen name="chat/[id]" />
       <Stack.Screen name="create-league" />
+      <Stack.Screen name="soiree/index" />
+      <Stack.Screen name="soiree/[id]" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="privacy" />
