@@ -113,7 +113,10 @@ export default function SoireeRoom() {
       if (secs === 0 && isHostRef.current && !locked) {
         locked = true;
         supabase.from("soiree_rounds").update({ status: "locked" }).eq("id", roundId)
-          .then(({ error }) => { if (error) { locked = false; notify(t("soiree_err_lock"), error.message); } });
+          .then(async ({ error }) => {
+            if (error) { locked = false; notify(t("soiree_err_lock"), error.message); }
+            else await loadActiveRound(); // Force-refresh — don't wait for realtime
+          });
       }
     };
     tick(); const timer = setInterval(tick, 500); return () => clearInterval(timer);
@@ -157,7 +160,15 @@ export default function SoireeRoom() {
       const deadline = new Date(Date.now() + 45000).toISOString();
       const { error } = await supabase.from("soiree_rounds").insert({ soiree_id: id, question: preset.question, options: preset.options, status: "open", bet_deadline: deadline });
       if (error) throw error;
+      await loadActiveRound(); // Immediately show round on host's screen
     } catch (e: any) { notify(t("soiree_err_start"), e.message); } finally { setBusy(false); }
+  }
+
+  async function lockRound() {
+    if (!round || !isHost) return;
+    const { error } = await supabase.from("soiree_rounds").update({ status: "locked" }).eq("id", round.id);
+    if (error) notify(t("soiree_err_lock"), error.message);
+    else await loadActiveRound();
   }
   async function placeBet(answer: string) {
     if (!round || countdown === 0) return;
@@ -242,7 +253,7 @@ export default function SoireeRoom() {
         </Pressable>
         {state === "lobby" && <LobbyView members={members} isHost={isHost} busy={busy} onStart={startGame} />}
         {state === "idle" && <IdleView isHost={isHost} busy={busy} onOpenRound={openRound} rounds={rounds} />}
-        {state === "open" && round && <RoundOpenView round={round} bets={bets} members={members} myBet={myBet} countdown={countdown} busy={busy} getMemberName={getMemberName} myId={myId} onBet={placeBet} />}
+        {state === "open" && round && <RoundOpenView round={round} bets={bets} members={members} myBet={myBet} countdown={countdown} busy={busy} getMemberName={getMemberName} myId={myId} isHost={isHost} onBet={placeBet} onLock={lockRound} />}
         {state === "locked" && round && <RoundLockedView round={round} bets={bets} isHost={isHost} busy={busy} getMemberName={getMemberName} myId={myId} onResolve={resolveRound} />}
         {state === "resolved" && round && <RoundResolvedView round={round} bets={bets} getMemberName={getMemberName} isHost={isHost} onNextRound={() => { setRound(null); setBets([]); setMyBet(null); }} />}
         <Leaderboard members={members} />
@@ -292,7 +303,7 @@ function IdleView({ isHost, busy, onOpenRound, rounds }: { isHost: boolean; busy
   );
 }
 
-function RoundOpenView({ round, bets, members, myBet, countdown, busy, getMemberName, myId, onBet }: { round: Round; bets: Bet[]; members: Member[]; myBet: string | null; countdown: number; busy: boolean; getMemberName: (id: string) => string; myId: string | null; onBet: (answer: string) => void }) {
+function RoundOpenView({ round, bets, members, myBet, countdown, busy, getMemberName, myId, isHost, onBet, onLock }: { round: Round; bets: Bet[]; members: Member[]; myBet: string | null; countdown: number; busy: boolean; getMemberName: (id: string) => string; myId: string | null; isHost: boolean; onBet: (answer: string) => void; onLock: () => void }) {
   const { t } = useI18n();
   const urgent = countdown <= 10 && countdown > 0;
   const betterIds = new Set(bets.map((b) => b.user_id));
@@ -321,7 +332,10 @@ function RoundOpenView({ round, bets, members, myBet, countdown, busy, getMember
           ))}
         </View>
       )}
-      {!canBet && <Text style={[S.faint, { textAlign: "center", marginTop: spacing.sm }]}>{t("soiree_time_up")}</Text>}
+      {!canBet && isHost && (
+        <Button title="Verrouiller le round" variant="dark" onPress={onLock} style={{ marginTop: spacing.sm }} />
+      )}
+      {!canBet && !isHost && <Text style={[S.faint, { textAlign: "center", marginTop: spacing.sm }]}>{t("soiree_time_up")}</Text>}
       {members.length > 0 && (
         <View style={S.bettersRow}>
           {members.map((m) => {
