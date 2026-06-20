@@ -24,13 +24,11 @@ export default function LanguageScreen() {
           <Pressable onPress={() => pick("en")} style={({ pressed }) => [styles.card, pressed && { opacity: 0.88 }]}>
             <Text style={styles.flag}>🏴󠁧󠁢󠁥󠁮󠁧󠁿</Text>
             <Text style={styles.cardLabel}>English</Text>
-            <Text style={styles.cardSub}>Casual & fun</Text>
           </Pressable>
 
           <Pressable onPress={() => pick("fr")} style={({ pressed }) => [styles.card, pressed && { opacity: 0.88 }]}>
             <Text style={styles.flag}>🇫🇷</Text>
             <Text style={styles.cardLabel}>Français</Text>
-            <Text style={styles.cardSub}>Décontracté & goofy</Text>
           </Pressable>
         </View>
 

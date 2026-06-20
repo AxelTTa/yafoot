@@ -12,7 +12,7 @@ import { supabase } from "../../lib/supabase";
 import { colors, radius, spacing } from "../../lib/theme";
 import { Match, Prediction, isFinished, isLive, isUpcoming } from "../../lib/types";
 
-type Filter = "live" | "upcoming" | "groups" | "results";
+type Filter = "upcoming" | "groups" | "results";
 
 export default function Matches() {
   const router = useRouter();
@@ -22,7 +22,7 @@ export default function Matches() {
   const [preds, setPreds] = useState<Record<number, Prediction>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<Filter>("live");
+  const [filter, setFilter] = useState<Filter>("upcoming");
 
   const load = useCallback(async () => {
     const [m, p] = await Promise.all([fetchMatches(), fetchMyPredictions().catch(() => ({}))]);
@@ -35,26 +35,23 @@ export default function Matches() {
     return () => { supabase.removeChannel(ch); };
   }, [load]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
-  useEffect(() => {
-    if (!loading && matches.length) {
-      const hasLive = matches.some((m) => isLive(m.status));
-      setFilter((f) => (f === "live" && !hasLive ? "upcoming" : f));
-    }
-  }, [loading]);
 
-  const liveCount = matches.filter((m) => isLive(m.status)).length;
   const groups = useMemo(() => computeGroups(matches), [matches]);
   const filtered = useMemo(() => {
-    if (filter === "live") return matches.filter((m) => isLive(m.status));
     if (filter === "results") return matches.filter((m) => isFinished(m.status)).reverse();
-    if (filter === "upcoming") return matches.filter((m) => isUpcoming(m.status));
+    if (filter === "upcoming") {
+      const live = matches
+        .filter((m) => isLive(m.status))
+        .sort((a, b) => (parseInt(b.minute ?? "0") || 0) - (parseInt(a.minute ?? "0") || 0));
+      const upcoming = matches.filter((m) => isUpcoming(m.status));
+      return [...live, ...upcoming];
+    }
     return [];
   }, [matches, filter]);
 
   if (loading) return <Loading />;
 
-  const tabs: { key: Filter; label: string; badge?: number; color: string }[] = [
-    { key: "live", label: t("filter_live"), badge: liveCount, color: colors.live },
+  const tabs: { key: Filter; label: string; color: string }[] = [
     { key: "upcoming", label: t("filter_upcoming"), color: colors.greenDark },
     { key: "groups", label: t("filter_groups"), color: colors.purple },
     { key: "results", label: t("filter_results"), color: colors.orange },
@@ -62,17 +59,11 @@ export default function Matches() {
 
   const Filters = (
     <View style={styles.filters}>
-      {tabs.map((t) => {
-        const active = filter === t.key;
+      {tabs.map((tab) => {
+        const active = filter === tab.key;
         return (
-          <Pressable key={t.key} onPress={() => setFilter(t.key)} style={[styles.chip, active && { backgroundColor: t.color }]}>
-            {t.key === "live" ? <View style={[styles.liveDot, { backgroundColor: active ? colors.blanc : colors.live }]} /> : null}
-            <Text style={[styles.chipText, active && { color: colors.blanc }]}>{t.label}</Text>
-            {t.badge ? (
-              <View style={[styles.badge, { backgroundColor: active ? "rgba(255,255,255,0.3)" : colors.live }]}>
-                <Text style={styles.badgeText}>{t.badge}</Text>
-              </View>
-            ) : null}
+          <Pressable key={tab.key} onPress={() => setFilter(tab.key)} style={[styles.chip, active && { backgroundColor: tab.color }]}>
+            <Text style={[styles.chipText, active && { color: colors.blanc }]}>{tab.label}</Text>
           </Pressable>
         );
       })}
@@ -115,10 +106,9 @@ export default function Matches() {
           renderItem={({ item }) => <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />}
           ListEmptyComponent={
             <Empty
-              icon={filter === "live" ? "radio" : filter === "results" ? "list" : "calendar"}
-              color={filter === "live" ? colors.live : filter === "results" ? colors.orange : colors.greenDark}
-              title={filter === "live" ? t("empty_live") : filter === "results" ? t("empty_results") : t("empty_upcoming")}
-              sub={filter === "live" ? t("empty_live_sub") : undefined}
+              icon={filter === "results" ? "list" : "calendar"}
+              color={filter === "results" ? colors.orange : colors.greenDark}
+              title={filter === "results" ? t("empty_results") : t("empty_upcoming")}
             />
           }
         />
@@ -136,7 +126,4 @@ const styles = StyleSheet.create({
   filters: { flexDirection: "row", gap: spacing.sm, paddingVertical: spacing.md, flexWrap: "wrap" },
   chip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: spacing.lg, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: colors.surface },
   chipText: { color: colors.ink, fontWeight: "900", fontSize: 13 },
-  liveDot: { width: 7, height: 7, borderRadius: 4 },
-  badge: { borderRadius: 999, minWidth: 18, height: 18, alignItems: "center", justifyContent: "center", paddingHorizontal: 5 },
-  badgeText: { color: colors.blanc, fontSize: 10, fontWeight: "900" },
 });

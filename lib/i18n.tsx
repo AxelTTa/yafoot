@@ -117,8 +117,8 @@ const T = {
 
     // duration
     dur_section: "COMPETITION LENGTH",
-    dur_full: "Full tournament",
-    dur_full_sub: "All 104 matches",
+    dur_full: "Remaining",
+    dur_full_sub: "All remaining matches",
     dur_groups: "Group stage",
     dur_groups_sub: "First 48 matches",
     dur_weekend: "Weekend",
@@ -300,8 +300,8 @@ const T = {
 
     // duration
     dur_section: "DURÉE DE LA COMPÉTITION",
-    dur_full: "Tournoi complet",
-    dur_full_sub: "Les 104 matchs",
+    dur_full: "Restants",
+    dur_full_sub: "Tous les matchs restants",
     dur_groups: "Phase de groupes",
     dur_groups_sub: "Les 48 premiers matchs",
     dur_weekend: "Weekend",

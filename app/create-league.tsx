@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -54,6 +54,15 @@ export default function CreateLeagueWizard() {
   const { t, punishments } = useI18n();
 
   const [step, setStep] = useState<Step>(1);
+  const [remainingMatches, setRemainingMatches] = useState<number | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("matches")
+      .select("id", { count: "exact", head: true })
+      .in("status", ["SCHEDULED", "TIMED"])
+      .then(({ count }) => setRemainingMatches(count ?? null));
+  }, []);
   const [dur, setDur] = useState<DurKey>("full");
   const [customMatches, setCustomMatches] = useState(1);
   const [selectedPunishment, setSelectedPunishment] = useState<string | null>(null);
@@ -145,7 +154,11 @@ export default function CreateLeagueWizard() {
           <View style={styles.durGrid}>
             {durOptions.map((o) => {
               const active = dur === o.key;
-              const numDisplay = o.key === "custom" && dur === "custom" ? String(customMatches) : DUR_NUM[o.key];
+              const numDisplay = o.key === "custom" && dur === "custom"
+                ? String(customMatches)
+                : o.key === "full"
+                  ? (remainingMatches !== null ? String(remainingMatches) : "...")
+                  : DUR_NUM[o.key];
               return (
                 <Pressable
                   key={o.key}
@@ -212,7 +225,7 @@ export default function CreateLeagueWizard() {
 
           <ScrollView
             style={{ flex: 1 }}
-            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: 10 }}
+            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: 7 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
@@ -236,16 +249,15 @@ export default function CreateLeagueWizard() {
                   onPress={() => { setSelectedPunishment(p.text); setCustomPunishment(""); }}
                   style={[styles.punCard, active && styles.punCardActive]}
                 >
-                  <View style={{ flex: 1, gap: 4 }}>
+                  <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8 }}>
                     <View style={[styles.sevChip, { backgroundColor: SEV_CHIP_BG[p.severity] }]}>
                       <Text style={[styles.sevChipTxt, { color: SEV_CHIP_TEXT[p.severity] }]}>
                         {p.severity.toUpperCase()}
                       </Text>
                     </View>
-                    <Text style={[styles.punCardText, active && styles.punCardTextActive]}>{p.text}</Text>
-                    <Text style={[styles.punCardSub, active && styles.punCardSubActive]}>{p.subtitle}</Text>
+                    <Text style={[styles.punCardText, active && styles.punCardTextActive]} numberOfLines={2}>{p.text}</Text>
                   </View>
-                  {active ? <Icon name="checkmark-circle" size={22} color={colors.orange} /> : null}
+                  {active ? <Icon name="checkmark-circle" size={20} color={colors.orange} /> : null}
                 </Pressable>
               );
             })}
@@ -394,9 +406,9 @@ const styles = StyleSheet.create({
 
   // punishment cards
   punCard: {
-    flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between",
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     backgroundColor: colors.surface, borderRadius: radius.xl,
-    paddingVertical: 16, paddingHorizontal: 18, ...shadow, gap: spacing.sm,
+    paddingVertical: 10, paddingHorizontal: 14, ...shadow, gap: spacing.sm,
   },
   punCardActive: { backgroundColor: colors.surfaceDark },
   punCardSkip: {
@@ -413,10 +425,10 @@ const styles = StyleSheet.create({
 
   // severity chip inside card
   sevChip: {
-    alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 3,
-    borderRadius: radius.pill, marginBottom: 2,
+    flexShrink: 0, paddingHorizontal: 6, paddingVertical: 2,
+    borderRadius: radius.pill,
   },
-  sevChipTxt: { fontSize: 10, fontWeight: "900", letterSpacing: 0.8 },
+  sevChipTxt: { fontSize: 9, fontWeight: "900", letterSpacing: 0.6 },
 
   // custom punishment area
   customCard: {

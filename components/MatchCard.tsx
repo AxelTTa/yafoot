@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { Icon } from "./ui";
 import { savePrediction } from "../lib/api";
 import { colors, radius, shadow, spacing } from "../lib/theme";
@@ -95,6 +95,19 @@ export default function MatchCard({
   const live = isLive(match.status);
   const finished = isFinished(match.status);
   const showScore = live || finished;
+  const pulse = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!live) return;
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 0.25, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1, duration: 700, useNativeDriver: true }),
+      ])
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [live]);
 
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, shadow, pressed && { opacity: 0.95 }]}>
@@ -102,7 +115,7 @@ export default function MatchCard({
         <Text style={styles.group}>{match.group_name ?? match.stage?.replace(/_/g, " ") ?? "World Cup"}</Text>
         {live ? (
           <View style={styles.livePill}>
-            <View style={styles.dot} />
+            <Animated.View style={[styles.dot, { opacity: pulse }]} />
             <Text style={styles.liveText}>{match.minute ? `${match.minute}'` : "LIVE"}</Text>
           </View>
         ) : finished ? (
