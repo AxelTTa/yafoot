@@ -78,7 +78,7 @@ export default function LeagueDetail() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [leagueId, loadBoard, loadMsgs]);
+  }, [leagueId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function reportMsg(msg: Msg) {
     if (msg.sender_id === me) return;
