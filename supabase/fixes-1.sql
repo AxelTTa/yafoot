@@ -2,9 +2,11 @@
 
 -- #1 + #13: lock predictions at kickoff and bound scores (DB-enforced, not just UI).
 -- Allow internal updates (scoring changes points_awarded/scored but not the pick).
+-- Block only when kickoff has passed AND the match is no longer SCHEDULED/TIMED
+-- (handles delayed starts — match might be SCHEDULED past its printed kickoff time).
 create or replace function public.predictions_guard()
 returns trigger language plpgsql security definer set search_path = public as $$
-declare ko timestamptz;
+declare ko timestamptz; st text;
 begin
   if TG_OP = 'UPDATE'
      and new.pred_home is not distinct from old.pred_home
@@ -14,8 +16,8 @@ begin
   if new.pred_home < 0 or new.pred_home > 99 or new.pred_away < 0 or new.pred_away > 99 then
     raise exception 'Score must be between 0 and 99';
   end if;
-  select utc_kickoff into ko from public.matches where id = new.match_id;
-  if ko is not null and ko <= now() then
+  select utc_kickoff, status into ko, st from public.matches where id = new.match_id;
+  if ko is not null and ko <= now() and st not in ('SCHEDULED', 'TIMED') then
     raise exception 'Predictions are locked: this match has already kicked off';
   end if;
   return new;

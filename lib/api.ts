@@ -37,7 +37,7 @@ export async function savePrediction(matchId: number, home: number, away: number
 export async function fetchMyForecasts() {
   const { data } = await supabase
     .from("predictions")
-    .select("pred_home, pred_away, points_awarded, scored, matches(home_team,home_flag,away_team,away_flag,home_score,away_score,status,utc_kickoff,group_name)")
+    .select("match_id, pred_home, pred_away, points_awarded, scored, matches(id,home_team,home_flag,away_team,away_flag,home_score,away_score,status,utc_kickoff,group_name)")
     .order("created_at", { ascending: false })
     .limit(40);
   return (data as any[]) ?? [];

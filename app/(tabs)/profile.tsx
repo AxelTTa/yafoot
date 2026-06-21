@@ -1,13 +1,34 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Avatar, Icon, ScreenHeader, ScrollView } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
-import { fetchMyForecasts } from "../../lib/api";
+import { fetchMyForecasts, savePrediction } from "../../lib/api";
+import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
 import { prettyTeam } from "../../lib/teams";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
+
+function MiniStep({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  return (
+    <View style={ms.stepper}>
+      <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={ms.btn} hitSlop={8}>
+        <Text style={ms.sign}>−</Text>
+      </Pressable>
+      <Text style={ms.val}>{value}</Text>
+      <Pressable onPress={() => onChange(Math.min(20, value + 1))} style={ms.btn} hitSlop={8}>
+        <Text style={ms.sign}>+</Text>
+      </Pressable>
+    </View>
+  );
+}
+const ms = StyleSheet.create({
+  stepper: { flexDirection: "row", alignItems: "center", gap: 6 },
+  btn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center" },
+  sign: { color: colors.ink, fontSize: 20, fontWeight: "900", lineHeight: 22 },
+  val: { color: colors.ink, fontSize: 24, fontWeight: "900", minWidth: 32, textAlign: "center" },
+});
 
 type ForecastTab = "all" | "upcoming";
 
@@ -28,6 +49,10 @@ export default function Profile() {
   const [stats, setStats] = useState({ predictions: 0, exact: 0, leagues: 0, correct: 0 });
   const [forecasts, setForecasts] = useState<any[]>([]);
   const [forecastTab, setForecastTab] = useState<ForecastTab>("all");
+  const [editFc, setEditFc] = useState<any | null>(null);
+  const [editHome, setEditHome] = useState(0);
+  const [editAway, setEditAway] = useState(0);
+  const [editSaving, setEditSaving] = useState(false);
 
   const load = useCallback(async () => {
     const uid = session?.user?.id;
@@ -159,8 +184,18 @@ export default function Profile() {
               {upcoming.map((f, i) => {
                 const m = f.matches;
                 if (!m) return null;
+                const locked = !m.utc_kickoff || new Date(m.utc_kickoff) <= new Date() || (m.status !== "SCHEDULED" && m.status !== "TIMED");
                 return (
-                  <View key={i} style={styles.fc}>
+                  <Pressable
+                    key={f.match_id ?? i}
+                    onPress={() => {
+                      if (locked) return;
+                      setEditFc(f);
+                      setEditHome(f.pred_home);
+                      setEditAway(f.pred_away);
+                    }}
+                    style={({ pressed }) => [styles.fc, !locked && styles.fcEditable, pressed && !locked && { opacity: 0.85 }]}
+                  >
                     <View style={{ flex: 1, marginRight: spacing.md }}>
                       <Text style={styles.fcTeams} numberOfLines={1}>
                         {m.home_flag} {prettyTeam(m.home_team)} v {prettyTeam(m.away_team)} {m.away_flag}
@@ -169,14 +204,62 @@ export default function Profile() {
                     </View>
                     <View style={styles.fcRight}>
                       <Text style={styles.fcPick}>{f.pred_home}-{f.pred_away}</Text>
+                      <Icon
+                        name={locked ? "lock-closed-outline" : "create-outline"}
+                        size={16}
+                        color={locked ? colors.textFaint : colors.purple}
+                      />
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>
           );
         })()}
       </View>
+
+      {/* Edit prediction modal */}
+      <Modal visible={!!editFc} transparent animationType="slide" onRequestClose={() => setEditFc(null)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle} numberOfLines={1}>
+              {prettyTeam(editFc?.matches?.home_team)} vs {prettyTeam(editFc?.matches?.away_team)}
+            </Text>
+            <Text style={styles.modalKickoff}>{kickoffLabel(editFc?.matches?.utc_kickoff ?? null)}</Text>
+
+            <View style={styles.modalSteppers}>
+              <MiniStep value={editHome} onChange={setEditHome} />
+              <Text style={styles.modalDash}>–</Text>
+              <MiniStep value={editAway} onChange={setEditAway} />
+            </View>
+
+            <View style={styles.modalButtons}>
+              <Pressable onPress={() => setEditFc(null)} style={styles.cancelBtn}>
+                <Text style={styles.cancelTxt}>Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={async () => {
+                  if (!editFc?.match_id) return;
+                  setEditSaving(true);
+                  try {
+                    await savePrediction(editFc.match_id, editHome, editAway);
+                    setEditFc(null);
+                    await load();
+                  } catch {
+                    notify("Save failed", "Could not save your prediction. Try again.");
+                  } finally {
+                    setEditSaving(false);
+                  }
+                }}
+                style={[styles.saveBtn, editSaving && { opacity: 0.6 }]}
+                disabled={editSaving}
+              >
+                <Text style={styles.saveTxt}>{editSaving ? "Saving..." : "Save"}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -209,4 +292,17 @@ const styles = StyleSheet.create({
   fcBadge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2, minWidth: 28, alignItems: "center" },
   fcBadgeTxt: { fontSize: 12, fontWeight: "900" },
   fcPending: { color: colors.textFaint, fontSize: 14, fontWeight: "900" },
+  fcEditable: { borderWidth: 1.5, borderColor: colors.purple },
+  // modal
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "flex-end" },
+  modalCard: { backgroundColor: colors.surface, borderTopLeftRadius: radius.xl, borderTopRightRadius: radius.xl, padding: spacing.xl, gap: spacing.lg, paddingBottom: 40 },
+  modalTitle: { color: colors.ink, fontSize: 18, fontWeight: "900", textAlign: "center" },
+  modalKickoff: { color: colors.textDim, fontSize: 12, fontWeight: "700", textAlign: "center", marginTop: -spacing.sm },
+  modalSteppers: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.xl },
+  modalDash: { color: colors.textFaint, fontSize: 28, fontWeight: "800" },
+  modalButtons: { flexDirection: "row", gap: spacing.md },
+  cancelBtn: { flex: 1, alignItems: "center", paddingVertical: spacing.md, borderRadius: radius.lg, backgroundColor: colors.surfaceAlt },
+  cancelTxt: { color: colors.textDim, fontSize: 15, fontWeight: "800" },
+  saveBtn: { flex: 2, alignItems: "center", paddingVertical: spacing.md, borderRadius: radius.lg, backgroundColor: colors.purple },
+  saveTxt: { color: colors.blanc, fontSize: 15, fontWeight: "900" },
 });

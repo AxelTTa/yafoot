@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { Icon } from "./ui";
 import { savePrediction } from "../lib/api";
+import { notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 import { Match, Prediction, isFinished, isLive } from "../lib/types";
 import { prettyTeam, teamFlag } from "../lib/teams";
@@ -30,41 +31,81 @@ function MiniStep({ value, onChange }: { value: number; onChange: (n: number) =>
   );
 }
 
+type SaveState = "idle" | "saving" | "saved" | "error";
+
 function InlinePrediction({ matchId, prediction }: { matchId: number; prediction?: Prediction }) {
   const [home, setHome] = useState(prediction?.pred_home ?? 0);
   const [away, setAway] = useState(prediction?.pred_away ?? 0);
-  const [saved, setSaved] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>(prediction ? "saved" : "idle");
   const lastSaved = useRef({ h: prediction?.pred_home ?? 0, a: prediction?.pred_away ?? 0 });
+  const fadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const scheduleFade = useCallback(() => {
+    if (fadeRef.current) clearTimeout(fadeRef.current);
+    fadeRef.current = setTimeout(() => setSaveState("idle"), 2000);
+  }, []);
+
+  useEffect(() => () => { if (fadeRef.current) clearTimeout(fadeRef.current); }, []);
+
+  // Sync when prediction prop changes (e.g. after initial load)
   useEffect(() => {
-    const h = prediction?.pred_home ?? 0;
-    const a = prediction?.pred_away ?? 0;
+    if (!prediction) return;
+    const h = prediction.pred_home;
+    const a = prediction.pred_away;
     setHome(h); setAway(a);
     lastSaved.current = { h, a };
+    setSaveState("saved");
+    scheduleFade();
   }, [prediction?.pred_home, prediction?.pred_away]);
 
+  // Debounced auto-save when values drift from lastSaved
   useEffect(() => {
     if (home === lastSaved.current.h && away === lastSaved.current.a) return;
+    if (fadeRef.current) clearTimeout(fadeRef.current);
+    setSaveState("saving");
     const t = setTimeout(async () => {
       try {
         await savePrediction(matchId, home, away);
         lastSaved.current = { h: home, a: away };
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-      } catch {}
+        setSaveState("saved");
+        scheduleFade();
+      } catch {
+        setSaveState("error");
+      }
     }, 800);
     return () => clearTimeout(t);
   }, [home, away, matchId]);
+
+  const retry = async () => {
+    setSaveState("saving");
+    try {
+      await savePrediction(matchId, home, away);
+      lastSaved.current = { h: home, a: away };
+      setSaveState("saved");
+      scheduleFade();
+    } catch {
+      notify("Save failed", "Check your connection and try again.");
+      setSaveState("error");
+    }
+  };
 
   return (
     <View style={il.wrap}>
       <MiniStep value={home} onChange={setHome} />
       <Text style={il.dash}>–</Text>
       <MiniStep value={away} onChange={setAway} />
-      {saved ? (
-        <View style={il.savedBadge}>
-          <Text style={il.savedTxt}>Saved</Text>
+      {saveState === "saving" ? (
+        <View style={[il.badge, { backgroundColor: colors.orange }]}>
+          <Text style={il.badgeTxt}>Saving...</Text>
         </View>
+      ) : saveState === "saved" ? (
+        <View style={[il.badge, { backgroundColor: colors.green }]}>
+          <Text style={il.badgeTxt}>Saved</Text>
+        </View>
+      ) : saveState === "error" ? (
+        <Pressable onPress={retry} style={[il.badge, { backgroundColor: colors.red }]} hitSlop={4}>
+          <Text style={il.badgeTxt}>Error — retry</Text>
+        </Pressable>
       ) : null}
     </View>
   );
@@ -77,8 +118,8 @@ const il = StyleSheet.create({
   sign: { color: colors.ink, fontSize: 17, fontWeight: "900", lineHeight: 19 },
   val: { color: colors.ink, fontSize: 19, fontWeight: "900", minWidth: 24, textAlign: "center" },
   dash: { color: colors.textFaint, fontSize: 15, fontWeight: "800" },
-  savedBadge: { backgroundColor: colors.green, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
-  savedTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
+  badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
+  badgeTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
 });
 
 export default function MatchCard({
@@ -110,7 +151,7 @@ export default function MatchCard({
   }, [live]);
 
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, shadow, pressed && { opacity: 0.95 }]}>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.card, shadow, pressed && { opacity: 0.95 }, prediction && !live && !finished && styles.cardPredicted]}>
       <View style={styles.header}>
         <Text style={styles.group}>{match.group_name ?? match.stage?.replace(/_/g, " ") ?? "World Cup"}</Text>
         {live ? (
@@ -174,7 +215,8 @@ export default function MatchCard({
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md, borderWidth: 1.5, borderColor: "transparent" },
+  cardPredicted: { borderColor: colors.green },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   group: { color: colors.textDim, fontSize: 12, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },
   time: { color: colors.textDim, fontSize: 12, fontWeight: "800" },
