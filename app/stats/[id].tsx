@@ -19,6 +19,24 @@ type FDMatch = {
   score: { fullTime: { home: number | null; away: number | null }; winner: string | null };
 };
 
+type HistoricalMatch = {
+  year: number;
+  match_date: string | null;
+  home_team: string;
+  away_team: string;
+  home_score: number;
+  away_score: number;
+  stage: string | null;
+  competition: string;
+};
+
+type H2HSummary = {
+  home_wins: number;
+  away_wins: number;
+  draws: number;
+  total: number;
+};
+
 type H2HData = {
   fd_h2h: {
     aggregates: {
@@ -28,6 +46,8 @@ type H2HData = {
     };
     matches: FDMatch[];
   } | null;
+  h2h_all: HistoricalMatch[] | null;
+  h2h_summary: H2HSummary | null;
   home_form: any[];
   away_form: any[];
   local_h2h: any[];
@@ -144,6 +164,8 @@ export default function MatchStats() {
   const fdH2H = h2hData?.fd_h2h ?? null;
   const fdMatches: FDMatch[] = fdH2H?.matches ?? [];
   const fdAgg = fdH2H?.aggregates ?? null;
+  const histMatches: HistoricalMatch[] = h2hData?.h2h_all ?? [];
+  const histSummary: H2HSummary | null = h2hData?.h2h_summary ?? null;
   const homeForm: any[] = h2hData?.home_form ?? [];
   const awayForm: any[] = h2hData?.away_form ?? [];
   const localH2H: any[] = h2hData?.local_h2h ?? [];
@@ -154,6 +176,10 @@ export default function MatchStats() {
   const awayFdName = fdAgg?.awayTeam.name ?? null;
   const homeBW = homeFdName ? biggestWin(fdMatches, homeFdName) : null;
   const awayBW = awayFdName ? biggestWin(fdMatches, awayFdName) : null;
+
+  // Use historical data when FD data unavailable
+  const showHistorical = fdMatches.length === 0 && histMatches.length > 0;
+  const showFirstEver = fdMatches.length === 0 && histMatches.length === 0;
 
   return (
     <Screen>
@@ -197,7 +223,6 @@ export default function MatchStats() {
         <View style={styles.card}>
           {fdMatches.length > 0 ? (
             <>
-              {/* All-time record summary */}
               {fdAgg && (
                 <View style={styles.h2hSummary}>
                   <View style={styles.h2hSummaryBlock}>
@@ -217,8 +242,6 @@ export default function MatchStats() {
               <Text style={styles.h2hAllComp}>
                 All competitions · {fdAgg?.numberOfMatches ?? fdMatches.length} meetings
               </Text>
-
-              {/* Biggest wins */}
               {(homeBW || awayBW) && (
                 <View style={styles.biggestWrap}>
                   {homeBW && homeFdName && (
@@ -233,10 +256,7 @@ export default function MatchStats() {
                   )}
                 </View>
               )}
-
               <View style={styles.divider} />
-
-              {/* Individual meetings (last 8) */}
               {fdMatches.slice(0, 8).map((hm, i) => {
                 const hs = hm.score.fullTime.home ?? 0;
                 const as_ = hm.score.fullTime.away ?? 0;
@@ -255,6 +275,59 @@ export default function MatchStats() {
                     </View>
                     <View style={[styles.winnerBadge, { backgroundColor: winnName ? colors.green : colors.yellow }]}>
                       <Text style={styles.winnerTxt}>{winnName ? winnName.slice(0, 12) : "Draw"}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </>
+          ) : showHistorical ? (
+            <>
+              {/* Historical WC H2H summary */}
+              {histSummary && histSummary.total > 0 && (
+                <View style={styles.h2hSummary}>
+                  <View style={styles.h2hSummaryBlock}>
+                    <Text style={[styles.h2hBigNum, { color: colors.green }]}>{histSummary.home_wins}</Text>
+                    <Text style={styles.h2hSmLabel}>{homeN}</Text>
+                  </View>
+                  <View style={styles.h2hSummaryBlock}>
+                    <Text style={[styles.h2hBigNum, { color: colors.textDim }]}>{histSummary.draws}</Text>
+                    <Text style={styles.h2hSmLabel}>Draws</Text>
+                  </View>
+                  <View style={styles.h2hSummaryBlock}>
+                    <Text style={[styles.h2hBigNum, { color: colors.purple }]}>{histSummary.away_wins}</Text>
+                    <Text style={styles.h2hSmLabel}>{awayN}</Text>
+                  </View>
+                </View>
+              )}
+              <Text style={styles.h2hAllComp}>
+                World Cup history · {histSummary?.total ?? histMatches.length} meetings
+              </Text>
+              <View style={styles.divider} />
+              {histMatches.map((hm, i) => {
+                // Orient relative to current match's home/away
+                const homePov = hm.home_team.toLowerCase() === match.home_team.toLowerCase();
+                const hmScore = homePov ? hm.home_score : hm.away_score;
+                const awScore = homePov ? hm.away_score : hm.home_score;
+                const dispHome = homePov ? hm.home_team : hm.away_team;
+                const dispAway = homePov ? hm.away_team : hm.home_team;
+                const winTeam = hmScore > awScore ? homeN : awScore > hmScore ? awayN : null;
+                const stageLabel = hm.stage ? hm.stage.replace(/–\s*Group Stage/, '').trim() : 'Group Stage';
+                const homeFlag = teamFlag(match.home_team, match.home_flag);
+                const awayFlag = teamFlag(match.away_team, match.away_flag);
+                return (
+                  <View key={i} style={[styles.h2hRow, i > 0 && styles.h2hRowBorder]}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.h2hMeta}>{hm.year} · {stageLabel}</Text>
+                      <View style={styles.h2hScoreRow}>
+                        <Text style={{ fontSize: 16 }}>{homeFlag}</Text>
+                        <Text style={styles.h2hTeam} numberOfLines={1}>{dispHome}</Text>
+                        <Text style={styles.h2hScore}>{hmScore}–{awScore}</Text>
+                        <Text style={styles.h2hTeam} numberOfLines={1}>{dispAway}</Text>
+                        <Text style={{ fontSize: 16 }}>{awayFlag}</Text>
+                      </View>
+                    </View>
+                    <View style={[styles.winnerBadge, { backgroundColor: winTeam ? colors.green : colors.yellow }]}>
+                      <Text style={styles.winnerTxt}>{winTeam ? winTeam.slice(0, 12) : "Draw"}</Text>
                     </View>
                   </View>
                 );
@@ -287,6 +360,13 @@ export default function MatchStats() {
                 );
               })}
             </>
+          ) : showFirstEver ? (
+            <View style={{ alignItems: "center", paddingVertical: spacing.md }}>
+              <Text style={styles.h2hBigNum}>🏆</Text>
+              <Text style={[styles.emptyTxt, { textAlign: "center", marginTop: spacing.sm }]}>
+                First ever meeting at the World Cup
+              </Text>
+            </View>
           ) : (
             <Text style={styles.emptyTxt}>No previous meetings found.</Text>
           )}
