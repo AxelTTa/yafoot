@@ -116,7 +116,7 @@ export default function MatchDetail() {
         {open ? (
           <View style={styles.predictBox}>
             <Text style={styles.predictTitle}>{pred ? "Update your prediction" : "Make your prediction"}</Text>
-            <Text style={styles.scoringHint}>Exact score = 3 pts · Right result = 1 pt</Text>
+            <Text style={styles.scoringHint}>Exact = 5 pts · Off by 1 = 4 · Off by 2 = 3 · Off by 3 = 2 · Right result = 1 · Wrong = 0</Text>
             <View style={styles.steppers}>
               <View style={{ alignItems: "center", flex: 1, gap: 8 }}>
                 <Text style={styles.stepFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
@@ -140,7 +140,7 @@ export default function MatchDetail() {
                 {pred.scored ? (
                   <Pill
                     label={`+${pred.points_awarded} points`}
-                    color={pred.points_awarded >= 3 ? colors.gold : pred.points_awarded > 0 ? colors.live : colors.textFaint}
+                    color={pred.points_awarded >= 5 ? colors.gold : pred.points_awarded > 0 ? colors.live : colors.textFaint}
                     bg={colors.surfaceAlt}
                   />
                 ) : (

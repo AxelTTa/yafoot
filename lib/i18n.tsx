@@ -9,26 +9,28 @@ export type PunishmentSeverity = "mild" | "daring" | "savage";
 export type Punishment = { text: string; subtitle: string; severity: PunishmentSeverity };
 
 export const PUNISHMENTS: Punishment[] = [
-  // MILD
-  { text: "Offre le prochain verre", subtitle: "He's buying the next round", severity: "mild" },
-  { text: "Cul sec obligatoire", subtitle: "Down it. Now.", severity: "mild" },
-  { text: "Prends un shot", subtitle: "Take a shot, no excuses", severity: "mild" },
-  { text: "Finis ton verre avant le prochain but", subtitle: "Finish your drink before the next goal", severity: "mild" },
-  { text: "T'as perdu t'offres une bière à quelqu'un", subtitle: "You lost, you're buying someone a beer", severity: "mild" },
-  // DARING
-  { text: "Poste une photo de toi sur ta story sans légende", subtitle: "Post a photo on your story, no caption, no context", severity: "daring" },
-  { text: "Filer ton tel à un pote pendant 2 min", subtitle: "Hand your phone to a mate for 2 mins, they do what they want", severity: "daring" },
-  { text: "Envoie un vocal de 30 secondes à quelqu'un au hasard dans tes contacts", subtitle: "Voice note someone random in your contacts", severity: "daring" },
-  { text: "Poste un mème sur ton insta story", subtitle: "Post a meme on your story right now", severity: "daring" },
-  { text: "Change ta bio Instagram pendant 24h avec ce que le groupe décide", subtitle: "Let the group write your Instagram bio for 24h", severity: "daring" },
-  { text: "Lance des oeufs", subtitle: "Obvious", severity: "daring" },
-  { text: "Appelle quelqu'un et dis-leur que t'as quelque chose d'important à dire... et raccroche", subtitle: "Call someone, tell them you have something important, then hang up", severity: "daring" },
-  // SAVAGE
-  { text: "Poste une photo de ton crush sur ta story avec des coeurs", subtitle: "Post a photo of your crush on your story with hearts", severity: "savage" },
-  { text: "Envoie un message à ton ex juste: '...'", subtitle: "Text your ex just '...'", severity: "savage" },
-  { text: "Mets une photo de soirée cringe en photo de profil pendant 24h", subtitle: "Cringe party photo as your profile pic for 24h", severity: "savage" },
-  { text: "Écris un message vocal gênant à quelqu'un que le groupe choisit", subtitle: "The group picks who you send a voice note to", severity: "savage" },
-  { text: "Poste sur ta story: 'J'ai perdu un pari, demandez-moi ce que j'ai fait'", subtitle: "Post on your story admitting you lost a bet", severity: "savage" },
+  // MILD (drinking / one-night)
+  { text: "Offre le prochain verre", subtitle: "He's buying the next round.", severity: "mild" },
+  { text: "Envoie un vocal de 30s à un contact au hasard", subtitle: "30-sec voice note to a random contact.", severity: "mild" },
+  { text: "3 shots d'affilée", subtitle: "Three shots, back to back.", severity: "mild" },
+  { text: "Finis ton verre avant le prochain but", subtitle: "Finish your drink before the next goal.", severity: "mild" },
+  { text: "T'offres une bière à quelqu'un", subtitle: "Buy someone a beer.", severity: "mild" },
+  { text: "Mets la photo du gagnant en fond d'écran ET en verrouillage — 1 semaine, preuve exigée", subtitle: "Winner picks your lock screen AND wallpaper. 1 week. Proof required.", severity: "mild" },
+  // DARING (social / phone — good for week-long comps)
+  { text: "Cul sec — verre au choix du groupe", subtitle: "Down a full glass of whatever the group picks.", severity: "daring" },
+  { text: "Filer son tel à un pote 2 min — il fait ce qu'il veut", subtitle: "Hand your phone to a mate for 2 mins. They do whatever they want.", severity: "daring" },
+  { text: "Appelle un numéro au hasard — déclare-lui ton amour puis raccroche", subtitle: "Call a random number, declare your love, then hang up.", severity: "daring" },
+  { text: "Le groupe écrit ta bio Instagram — 24h", subtitle: "Let the group write your Instagram bio for 24 hours.", severity: "daring" },
+  { text: "Lance des œufs sur le perdant", subtitle: "Throw eggs on the loser.", severity: "daring" },
+  { text: "Appelle un contact, dis que t'as quelque chose d'important à dire... et raccroche", subtitle: "Call a contact, say you have something important to tell them, then hang up.", severity: "daring" },
+  { text: "Le groupe gère ton statut WhatsApp pendant une semaine", subtitle: "Group controls your WhatsApp status for a week.", severity: "daring" },
+  // SAVAGE (tournament-length — full comp stakes)
+  { text: "Vocal de 60s dans le groupe : excuses dramatiques complètes pour être le pire esprit foot vivant. Épinglé.", subtitle: "60-sec voice note to the group chat: full dramatic apology for being the worst football mind alive. Pinned.", severity: "savage" },
+  { text: "Poste une photo de ton crush en story — le groupe choisit le texte", subtitle: "Post a photo of your crush to your story — group decides the caption.", severity: "savage" },
+  { text: "Envoie '...' à ton ex", subtitle: "Text your ex just '…'", severity: "savage" },
+  { text: "Le groupe choisit ta photo de profil — 24h", subtitle: "Group picks your profile pic for 24 hours.", severity: "savage" },
+  { text: "Le groupe choisit qui reçoit ton vocal", subtitle: "The group picks who you send a voice note to.", severity: "savage" },
+  { text: "Poste la photo du groupe sur ton insta story. Sans légende, sans contexte.", subtitle: "Post a photo of the group's choosing to your insta story. No caption, no context.", severity: "savage" },
 ];
 
 // ─── soirée game content ────────────────────────────────────────────────────

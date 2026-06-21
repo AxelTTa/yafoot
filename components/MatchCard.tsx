@@ -151,7 +151,7 @@ export default function MatchCard({
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
               {prediction.scored ? (
-                <View style={[styles.ptsPill, { backgroundColor: prediction.points_awarded >= 3 ? colors.green : prediction.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
+                <View style={[styles.ptsPill, { backgroundColor: prediction.points_awarded >= 5 ? colors.green : prediction.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
                   <Text style={[styles.ptsText, { color: prediction.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{prediction.points_awarded}</Text>
                 </View>
               ) : (

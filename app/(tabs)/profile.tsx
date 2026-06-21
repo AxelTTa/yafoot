@@ -34,7 +34,7 @@ export default function Profile() {
     if (!uid) return;
     const [{ count: predictions }, { count: exact }, { count: correct }, { count: leagues }, fc] = await Promise.all([
       supabase.from("predictions").select("id", { count: "exact", head: true }),
-      supabase.from("predictions").select("id", { count: "exact", head: true }).eq("points_awarded", 3),
+      supabase.from("predictions").select("id", { count: "exact", head: true }).eq("points_awarded", 5),
       supabase.from("predictions").select("id", { count: "exact", head: true }).gt("points_awarded", 0),
       supabase.from("league_members").select("league_id", { count: "exact", head: true }),
       fetchMyForecasts().catch(() => []),
