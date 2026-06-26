@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Take App Store screenshots at iPhone 6.5" and iPad Pro 12.9" sizes
 import puppeteer from "puppeteer-core";
-import { mkdirSync } from "fs";
+import { mkdirSync, rmSync } from "fs";
 
-const BASE_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app";
+const BASE_URL = process.env.URL || "https://dist-five-zeta-92i4a6g3xx.vercel.app";
 const OUT_DIR = "/tmp/screenshots";
+rmSync(OUT_DIR, { recursive: true, force: true });
 mkdirSync(OUT_DIR, { recursive: true });
 
 const IPHONE = { width: 430, height: 932, deviceScaleFactor: 3 };
@@ -50,62 +51,7 @@ async function doOnboarding(page) {
   console.log("  URL:", await page.evaluate(() => location.href));
 }
 
-async function clickTabByText(page, label) {
-  // In the tab bar, items have specific text labels (Matches/Leagues/Friends/Profile)
-  // Try navigating directly to the URL as fallback
-  const result = await page.evaluate((lbl) => {
-    const all = [...document.querySelectorAll('*')];
-    // look for tab-bar-like elements (non-nested text match)
-    for (const el of all) {
-      if (el.children.length <= 2 && el.textContent?.trim() === lbl) {
-        el.click();
-        return "clicked:" + lbl;
-      }
-    }
-    return null;
-  }, label);
-  if (result) { console.log("  Tab:", result); await delay(2000); return; }
-
-  // Fallback: navigate via URL
-  const paths = { Leagues: "/(tabs)/leagues", Friends: "/(tabs)/social", Profile: "/(tabs)/profile" };
-  const path = paths[label];
-  if (path) {
-    await page.evaluate((p) => {
-      // use expo-router's navigation
-      window.__expo_router_navigate?.(p);
-    }, path);
-    // Fallback to hash/pushState
-    const url = `${BASE_URL}${path}`;
-    await page.goto(url, { waitUntil: "networkidle2", timeout: 15000 }).catch(() => {});
-    await delay(2000);
-  }
-}
-
-async function setInputValue(page, index, value) {
-  await page.evaluate((idx, val) => {
-    const el = document.querySelectorAll('input')[idx];
-    if (!el) throw new Error(`input ${idx} not found`);
-    Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, val);
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-  }, index, value);
-}
-
-async function createSafeChallenge(page) {
-  await page.goto(`${BASE_URL}/create-challenge`, { waitUntil: "networkidle2", timeout: 20000 });
-  await delay(1500);
-  await setInputValue(page, 0, "Riverside");
-  await setInputValue(page, 1, "Hilltown");
-  const d = new Date(Date.now() + 3 * 60 * 60 * 1000);
-  const start = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-  await setInputValue(page, 2, start);
-  await setInputValue(page, 3, "Friends Friday");
-  await delay(300);
-  const created = await clickTabIndex(page, "Create challenge");
-  console.log("  Safe challenge:", created);
-  await delay(3500);
-}
-
-async function shoot(browser, viewport, outFile, tabUrl) {
+async function shoot(browser, viewport, outFile, path) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
   page.on("dialog", async (dialog) => {
@@ -116,13 +62,12 @@ async function shoot(browser, viewport, outFile, tabUrl) {
   console.log("  Loading...");
   await page.goto(BASE_URL, { waitUntil: "networkidle2", timeout: 30000 });
   await doOnboarding(page);
-  await createSafeChallenge(page);
 
-  if (tabUrl) {
-    // Navigate to the specific tab URL directly
-    await page.goto(tabUrl, { waitUntil: "networkidle2", timeout: 20000 });
+  if (path) {
+    const url = `${BASE_URL}${path}`;
+    await page.goto(url, { waitUntil: "networkidle2", timeout: 20000 });
     await delay(2000);
-    console.log("  Navigated to:", tabUrl);
+    console.log("  Navigated to:", url);
   }
 
   await page.screenshot({ path: outFile, type: "png" });
@@ -138,22 +83,22 @@ async function run() {
   });
 
   const TABS = [
-    { label: "Matches", url: null },                                           // home tab
-    { label: "Leagues", url: `${BASE_URL}/leagues` },
-    { label: "Friends", url: `${BASE_URL}/social` },
-    { label: "Profile", url: `${BASE_URL}/profile` },
+    { label: "Competitions", path: "/leagues" },
+    { label: "Create Competition", path: "/create-league" },
+    { label: "Friends", path: "/social" },
+    { label: "Profile", path: "/profile" },
   ];
 
   console.log("--- iPhone 6.5\" screenshots ---");
   for (let i = 0; i < TABS.length; i++) {
     console.log(`Shot ${i+1}: ${TABS[i].label}`);
-    await shoot(browser, IPHONE, `${OUT_DIR}/iphone_0${i+1}.png`, TABS[i].url);
+    await shoot(browser, IPHONE, `${OUT_DIR}/iphone_0${i+1}.png`, TABS[i].path);
   }
 
   console.log("--- iPad Pro 12.9\" screenshots ---");
   for (let i = 0; i < TABS.length; i++) {
     console.log(`Shot ${i+1}: ${TABS[i].label}`);
-    await shoot(browser, IPAD, `${OUT_DIR}/ipad_0${i+1}.png`, TABS[i].url);
+    await shoot(browser, IPAD, `${OUT_DIR}/ipad_0${i+1}.png`, TABS[i].path);
   }
 
   await browser.close();

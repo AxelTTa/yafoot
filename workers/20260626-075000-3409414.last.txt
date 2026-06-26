@@ -1,0 +1,5 @@
+BLOCKED.
+
+Live URL recheck completed and Telegram sent. Summary written to [workers/20260626-075000-3409414.last.txt](/home/ubuntu/yafoot/workers/20260626-075000-3409414.last.txt).
+
+Main blocker: English create-competition punishment step still shows French primary card text. Support/privacy are public and OK; onboarding, create competition, detail, and invite/share flow worked. Screenshots are in `/tmp/yafoot-url-recheck-*.png`.

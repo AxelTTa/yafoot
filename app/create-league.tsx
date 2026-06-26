@@ -49,13 +49,6 @@ const SEV_FILTER_BG: Record<"all" | PunishmentSeverity, string> = {
   daring: colors.orange,
   savage: colors.surfaceDark,
 };
-const SEV_LABEL: Record<"all" | PunishmentSeverity, string> = {
-  all: "All",
-  mild: "Mild",
-  daring: "Daring",
-  savage: "Savage",
-};
-
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
@@ -86,23 +79,24 @@ function kickoffDate(match: DraftMatch) {
   return Number.isNaN(dt.getTime()) ? null : dt;
 }
 
-function validateMatch(match: DraftMatch, index: number) {
-  if (!match.home) return `Match ${index + 1}: choose country A.`;
-  if (!match.away) return `Match ${index + 1}: choose country B.`;
-  if (match.home.code === match.away.code) return `Match ${index + 1}: choose two different countries.`;
+function validateMatch(match: DraftMatch, index: number, t: ReturnType<typeof useI18n>["t"]) {
+  const n = String(index + 1);
+  if (!match.home) return t("create_err_country_a", { n });
+  if (!match.away) return t("create_err_country_b", { n });
+  if (match.home.code === match.away.code) return t("create_err_country_same", { n });
   const kickoff = kickoffDate(match);
-  if (!kickoff) return `Match ${index + 1}: choose a valid start time.`;
-  if (kickoff.getTime() <= Date.now() + 60 * 1000) return `Match ${index + 1}: start time must be in the future.`;
+  if (!kickoff) return t("create_err_time_valid", { n });
+  if (kickoff.getTime() <= Date.now() + 60 * 1000) return t("create_err_time_future", { n });
   return null;
 }
 
-function dateOptions() {
+function dateOptions(t: ReturnType<typeof useI18n>["t"]) {
   return Array.from({ length: 14 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
     return {
       key: dateKey(d),
-      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : d.toLocaleDateString([], { weekday: "short" }),
+      label: i === 0 ? t("today") : i === 1 ? t("tomorrow") : d.toLocaleDateString([], { weekday: "short" }),
       sub: d.toLocaleDateString([], { month: "short", day: "numeric" }),
     };
   });
@@ -114,12 +108,16 @@ function CountryPicker({
   blockedCode,
   onClose,
   onSelect,
+  title,
+  searchPlaceholder,
 }: {
   visible: boolean;
   selected?: CountryOption | null;
   blockedCode?: string | null;
   onClose: () => void;
   onSelect: (country: CountryOption) => void;
+  title: string;
+  searchPlaceholder: string;
 }) {
   const [q, setQ] = useState("");
   const countries = useMemo(() => {
@@ -132,7 +130,7 @@ function CountryPicker({
       <Pressable style={styles.modalShade} onPress={onClose}>
         <Pressable style={styles.countrySheet} onPress={() => {}}>
           <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Choose country</Text>
+            <Text style={styles.sheetTitle}>{title}</Text>
             <Pressable onPress={onClose} style={styles.closeBtn}>
               <Icon name="close" size={20} color={colors.ink} />
             </Pressable>
@@ -141,7 +139,7 @@ function CountryPicker({
             style={styles.searchInput}
             value={q}
             onChangeText={setQ}
-            placeholder="Search country"
+            placeholder={searchPlaceholder}
             placeholderTextColor={colors.textFaint}
             autoCapitalize="words"
           />
@@ -175,14 +173,14 @@ function CountryPicker({
   );
 }
 
-function CountryButton({ label, country, onPress }: { label: string; country: CountryOption | null; onPress: () => void }) {
+function CountryButton({ label, country, emptyLabel, onPress }: { label: string; country: CountryOption | null; emptyLabel: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} style={[styles.countryBtn, country && styles.countryBtnPicked]}>
       <Text style={styles.countryBtnLabel}>{label}</Text>
       <View style={styles.countryBtnMain}>
         <Text style={styles.countryBtnFlag}>{country?.flag ?? "🏳️"}</Text>
         <Text style={[styles.countryBtnName, !country && { color: colors.textFaint }]} numberOfLines={1}>
-          {country?.name ?? "Pick country"}
+          {country?.name ?? emptyLabel}
         </Text>
       </View>
     </Pressable>
@@ -222,16 +220,22 @@ export default function CreateCompetitionWizard() {
     ? punishments
     : punishments.filter((p) => p.severity === severityFilter);
   const activePunishment = customPunishment.trim() || selectedPunishment;
+  const severityLabel: Record<"all" | PunishmentSeverity, string> = {
+    all: t("sev_all"),
+    mild: t("sev_mild"),
+    daring: t("sev_daring"),
+    savage: t("sev_savage"),
+  };
 
   const firstError = useMemo(() => {
-    if (name.trim().length < 2) return "Competition name needs at least 2 characters.";
-    if (matches.length < 1) return "Add at least one match.";
+    if (name.trim().length < 2) return t("create_err_name");
+    if (matches.length < 1) return t("create_err_add_match");
     for (let i = 0; i < matches.length; i += 1) {
-      const error = validateMatch(matches[i], i);
+      const error = validateMatch(matches[i], i, t);
       if (error) return error;
     }
     return null;
-  }, [matches, name]);
+  }, [matches, name, t]);
 
   function updateMatch(id: string, patch: Partial<DraftMatch>) {
     setMatches((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
@@ -258,7 +262,7 @@ export default function CreateCompetitionWizard() {
 
   async function submit() {
     if (firstError) {
-      notify("Check competition", firstError);
+      notify(t("create_check_competition"), firstError);
       return;
     }
     setBusy(true);
@@ -323,14 +327,14 @@ export default function CreateCompetitionWizard() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 90 }]} keyboardShouldPersistTaps="handled">
             <View style={styles.stepHead}>
-              <Text style={styles.stepTitle}>Name your competition</Text>
-              <Text style={styles.stepSub}>Private score predictions for your friends. You choose the countries and matches.</Text>
+              <Text style={styles.stepTitle}>{t("create_intro_title")}</Text>
+              <Text style={styles.stepSub}>{t("create_intro_sub")}</Text>
             </View>
             <View style={styles.card}>
-              <Text style={styles.label}>COMPETITION NAME</Text>
+              <Text style={styles.label}>{t("create_name_label")}</Text>
               <TextInput
                 style={[styles.input, styles.nameInput]}
-                placeholder="e.g. Friday predictions"
+                placeholder={t("create_name_ph")}
                 placeholderTextColor={colors.textFaint}
                 value={name}
                 onChangeText={setName}
@@ -342,7 +346,7 @@ export default function CreateCompetitionWizard() {
           </ScrollView>
           <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
             <Button title={t("btn_next")} variant="green" icon="arrow-forward" onPress={() => {
-              if (name.trim().length < 2) notify("Check name", "Competition name needs at least 2 characters.");
+              if (name.trim().length < 2) notify(t("create_check_name"), t("create_err_name"));
               else setStep(2);
             }} />
           </View>
@@ -364,7 +368,7 @@ export default function CreateCompetitionWizard() {
               const active = severityFilter === sev;
               return (
                 <Pressable key={sev} onPress={() => setSeverityFilter(sev)} style={[styles.sevFilterBtn, active && { backgroundColor: SEV_FILTER_BG[sev] }]}>
-                  <Text style={[styles.sevFilterTxt, active && styles.sevFilterTxtActive]}>{SEV_LABEL[sev]}</Text>
+                  <Text style={[styles.sevFilterTxt, active && styles.sevFilterTxtActive]}>{severityLabel[sev]}</Text>
                 </Pressable>
               );
             })}
@@ -385,7 +389,7 @@ export default function CreateCompetitionWizard() {
                 <Pressable key={`${p.severity}-${i}`} onPress={() => { setSelectedPunishment(p.text); setCustomPunishment(""); }} style={[styles.punCard, active && styles.punCardActive]}>
                   <View style={{ flex: 1, gap: 4 }}>
                     <View style={[styles.sevChip, { backgroundColor: SEV_CHIP_BG[p.severity] }]}>
-                      <Text style={[styles.sevChipTxt, { color: SEV_CHIP_TEXT[p.severity] }]}>{p.severity.toUpperCase()}</Text>
+                      <Text style={[styles.sevChipTxt, { color: SEV_CHIP_TEXT[p.severity] }]}>{severityLabel[p.severity].toUpperCase()}</Text>
                     </View>
                     <Text style={[styles.punCardText, active && styles.punCardTextActive]}>{p.text}</Text>
                     <Text style={[styles.punCardSub, active && styles.punCardSubActive]}>{p.subtitle}</Text>
@@ -413,7 +417,7 @@ export default function CreateCompetitionWizard() {
               {customPunishment.trim() ? (
                 <View style={styles.customActiveChip}>
                   <Icon name="checkmark-circle" size={15} color={colors.green} />
-                  <Text style={styles.customActiveTxt}>Custom punishment set</Text>
+                  <Text style={styles.customActiveTxt}>{t("pun_custom_set")}</Text>
                 </View>
               ) : null}
             </View>
@@ -428,28 +432,28 @@ export default function CreateCompetitionWizard() {
       {step === 3 ? (
         <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 100 }]} keyboardShouldPersistTaps="handled">
           <View style={styles.stepHead}>
-            <Text style={styles.stepTitle}>Build the match list</Text>
-            <Text style={styles.stepSub}>Pick countries and a future start time. Predictions lock when a match starts.</Text>
+            <Text style={styles.stepTitle}>{t("create_match_title")}</Text>
+            <Text style={styles.stepSub}>{t("create_match_sub")}</Text>
           </View>
 
           {matches.map((match, index) => {
-            const error = validateMatch(match, index);
-            const dates = dateOptions();
+            const error = validateMatch(match, index, t);
+            const dates = dateOptions(t);
             return (
               <View key={match.id} style={styles.matchCard}>
                 <View style={styles.matchHeader}>
-                  <Text style={styles.matchTitle}>Match {index + 1}</Text>
+                  <Text style={styles.matchTitle}>{t("create_match_label", { n: String(index + 1) })}</Text>
                   <Pressable onPress={() => removeMatch(match.id)} disabled={matches.length <= 1} style={[styles.removeBtn, matches.length <= 1 && { opacity: 0.35 }]}>
                     <Icon name="trash-outline" size={18} color={colors.rouge} />
                   </Pressable>
                 </View>
 
                 <View style={styles.sideRow}>
-                  <CountryButton label="COUNTRY A" country={match.home} onPress={() => setPicker({ matchId: match.id, side: "home" })} />
-                  <CountryButton label="COUNTRY B" country={match.away} onPress={() => setPicker({ matchId: match.id, side: "away" })} />
+                  <CountryButton label={t("create_country_a")} country={match.home} emptyLabel={t("create_pick_country")} onPress={() => setPicker({ matchId: match.id, side: "home" })} />
+                  <CountryButton label={t("create_country_b")} country={match.away} emptyLabel={t("create_pick_country")} onPress={() => setPicker({ matchId: match.id, side: "away" })} />
                 </View>
 
-                <Text style={styles.label}>MATCH DATE</Text>
+                <Text style={styles.label}>{t("create_date_label")}</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateRow}>
                   {dates.map((d) => {
                     const active = match.date === d.key;
@@ -462,19 +466,19 @@ export default function CreateCompetitionWizard() {
                   })}
                 </ScrollView>
 
-                <Text style={styles.label}>START TIME</Text>
+                <Text style={styles.label}>{t("create_start_time")}</Text>
                 <View style={styles.timeRow}>
                   <View style={styles.timeBlock}>
-                    <Text style={styles.timeLabel}>Hour</Text>
+                    <Text style={styles.timeLabel}>{t("create_hour")}</Text>
                     <TimeStepper value={match.hour} max={23} onChange={(hour) => updateMatch(match.id, { hour })} />
                   </View>
                   <Text style={styles.timeColon}>:</Text>
                   <View style={styles.timeBlock}>
-                    <Text style={styles.timeLabel}>Minutes</Text>
+                    <Text style={styles.timeLabel}>{t("create_minutes")}</Text>
                     <TimeStepper value={match.minute} max={55} step={5} onChange={(minute) => updateMatch(match.id, { minute })} />
                   </View>
                 </View>
-                <Text style={styles.hint}>Local time on this device.</Text>
+                <Text style={styles.hint}>{t("create_local_time")}</Text>
                 {error ? <Text style={styles.error}>{error}</Text> : null}
               </View>
             );
@@ -482,15 +486,15 @@ export default function CreateCompetitionWizard() {
 
           <Pressable onPress={() => setMatches((items) => [...items, newDraft(2 + items.length)])} style={styles.addMatchBtn}>
             <Icon name="add-circle" size={22} color={colors.greenDark} />
-            <Text style={styles.addMatchText}>Add another match</Text>
+            <Text style={styles.addMatchText}>{t("create_add_match")}</Text>
           </Pressable>
         </ScrollView>
       ) : null}
 
       {step === 3 ? (
         <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
-          <Text style={styles.summary}>{matches.length} match{matches.length === 1 ? "" : "es"} in this competition</Text>
-          <Button title="Create competition" variant="green" icon="checkmark" onPress={submit} loading={busy} disabled={!!firstError} />
+          <Text style={styles.summary}>{matches.length === 1 ? t("create_summary_one") : t("create_summary_many", { n: String(matches.length) })}</Text>
+          <Button title={t("create_submit")} variant="green" icon="checkmark" onPress={submit} loading={busy} disabled={!!firstError} />
         </View>
       ) : null}
 
@@ -499,7 +503,7 @@ export default function CreateCompetitionWizard() {
           <View style={styles.doneIcon}>
             <Icon name="people" size={52} color={colors.green} />
           </View>
-          <Text style={[styles.stepTitle, { textAlign: "center" }]}>Competition created</Text>
+          <Text style={[styles.stepTitle, { textAlign: "center" }]}>{t("create_done_title")}</Text>
           <Text style={[styles.stepSub, { textAlign: "center" }]}>{done.name}</Text>
 
           <Pressable onPress={() => setShowQR(true)} style={styles.codeCard}>
@@ -507,14 +511,14 @@ export default function CreateCompetitionWizard() {
             <Text style={styles.code}>{done.code}</Text>
             <View style={styles.qrHint}>
               <Icon name="qr-code" size={14} color={colors.textDim} />
-              <Text style={styles.qrHintTxt}>Tap for QR code</Text>
+              <Text style={styles.qrHintTxt}>{t("create_qr_hint")}</Text>
             </View>
           </Pressable>
 
           <QRModal visible={showQR} onClose={() => setShowQR(false)} value={`${inviteBase()}/join/${done.code}`} title="Competition QR" subtitle={`Invite code: ${done.code}`} />
 
-          <Button title="Share invite" variant="green" icon="share-social" onPress={shareCompetition} style={{ marginTop: spacing.md }} />
-          <Button title="Open competition" variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${done.id}`)} style={{ marginTop: spacing.sm }} />
+          <Button title={t("create_share_invite")} variant="green" icon="share-social" onPress={shareCompetition} style={{ marginTop: spacing.md }} />
+          <Button title={t("create_done_go")} variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${done.id}`)} style={{ marginTop: spacing.sm }} />
         </ScrollView>
       ) : null}
 
@@ -524,6 +528,8 @@ export default function CreateCompetitionWizard() {
         blockedCode={picker?.side === "home" ? selectedMatch?.away?.code : selectedMatch?.home?.code}
         onClose={() => setPicker(null)}
         onSelect={setCountry}
+        title={t("create_choose_country")}
+        searchPlaceholder={t("create_search_country")}
       />
     </View>
   );
