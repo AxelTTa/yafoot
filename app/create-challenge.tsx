@@ -1,8 +1,9 @@
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import { Button, Header, Icon, Screen, ScrollView } from "../components/ui";
 import { createChallengeMatch } from "../lib/api";
+import { APP_STORE_SAFE } from "../lib/mode";
 import { notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 
@@ -30,6 +31,10 @@ export default function CreateChallenge() {
   const [challengeName, setChallengeName] = useState("");
   const [startTime, setStartTime] = useState(defaultStart());
   const [saving, setSaving] = useState(false);
+
+  if (APP_STORE_SAFE) {
+    return <Redirect href="/create-league" />;
+  }
 
   const valid = useMemo(() => {
     return homeTeam.trim().length >= 2 && awayTeam.trim().length >= 2 && !!parseLocalDateTime(startTime);

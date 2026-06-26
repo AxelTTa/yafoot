@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,456 +13,312 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Icon, QRModal } from "../components/ui";
-import { createLeague } from "../lib/api";
-import { useI18n, PunishmentSeverity } from "../lib/i18n";
+import { createPredictionCompetition } from "../lib/api";
 import { inviteBase } from "../lib/invite";
 import { notify } from "../lib/notify";
-import { supabase } from "../lib/supabase";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 
-type Step = 1 | 2 | 3 | 4;
-type DurKey = "full" | "groups" | "weekend" | "custom";
-const DUR_MATCHES: Record<DurKey, number | null> = { full: null, groups: 48, weekend: 8, custom: 0 };
-const DUR_NUM: Record<DurKey, string> = { full: "104", groups: "48", weekend: "8", custom: "?" };
+type Step = 1 | 2 | 3;
+type DraftMatch = { id: string; homeTeam: string; awayTeam: string; startTime: string };
 
-const SEV_CHIP_BG: Record<PunishmentSeverity, string> = {
-  mild: "rgba(34,197,94,0.13)",
-  daring: "rgba(251,140,60,0.13)",
-  savage: colors.surfaceDark,
-};
-const SEV_CHIP_TEXT: Record<PunishmentSeverity, string> = {
-  mild: colors.green,
-  daring: colors.orange,
-  savage: colors.blanc,
-};
-const SEV_FILTER_BG: Record<"all" | PunishmentSeverity, string> = {
-  all: colors.ink,
-  mild: colors.green,
-  daring: colors.orange,
-  savage: colors.surfaceDark,
-};
-const SEV_LABEL: Record<"all" | PunishmentSeverity, string> = {
-  all: "All",
-  mild: "Mild",
-  daring: "Daring",
-  savage: "Savage",
-};
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
 
-export default function CreateLeagueWizard() {
+function formatLocalInput(date: Date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function defaultStart(offsetHours = 2) {
+  return formatLocalInput(new Date(Date.now() + offsetHours * 60 * 60 * 1000));
+}
+
+function newDraft(offsetHours = 2): DraftMatch {
+  return { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, homeTeam: "", awayTeam: "", startTime: defaultStart(offsetHours) };
+}
+
+function parseLocalDateTime(value: string) {
+  const m = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})$/);
+  if (!m) return null;
+  const [, y, mo, d, h, mi] = m;
+  const date = new Date(Number(y), Number(mo) - 1, Number(d), Number(h), Number(mi));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function validateMatch(match: DraftMatch, index: number) {
+  const a = match.homeTeam.trim();
+  const b = match.awayTeam.trim();
+  if (a.length < 2) return `Match ${index + 1}: side A needs at least 2 characters.`;
+  if (b.length < 2) return `Match ${index + 1}: side B needs at least 2 characters.`;
+  if (a.toLowerCase() === b.toLowerCase()) return `Match ${index + 1}: choose two different sides.`;
+  if (!parseLocalDateTime(match.startTime)) return `Match ${index + 1}: use YYYY-MM-DD HH:mm for the start time.`;
+  return null;
+}
+
+export default function CreateCompetitionWizard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { t, punishments } = useI18n();
-
   const [step, setStep] = useState<Step>(1);
-  const [remainingMatches, setRemainingMatches] = useState<number | null>(null);
-
-  useEffect(() => {
-    supabase
-      .from("matches")
-      .select("id", { count: "exact", head: true })
-      .in("status", ["SCHEDULED", "TIMED"])
-      .then(({ count }) => setRemainingMatches(count ?? null));
-  }, []);
-  const [dur, setDur] = useState<DurKey>("full");
-  const [customMatches, setCustomMatches] = useState(1);
-  const [selectedPunishment, setSelectedPunishment] = useState<string | null>(null);
-  const [customPunishment, setCustomPunishment] = useState("");
-  const [severityFilter, setSeverityFilter] = useState<"all" | PunishmentSeverity>("all");
   const [name, setName] = useState("");
+  const [punishment, setPunishment] = useState("");
+  const [matches, setMatches] = useState<DraftMatch[]>([newDraft()]);
   const [busy, setBusy] = useState(false);
-  const [doneLeague, setDoneLeague] = useState<{ id: number; code: string; name: string } | null>(null);
+  const [done, setDone] = useState<{ id: number; code: string; name: string } | null>(null);
   const [showQR, setShowQR] = useState(false);
 
-  const stepAccent: Record<Step, string> = { 1: colors.cyan, 2: colors.orange, 3: colors.purple, 4: colors.green };
+  const firstError = useMemo(() => {
+    if (name.trim().length < 2) return "Competition name needs at least 2 characters.";
+    if (matches.length < 1) return "Add at least one match.";
+    for (let i = 0; i < matches.length; i += 1) {
+      const error = validateMatch(matches[i], i);
+      if (error) return error;
+    }
+    return null;
+  }, [matches, name]);
 
-  const filteredPunishments = severityFilter === "all"
-    ? punishments
-    : punishments.filter((p) => p.severity === severityFilter);
-
-  function back() {
-    if (step === 1) router.back();
-    else setStep((s) => (s - 1) as Step);
+  function updateMatch(id: string, patch: Partial<DraftMatch>) {
+    setMatches((items) => items.map((item) => (item.id === id ? { ...item, ...patch } : item)));
   }
 
-  async function doCreate() {
-    const n = name.trim();
-    if (n.length < 2) { notify(t("err_name")); return; }
+  function removeMatch(id: string) {
+    setMatches((items) => (items.length <= 1 ? items : items.filter((item) => item.id !== id)));
+  }
+
+  function back() {
+    if (done) {
+      router.replace(`/league/${done.id}`);
+    } else if (step === 1) {
+      router.back();
+    } else {
+      setStep((s) => (s - 1) as Step);
+    }
+  }
+
+  async function submit() {
+    if (firstError) {
+      notify("Check competition", firstError);
+      return;
+    }
     setBusy(true);
     try {
-      const lg = await createLeague(n);
-      const maxMatches = dur === "full" ? null : dur === "custom" ? (customMatches || 1) : DUR_MATCHES[dur];
-      const punishment = customPunishment.trim() || selectedPunishment || null;
-      if (maxMatches !== null || punishment) {
-        await supabase.from("leagues").update({ max_matches: maxMatches, punishment }).eq("id", lg.id);
-      }
-      setDoneLeague({ id: lg.id, code: lg.code, name: n });
-      setStep(4);
+      const league = await createPredictionCompetition({
+        name,
+        punishment,
+        matches: matches.map((match) => ({
+          homeTeam: match.homeTeam,
+          awayTeam: match.awayTeam,
+          kickoffIso: parseLocalDateTime(match.startTime)!.toISOString(),
+        })),
+      });
+      setDone({ id: league.id, code: league.code, name: league.name });
+      setStep(3);
     } catch (e: any) {
-      notify("Error", e.message);
+      notify("Could not create competition", e.message);
     } finally {
       setBusy(false);
     }
   }
 
-  async function shareLeague() {
-    if (!doneLeague) return;
-    const url = `${inviteBase()}/join/${doneLeague.code}`;
-    const msg = `Join my league "${doneLeague.name}" on YaFoot!\nCode: ${doneLeague.code}\n${url}`;
+  async function shareCompetition() {
+    if (!done) return;
+    const url = `${inviteBase()}/join/${done.code}`;
+    const msg = `Join my YaFoot competition "${done.name}".\nCode: ${done.code}\n${url}`;
     if (Platform.OS === "web") {
       if (typeof navigator !== "undefined" && navigator.clipboard) await navigator.clipboard.writeText(url).catch(() => {});
-      notify(t("league_created"), url);
-    } else {
-      try { await Share.share({ message: msg }); } catch {}
+      notify("Invite link copied", url);
+      return;
     }
+    try {
+      await Share.share({ message: msg });
+    } catch {}
   }
 
-  const durOptions: { key: DurKey; label: string }[] = [
-    { key: "full", label: t("dur_full") },
-    { key: "groups", label: t("dur_groups") },
-    { key: "weekend", label: t("dur_weekend") },
-    { key: "custom", label: t("dur_custom") },
-  ];
-
-  const activePunishment = customPunishment.trim() || selectedPunishment;
   const bottomPad = Math.max(insets.bottom, 16);
 
   return (
     <View style={styles.root}>
-      {/* ── Header ── */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 44) + 12 }]}>
         <Pressable onPress={back} style={styles.backBtn} hitSlop={10}>
           <Icon name="chevron-back" size={22} color={colors.ink} />
         </Pressable>
-        {step < 4 ? (
+        {step < 3 ? (
           <View style={styles.progressWrap}>
-            {([1, 2, 3] as const).map((s) => (
-              <View key={s} style={[styles.dot, step >= s && { backgroundColor: stepAccent[step], width: step === s ? 24 : 10 }]} />
+            {[1, 2].map((s) => (
+              <View key={s} style={[styles.dot, step >= s && { backgroundColor: step === s ? colors.greenDark : colors.green, width: step === s ? 24 : 10 }]} />
             ))}
           </View>
         ) : null}
         <View style={{ width: 40 }} />
       </View>
 
-      {/* ══════════════════ STEP 1: Duration ══════════════════ */}
-      {step === 1 && (
-        <View style={{ flex: 1 }}>
-          <View style={styles.stepHead}>
-            <Text style={styles.stepTitle}>{t("create_step1_title")}</Text>
-            <Text style={styles.stepSub}>{t("create_step1_sub")}</Text>
-          </View>
-
-          <View style={styles.durGrid}>
-            {durOptions.map((o) => {
-              const active = dur === o.key;
-              const numDisplay = o.key === "custom" && dur === "custom"
-                ? String(customMatches)
-                : o.key === "full"
-                  ? (remainingMatches !== null ? String(remainingMatches) : "...")
-                  : DUR_NUM[o.key];
-              return (
-                <Pressable
-                  key={o.key}
-                  onPress={() => setDur(o.key)}
-                  style={[styles.durCard, active && { borderColor: stepAccent[1], borderWidth: 3, backgroundColor: "rgba(34,199,192,0.06)" }]}
-                >
-                  <Text style={[styles.durBigNum, active && { color: stepAccent[1] }]}>{numDisplay}</Text>
-                  {o.key !== "custom" && <Text style={styles.durMatchesLabel}>matches</Text>}
-                  <Text style={[styles.durOptionLabel, active && { color: stepAccent[1] }]}>{o.label}</Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          {dur === "custom" ? (
-            <View style={styles.stepper}>
-              <Pressable onPress={() => setCustomMatches((n) => Math.max(1, n - 1))} style={styles.stepperBtn}>
-                <Icon name="remove" size={28} color={colors.ink} />
-              </Pressable>
-              <View style={{ alignItems: "center" }}>
-                <Text style={styles.stepperVal}>{customMatches}</Text>
-                <Text style={styles.stepperLabel}>matches</Text>
-              </View>
-              <Pressable onPress={() => setCustomMatches((n) => Math.min(104, n + 1))} style={styles.stepperBtn}>
-                <Icon name="add" size={28} color={colors.ink} />
-              </Pressable>
+      {step === 1 ? (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 90 }]} keyboardShouldPersistTaps="handled">
+            <View style={styles.stepHead}>
+              <Text style={styles.stepTitle}>Create a competition</Text>
+              <Text style={styles.stepSub}>Private score predictions for your friends. You choose the matches.</Text>
             </View>
-          ) : null}
 
-          <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
-            <Button title={t("btn_next")} variant="green" icon="arrow-forward" onPress={() => setStep(2)} />
-          </View>
-        </View>
-      )}
-
-      {/* ══════════════════ STEP 2: Punishment ══════════════════ */}
-      {step === 2 && (
-        <View style={{ flex: 1 }}>
-          <View style={styles.stepHead}>
-            <Text style={styles.stepTitle}>{t("create_step2_title")}</Text>
-            <View style={styles.contextBanner}>
-              <Icon name="person" size={16} color={colors.blanc} />
-              <Text style={styles.contextTxt}>{t("pun_context")}</Text>
-            </View>
-          </View>
-
-          {/* Severity filter pills */}
-          <View style={styles.sevFilterRow}>
-            {(["all", "mild", "daring", "savage"] as const).map((sev) => {
-              const active = severityFilter === sev;
-              return (
-                <Pressable
-                  key={sev}
-                  onPress={() => setSeverityFilter(sev)}
-                  style={[styles.sevFilterBtn, active && { backgroundColor: SEV_FILTER_BG[sev] }]}
-                >
-                  <Text style={[styles.sevFilterTxt, active && styles.sevFilterTxtActive]}>
-                    {SEV_LABEL[sev]}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xl, gap: 7 }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          >
-            {/* No punishment card */}
-            <Pressable
-              onPress={() => { setSelectedPunishment(null); setCustomPunishment(""); }}
-              style={[styles.punCard, styles.punCardSkip, !activePunishment && styles.punCardSkipActive]}
-            >
-              <Text style={[styles.punCardText, styles.punCardTextSkip, !activePunishment && styles.punCardTextSkipActive]}>
-                {t("pun_skip")}
-              </Text>
-              {!activePunishment ? <Icon name="checkmark-circle" size={22} color={colors.orange} /> : null}
-            </Pressable>
-
-            {/* Punishment cards with severity chips */}
-            {filteredPunishments.map((p, i) => {
-              const active = selectedPunishment === p.text && !customPunishment.trim();
-              return (
-                <Pressable
-                  key={i}
-                  onPress={() => { setSelectedPunishment(p.text); setCustomPunishment(""); }}
-                  style={[styles.punCard, active && styles.punCardActive]}
-                >
-                  <View style={{ flex: 1, flexDirection: "row", alignItems: "center", gap: 8 }}>
-                    <View style={[styles.sevChip, { backgroundColor: SEV_CHIP_BG[p.severity] }]}>
-                      <Text style={[styles.sevChipTxt, { color: SEV_CHIP_TEXT[p.severity] }]}>
-                        {p.severity.toUpperCase()}
-                      </Text>
-                    </View>
-                    <Text style={[styles.punCardText, active && styles.punCardTextActive]} numberOfLines={2}>{p.text}</Text>
-                  </View>
-                  {active ? <Icon name="checkmark-circle" size={20} color={colors.orange} /> : null}
-                </Pressable>
-              );
-            })}
-
-            {/* Prominent custom punishment */}
-            <View style={styles.customCard}>
-              <View style={styles.customCardHeader}>
-                <Icon name="create-outline" size={20} color={colors.purple} />
-                <Text style={styles.customCardTitle}>{t("pun_or_custom")}</Text>
-              </View>
+            <View style={styles.card}>
+              <Text style={styles.label}>COMPETITION NAME</Text>
               <TextInput
-                style={[styles.customInput, customPunishment.trim() && styles.customInputActive]}
-                placeholder={t("pun_custom_ph")}
+                style={[styles.input, styles.nameInput]}
+                placeholder="e.g. Friday five-a-side"
                 placeholderTextColor={colors.textFaint}
-                value={customPunishment}
-                onChangeText={(v) => { setCustomPunishment(v); if (v.trim()) setSelectedPunishment(null); }}
-                multiline
-                numberOfLines={3}
+                value={name}
+                onChangeText={setName}
+                maxLength={48}
+                autoCapitalize="words"
               />
-              {customPunishment.trim() ? (
-                <View style={styles.customActiveChip}>
-                  <Icon name="checkmark-circle" size={15} color={colors.green} />
-                  <Text style={styles.customActiveTxt}>Custom punishment set</Text>
-                </View>
-              ) : null}
+
+              <Text style={styles.label}>OPTIONAL STAKES</Text>
+              <TextInput
+                style={[styles.input, styles.multiInput]}
+                placeholder="e.g. Last place buys snacks"
+                placeholderTextColor={colors.textFaint}
+                value={punishment}
+                onChangeText={setPunishment}
+                maxLength={120}
+                multiline
+              />
             </View>
           </ScrollView>
-
           <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
-            <Button title={t("btn_next")} variant="green" icon="arrow-forward" onPress={() => setStep(3)} />
-          </View>
-        </View>
-      )}
-
-      {/* ══════════════════ STEP 3: Name ══════════════════ */}
-      {step === 3 && (
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-          <View style={[styles.stepHead, { paddingTop: spacing.xl }]}>
-            <Text style={styles.stepTitle}>{t("create_step3_title")}</Text>
-          </View>
-          <View style={{ paddingHorizontal: spacing.xl, gap: spacing.md }}>
-            <TextInput
-              style={[styles.input, styles.nameInput]}
-              placeholder={t("name_placeholder")}
-              placeholderTextColor={colors.textFaint}
-              value={name}
-              onChangeText={setName}
-              autoFocus
-              maxLength={40}
-              returnKeyType="done"
-              onSubmitEditing={doCreate}
-            />
-            <Button title={t("btn_create_league")} variant="green" icon="checkmark" onPress={doCreate} loading={busy} />
+            <Button title="Add matches" variant="green" icon="arrow-forward" onPress={() => {
+              if (name.trim().length < 2) notify("Check name", "Competition name needs at least 2 characters.");
+              else setStep(2);
+            }} />
           </View>
         </KeyboardAvoidingView>
-      )}
+      ) : null}
 
-      {/* ══════════════════ STEP 4: Done ══════════════════ */}
-      {step === 4 && doneLeague && (
+      {step === 2 ? (
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 100 }]} keyboardShouldPersistTaps="handled">
+            <View style={styles.stepHead}>
+              <Text style={styles.stepTitle}>Build the match list</Text>
+              <Text style={styles.stepSub}>Each match needs side A, side B, and a start time. Predictions lock when that match starts.</Text>
+            </View>
+
+            {matches.map((match, index) => {
+              const error = validateMatch(match, index);
+              return (
+                <View key={match.id} style={styles.matchCard}>
+                  <View style={styles.matchHeader}>
+                    <Text style={styles.matchTitle}>Match {index + 1}</Text>
+                    <Pressable onPress={() => removeMatch(match.id)} disabled={matches.length <= 1} style={[styles.removeBtn, matches.length <= 1 && { opacity: 0.35 }]}>
+                      <Icon name="trash-outline" size={18} color={colors.rouge} />
+                    </Pressable>
+                  </View>
+
+                  <View style={styles.sideRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.label}>SIDE A</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="e.g. Blues"
+                        placeholderTextColor={colors.textFaint}
+                        value={match.homeTeam}
+                        onChangeText={(value) => updateMatch(match.id, { homeTeam: value })}
+                        maxLength={40}
+                        autoCapitalize="words"
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.label}>SIDE B</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="e.g. Reds"
+                        placeholderTextColor={colors.textFaint}
+                        value={match.awayTeam}
+                        onChangeText={(value) => updateMatch(match.id, { awayTeam: value })}
+                        maxLength={40}
+                        autoCapitalize="words"
+                      />
+                    </View>
+                  </View>
+
+                  <Text style={styles.label}>START TIME</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="YYYY-MM-DD HH:mm"
+                    placeholderTextColor={colors.textFaint}
+                    value={match.startTime}
+                    onChangeText={(value) => updateMatch(match.id, { startTime: value })}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                  <Text style={styles.hint}>Local time on this device.</Text>
+                  {error ? <Text style={styles.error}>{error}</Text> : null}
+                </View>
+              );
+            })}
+
+            <Pressable onPress={() => setMatches((items) => [...items, newDraft(2 + items.length)])} style={styles.addMatchBtn}>
+              <Icon name="add-circle" size={22} color={colors.greenDark} />
+              <Text style={styles.addMatchText}>Add another match</Text>
+            </Pressable>
+          </ScrollView>
+          <View style={[styles.stickyBottom, { paddingBottom: bottomPad }]}>
+            <Text style={styles.summary}>{matches.length} match{matches.length === 1 ? "" : "es"} in this competition</Text>
+            <Button title="Create competition" variant="green" icon="checkmark" onPress={submit} loading={busy} disabled={!!firstError} />
+          </View>
+        </KeyboardAvoidingView>
+      ) : null}
+
+      {step === 3 && done ? (
         <ScrollView contentContainerStyle={[styles.doneScroll, { paddingBottom: bottomPad + spacing.xl }]} showsVerticalScrollIndicator={false}>
           <View style={styles.doneIcon}>
-            <Icon name="medal" size={52} color={colors.yellow} />
+            <Icon name="people" size={52} color={colors.green} />
           </View>
-          <Text style={[styles.stepTitle, { textAlign: "center" }]}>{t("league_created")}</Text>
-          <Text style={[styles.stepSub, { textAlign: "center" }]}>{doneLeague.name}</Text>
+          <Text style={[styles.stepTitle, { textAlign: "center" }]}>Competition created</Text>
+          <Text style={[styles.stepSub, { textAlign: "center" }]}>{done.name}</Text>
 
           <Pressable onPress={() => setShowQR(true)} style={styles.codeCard}>
-            <Text style={styles.codeLabel}>{t("invite_code")}</Text>
-            <Text style={styles.code}>{doneLeague.code}</Text>
+            <Text style={styles.codeLabel}>INVITE CODE</Text>
+            <Text style={styles.code}>{done.code}</Text>
             <View style={styles.qrHint}>
               <Icon name="qr-code" size={14} color={colors.textDim} />
               <Text style={styles.qrHintTxt}>Tap for QR code</Text>
             </View>
           </Pressable>
 
-          <QRModal
-            visible={showQR}
-            onClose={() => setShowQR(false)}
-            value={`${inviteBase()}/join/${doneLeague.code}`}
-            title={t("qr_league")}
-            subtitle={`${t("invite_code")}: ${doneLeague.code}`}
-          />
+          <QRModal visible={showQR} onClose={() => setShowQR(false)} value={`${inviteBase()}/join/${done.code}`} title="Competition QR" subtitle={`Invite code: ${done.code}`} />
 
-          <Button title={t("create_done_share")} variant="green" icon="share-social" onPress={shareLeague} style={{ marginTop: spacing.md }} />
-          <Button title={t("create_done_go")} variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${doneLeague.id}`)} style={{ marginTop: spacing.sm }} />
+          <Button title="Share invite" variant="green" icon="share-social" onPress={shareCompetition} style={{ marginTop: spacing.md }} />
+          <Button title="Open competition" variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${done.id}`)} style={{ marginTop: spacing.sm }} />
         </ScrollView>
-      )}
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
-
-  header: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center", ...shadow },
   progressWrap: { flexDirection: "row", gap: 6, alignItems: "center" },
   dot: { width: 10, height: 10, borderRadius: 6, backgroundColor: colors.border },
-
-  stepHead: { paddingHorizontal: spacing.xl, paddingBottom: spacing.lg, gap: spacing.sm },
-  stepTitle: { color: colors.ink, fontSize: 30, fontWeight: "900", letterSpacing: -0.5 },
-  stepSub: { color: colors.textDim, fontSize: 14, fontWeight: "700" },
-
-  // ── Step 1 ──
-  durGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, paddingHorizontal: spacing.lg },
-  durCard: {
-    width: "47.5%", backgroundColor: colors.surface, borderRadius: radius.xl,
-    paddingVertical: spacing.xl, paddingHorizontal: spacing.md,
-    alignItems: "center", gap: 4,
-    borderWidth: 1.5, borderColor: colors.border, ...shadow,
-  },
-  durBigNum: { color: colors.ink, fontSize: 56, fontWeight: "900", lineHeight: 60, letterSpacing: -2 },
-  durMatchesLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "700", letterSpacing: 0.5, textTransform: "uppercase" },
-  durOptionLabel: { color: colors.textDim, fontSize: 13, fontWeight: "800", marginTop: 4, textAlign: "center" },
-
-  stepper: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.xl,
-    backgroundColor: colors.surface, borderRadius: radius.xl, margin: spacing.lg,
-    padding: spacing.xl, ...shadow,
-  },
-  stepperBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center" },
-  stepperVal: { color: colors.ink, fontSize: 64, fontWeight: "900", lineHeight: 68, letterSpacing: -2 },
-  stepperLabel: { color: colors.textFaint, fontSize: 12, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.5 },
-
-  // ── Step 2 ──
-  contextBanner: {
-    flexDirection: "row", alignItems: "center", gap: spacing.sm,
-    backgroundColor: colors.orange, borderRadius: radius.md, padding: 12,
-  },
-  contextTxt: { flex: 1, color: colors.blanc, fontSize: 14, fontWeight: "900", lineHeight: 20 },
-
-  // severity filter
-  sevFilterRow: {
-    flexDirection: "row", gap: spacing.sm,
-    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
-  },
-  sevFilterBtn: {
-    flex: 1, alignItems: "center", paddingVertical: 8, borderRadius: radius.pill,
-    backgroundColor: colors.surface, ...shadow,
-  },
-  sevFilterTxt: { fontSize: 12, fontWeight: "800", color: colors.textDim, letterSpacing: 0.2 },
-  sevFilterTxtActive: { color: colors.blanc },
-
-  // punishment cards
-  punCard: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    backgroundColor: colors.surface, borderRadius: radius.xl,
-    paddingVertical: 10, paddingHorizontal: 14, ...shadow, gap: spacing.sm,
-  },
-  punCardActive: { backgroundColor: colors.surfaceDark },
-  punCardSkip: {
-    borderStyle: "dashed" as const, borderWidth: 1.5, borderColor: colors.border,
-    backgroundColor: "transparent", shadowOpacity: 0, elevation: 0,
-  },
-  punCardSkipActive: { backgroundColor: colors.surface, borderStyle: "solid" as const },
-  punCardText: { fontSize: 15, fontWeight: "800" as const, color: colors.ink },
-  punCardTextActive: { color: colors.blanc },
-  punCardTextSkip: { color: colors.textDim, fontStyle: "italic" as const },
-  punCardTextSkipActive: { color: colors.ink, fontStyle: "normal" as const },
-  punCardSub: { fontSize: 12, fontWeight: "600" as const, color: colors.textFaint },
-  punCardSubActive: { color: "rgba(255,255,255,0.55)" },
-
-  // severity chip inside card
-  sevChip: {
-    flexShrink: 0, paddingHorizontal: 6, paddingVertical: 2,
-    borderRadius: radius.pill,
-  },
-  sevChipTxt: { fontSize: 9, fontWeight: "900", letterSpacing: 0.6 },
-
-  // custom punishment area
-  customCard: {
-    backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg,
-    gap: spacing.md, marginTop: spacing.md, ...shadow,
-    borderWidth: 2, borderColor: colors.purple + "33",
-  },
-  customCardHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  customCardTitle: { color: colors.purple, fontSize: 14, fontWeight: "900", letterSpacing: 0.2 },
-  customInput: {
-    backgroundColor: colors.surfaceAlt, borderWidth: 2, borderColor: colors.border,
-    borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
-    color: colors.text, fontSize: 17, fontWeight: "700", minHeight: 80, textAlignVertical: "top",
-  },
-  customInputActive: { borderColor: colors.purple },
-  customActiveChip: { flexDirection: "row", alignItems: "center", gap: 6 },
-  customActiveTxt: { color: colors.green, fontSize: 12, fontWeight: "800" },
-
-  // ── Step 3 ──
-  input: {
-    backgroundColor: colors.surface, borderWidth: 2, borderColor: colors.border,
-    borderRadius: radius.lg, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
-    color: colors.text, fontSize: 15, minHeight: 52,
-  },
-  nameInput: { fontSize: 22, fontWeight: "800", height: 66 },
-
-  // ── Sticky bottom ──
-  stickyBottom: {
-    paddingHorizontal: spacing.xl, paddingTop: spacing.md,
-    backgroundColor: colors.bg,
-    borderTopWidth: 1, borderTopColor: colors.border,
-  },
-
-  // ── Step 4 ──
+  content: { paddingHorizontal: spacing.lg, gap: spacing.lg },
+  stepHead: { gap: spacing.sm, paddingTop: spacing.sm },
+  stepTitle: { color: colors.ink, fontSize: 30, fontWeight: "900" },
+  stepSub: { color: colors.textDim, fontSize: 14, fontWeight: "700", lineHeight: 20 },
+  card: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm, ...shadow },
+  label: { color: colors.textDim, fontSize: 11, fontWeight: "900", letterSpacing: 1, marginTop: spacing.sm },
+  input: { backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: spacing.lg, minHeight: 52, color: colors.ink, fontSize: 16, fontWeight: "800" },
+  nameInput: { fontSize: 22, minHeight: 64 },
+  multiInput: { minHeight: 86, paddingTop: spacing.md, textAlignVertical: "top" },
+  stickyBottom: { paddingHorizontal: spacing.xl, paddingTop: spacing.md, backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.border, gap: spacing.sm },
+  matchCard: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm, borderWidth: 1, borderColor: colors.border, ...shadow },
+  matchHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  matchTitle: { color: colors.ink, fontSize: 18, fontWeight: "900" },
+  removeBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: "rgba(239,68,68,0.1)", alignItems: "center", justifyContent: "center" },
+  sideRow: { flexDirection: "row", gap: spacing.sm },
+  hint: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
+  error: { color: colors.rouge, fontSize: 12, fontWeight: "800", lineHeight: 17 },
+  addMatchBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, borderRadius: radius.pill, borderWidth: 2, borderStyle: "dashed", borderColor: colors.greenDark, padding: spacing.lg },
+  addMatchText: { color: colors.greenDark, fontSize: 15, fontWeight: "900" },
+  summary: { color: colors.textDim, fontSize: 13, fontWeight: "800", textAlign: "center" },
   doneScroll: { padding: spacing.xl, alignItems: "center", gap: spacing.md },
   doneIcon: { width: 100, height: 100, borderRadius: 50, backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center", ...shadow },
   codeCard: { backgroundColor: colors.surfaceDark, borderRadius: radius.xl, padding: spacing.xl, alignItems: "center", gap: spacing.xs, width: "100%", ...shadow },

@@ -119,7 +119,7 @@ const T = {
     // tabs
     tab_matches: "Challenges",
     tab_predict: "Predict",
-    tab_leagues: "Leagues",
+    tab_leagues: "Competitions",
     tab_friends: "Friends",
     tab_profile: "Profile",
 
@@ -137,35 +137,35 @@ const T = {
     predict_empty: "Sit tight — the next matches drop soon.",
 
     // leagues
-    leagues_sub: "Compete with your crew. Last place suffers.",
+    leagues_sub: "Private prediction groups with your own matches.",
     btn_create: "Create",
     btn_join: "Join",
-    create_title: "Create a league",
-    join_title: "Join a league",
-    name_placeholder: "League name (e.g. Office Cup)",
+    create_title: "Create a competition",
+    join_title: "Join a competition",
+    name_placeholder: "Competition name",
     code_placeholder: "Enter the 6-char code",
-    btn_create_league: "Create League",
-    btn_join_league: "Join League",
+    btn_create_league: "Create Competition",
+    btn_join_league: "Join Competition",
     err_name: "Name needs at least 2 characters.",
-    no_leagues: "Flying solo? Fix that.",
-    no_leagues_sub: "Create a league and rope in your crew, or find one that'll humble you.",
+    no_leagues: "No competitions yet",
+    no_leagues_sub: "Create a private competition, add matches, then invite friends.",
 
     // create wizard
     create_step1_title: "How long?",
     create_step1_sub: "How many matches does your competition last?",
     create_step2_title: "Loser's punishment",
     create_step2_sub: "Pick one for last place — or skip.",
-    create_step3_title: "Name your league",
+    create_step3_title: "Name your competition",
     create_step3_sub: "What's your crew called?",
     create_done_share: "Share with mates",
-    create_done_go: "Go to league",
+    create_done_go: "Open competition",
     btn_next: "Next",
     pun_skip: "No punishment — boring, but OK",
     pun_context: "Dead last gets this. Zero mercy.",
 
     // join (unauthenticated)
     join_need_account: "Create an account first",
-    join_need_account_sub: "Takes 5 seconds — then we'll drop you straight into the league.",
+    join_need_account_sub: "Takes 5 seconds, then we'll drop you straight into the competition.",
     join_create_account: "Create account →",
 
     // duration
@@ -191,7 +191,7 @@ const T = {
     loser_label: "LOSER GETS:",
     standings: "Standings",
     chat: "Chat",
-    qr_league: "League QR",
+    qr_league: "Competition QR",
 
     // friends
     friends_sub: "Add your rivals. Let the trash talk begin.",
@@ -214,7 +214,7 @@ const T = {
     stat_pred: "Predictions",
     stat_exact: "Exact",
     stat_acc: "Accuracy",
-    stat_leagues: "Leagues",
+    stat_leagues: "Competitions",
     my_forecasts: "MY FORECASTS",
     no_forecasts: "Still scared to commit? Pick a score.",
 
@@ -237,10 +237,10 @@ const T = {
     signout_msg: "Username-only account — signing out on this device means starting fresh.",
     change_photo: "Change photo",
     danger_zone: "Danger zone",
-    delete_account_warn: "Permanently deletes your account, all predictions, leagues, and messages. This cannot be undone.",
+    delete_account_warn: "Permanently deletes your account, all predictions, competitions, and messages. This cannot be undone.",
     btn_delete_account: "Delete my account",
     delete_account_title: "Delete account?",
-    delete_account_msg: "This will permanently delete your account and all your data (predictions, leagues, messages). This cannot be undone.",
+    delete_account_msg: "This will permanently delete your account and all your data (predictions, competitions, messages). This cannot be undone.",
     report_message: "Report message",
     report_sent: "Message reported",
     report_sent_sub: "Thank you. Our team will review it.",
@@ -252,7 +252,7 @@ const T = {
     // join league screen
     join_sub: "Tap below to join and start competing!",
     join_signin_title: "Sign in first",
-    join_signin_sub: "You need an account to join a league.",
+    join_signin_sub: "You need an account to join a competition.",
     join_go_to_app: "Go to app",
     error_join: "Could not join",
 
@@ -267,7 +267,7 @@ const T = {
     btn_close: "Close",
     scan_hint: "Scan with any camera app",
     copy_code: "Copy invite code",
-    league_created: "League created!",
+    league_created: "Competition created!",
     league_created_sub: 'Share code "{code}" with mates to invite them.',
 
     // soiree
@@ -355,7 +355,7 @@ const T = {
     // tabs
     tab_matches: "Défis",
     tab_predict: "Pronos",
-    tab_leagues: "Ligues",
+    tab_leagues: "Compets",
     tab_friends: "Potes",
     tab_profile: "Profil",
 
@@ -373,35 +373,35 @@ const T = {
     predict_empty: "Souffle un peu — les matchs arrivent.",
 
     // leagues
-    leagues_sub: "Affronte tes potes. Le dernier trinque.",
+    leagues_sub: "Des pronos prives avec tes propres matchs.",
     btn_create: "Créer",
     btn_join: "Rejoindre",
-    create_title: "Créer une ligue",
-    join_title: "Rejoindre une ligue",
-    name_placeholder: "Nom de la ligue (ex. Ligue des potes)",
+    create_title: "Créer une compet",
+    join_title: "Rejoindre une compet",
+    name_placeholder: "Nom de la compet",
     code_placeholder: "Colle le code à 6 caractères",
-    btn_create_league: "Créer la ligue",
+    btn_create_league: "Créer la compet",
     btn_join_league: "Rejoindre",
     err_name: "Au moins 2 caractères, s'il te plaît.",
-    no_leagues: "Tout seul ? Pas pour longtemps.",
-    no_leagues_sub: "Crée une ligue et ramène tes potes, ou rejoins-en une qui va t'humilier.",
+    no_leagues: "Pas encore de compet",
+    no_leagues_sub: "Crée une compet privee, ajoute des matchs, puis invite tes potes.",
 
     // create wizard
     create_step1_title: "Sur combien de matchs ?",
     create_step1_sub: "Combien de matchs dure ta compétition ?",
     create_step2_title: "La punition du perdant",
     create_step2_sub: "Choisis pour le dernier — ou passe.",
-    create_step3_title: "Nomme ta ligue",
+    create_step3_title: "Nomme ta compet",
     create_step3_sub: "C'est quoi le nom de votre crew ?",
     create_done_share: "Partager avec les potes",
-    create_done_go: "Voir la ligue",
+    create_done_go: "Voir la compet",
     btn_next: "Suivant",
     pun_skip: "Passer — t'as peur ou quoi ?",
     pun_context: "Le dernier de la ligue se prend ça. Pas de pitié.",
 
     // join (unauthenticated)
     join_need_account: "Crée un compte d'abord",
-    join_need_account_sub: "5 secondes — et on te dépose direct dans la ligue.",
+    join_need_account_sub: "5 secondes, et on te depose direct dans la compet.",
     join_create_account: "Créer un compte →",
 
     // duration
@@ -427,7 +427,7 @@ const T = {
     loser_label: "LE PERDANT DOIT :",
     standings: "Classement",
     chat: "Tchat",
-    qr_league: "QR de la ligue",
+    qr_league: "QR de la compet",
 
     // friends
     friends_sub: "Trouve tes rivaux. Le trash-talk commence.",
@@ -450,7 +450,7 @@ const T = {
     stat_pred: "Pronos",
     stat_exact: "Exacts",
     stat_acc: "Précision",
-    stat_leagues: "Ligues",
+    stat_leagues: "Compets",
     my_forecasts: "MES PRONOS",
     no_forecasts: "T'as pas encore osé ? Tape sur un match et mets un score.",
 
@@ -473,10 +473,10 @@ const T = {
     signout_msg: "Compte sans email — te déco sur ce tel = repartir de zéro. Pas de retour en arrière.",
     change_photo: "Changer la photo",
     danger_zone: "Zone de danger",
-    delete_account_warn: "Supprime définitivement ton compte, toutes tes prédictions, ligues et messages. Irréversible.",
+    delete_account_warn: "Supprime definitivement ton compte, toutes tes predictions, competitions et messages. Irreversible.",
     btn_delete_account: "Supprimer mon compte",
     delete_account_title: "Supprimer le compte ?",
-    delete_account_msg: "Cela supprimera définitivement ton compte et toutes tes données (pronostics, ligues, messages). Irréversible.",
+    delete_account_msg: "Cela supprimera definitivement ton compte et toutes tes donnees (pronostics, competitions, messages). Irreversible.",
     report_message: "Signaler le message",
     report_sent: "Message signalé",
     report_sent_sub: "Merci. Notre équipe va l'examiner.",
@@ -488,7 +488,7 @@ const T = {
     // join league screen
     join_sub: "Tape ci-dessous pour rejoindre et commencer !",
     join_signin_title: "Connecte-toi d'abord",
-    join_signin_sub: "Il te faut un compte pour rejoindre une ligue.",
+    join_signin_sub: "Il te faut un compte pour rejoindre une compet.",
     join_go_to_app: "Aller dans l'app",
     error_join: "Impossible de rejoindre",
 
@@ -503,7 +503,7 @@ const T = {
     btn_close: "Fermer",
     scan_hint: "Scanne avec l'appareil photo",
     copy_code: "Copier le code d'invitation",
-    league_created: "Ligue créée !",
+    league_created: "Compet creee !",
     league_created_sub: "Partage le code \"{code}\" pour inviter tes potes.",
 
     // soiree

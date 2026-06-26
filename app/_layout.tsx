@@ -5,6 +5,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth";
 import { I18nProvider, getSavedLang } from "../lib/i18n";
 import { Loading } from "../components/ui";
+import { APP_STORE_SAFE } from "../lib/mode";
 import { colors } from "../lib/theme";
 
 if (typeof document !== "undefined" && !document.getElementById("yf-ionicons")) {
@@ -52,8 +53,8 @@ function RootNav() {
       <Stack.Screen name="league/[id]" />
       <Stack.Screen name="chat/[id]" />
       <Stack.Screen name="create-league" />
-      <Stack.Screen name="soiree/index" />
-      <Stack.Screen name="soiree/[id]" />
+      {!APP_STORE_SAFE ? <Stack.Screen name="soiree/index" /> : null}
+      {!APP_STORE_SAFE ? <Stack.Screen name="soiree/[id]" /> : null}
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="support" />

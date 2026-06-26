@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 import { APP_STORE_SAFE, SAFE_COMPETITION } from "./mode";
-import { League, Match, Prediction } from "./types";
+import { CompetitionMatch, CompetitionMatchInput, League, Match, Prediction } from "./types";
 
 export async function fetchMatches(): Promise<Match[]> {
   let query = supabase
@@ -51,6 +51,40 @@ export async function createChallengeMatch(input: {
   });
   if (error) throw error;
   return data as Match;
+}
+
+export async function createPredictionCompetition(input: {
+  name: string;
+  description?: string;
+  punishment?: string | null;
+  matches: CompetitionMatchInput[];
+}) {
+  const payload = input.matches.map((m) => ({
+    home_team: m.homeTeam.trim(),
+    away_team: m.awayTeam.trim(),
+    kickoff: m.kickoffIso,
+  }));
+  const { data, error } = await supabase.rpc("create_prediction_competition", {
+    p_name: input.name.trim(),
+    p_description: input.description?.trim() || null,
+    p_public: false,
+    p_punishment: input.punishment?.trim() || null,
+    p_matches: payload,
+  });
+  if (error) throw error;
+  return data as League;
+}
+
+export async function fetchCompetitionMatches(leagueId: number): Promise<CompetitionMatch[]> {
+  const { data, error } = await supabase
+    .from("league_matches")
+    .select("ordinal, match:matches(*)")
+    .eq("league_id", leagueId)
+    .order("ordinal", { ascending: true });
+  if (error) throw error;
+  return ((data as any[]) ?? [])
+    .map((row) => ({ ordinal: row.ordinal as number, match: row.match as Match }))
+    .filter((row) => row.match);
 }
 
 export async function fetchMyForecasts() {

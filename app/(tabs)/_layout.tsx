@@ -3,6 +3,7 @@ import { Tabs } from "expo-router";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useI18n } from "../../lib/i18n";
+import { APP_STORE_SAFE } from "../../lib/mode";
 import { colors } from "../../lib/theme";
 
 function TabIcon({ name, focused }: { name: any; focused: boolean }) {
@@ -43,9 +44,9 @@ export default function TabsLayout() {
         tabBarIconStyle: { marginBottom: 0 },
       }}
     >
-      <Tabs.Screen name="index" options={{ title: t("tab_matches"), tabBarIcon: ({ focused }) => <TabIcon name="football" focused={focused} /> }} />
+      <Tabs.Screen name="index" options={APP_STORE_SAFE ? { href: null } : { title: t("tab_matches"), tabBarIcon: ({ focused }) => <TabIcon name="football" focused={focused} /> }} />
       <Tabs.Screen name="predict" options={{ href: null }} />
-      <Tabs.Screen name="leagues" options={{ title: t("tab_leagues"), tabBarIcon: ({ focused }) => <TabIcon name="podium" focused={focused} /> }} />
+      <Tabs.Screen name="leagues" options={{ title: APP_STORE_SAFE ? "Competitions" : t("tab_leagues"), tabBarIcon: ({ focused }) => <TabIcon name="podium" focused={focused} /> }} />
       <Tabs.Screen name="social" options={{ title: t("tab_friends"), tabBarIcon: ({ focused }) => <TabIcon name="people" focused={focused} /> }} />
       <Tabs.Screen name="profile" options={{ title: t("tab_profile"), tabBarIcon: ({ focused }) => <TabIcon name="person" focused={focused} /> }} />
     </Tabs>

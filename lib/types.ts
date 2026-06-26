@@ -42,6 +42,17 @@ export type League = {
   punishment: string | null;
 };
 
+export type CompetitionMatchInput = {
+  homeTeam: string;
+  awayTeam: string;
+  kickoffIso: string;
+};
+
+export type CompetitionMatch = {
+  ordinal: number;
+  match: Match;
+};
+
 export const isLive = (s: Match["status"]) => s === "IN_PLAY" || s === "PAUSED";
 export const isFinished = (s: Match["status"]) => s === "FINISHED";
 export const isUpcoming = (s: Match["status"]) =>

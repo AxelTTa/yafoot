@@ -1,0 +1,13 @@
+Done.
+
+Full app test link: https://yafoot-staging-44dh96gju-axelcassou2-1440s-projects.vercel.app
+
+Apple submission link: https://dist-five-zeta-92i4a6g3xx.vercel.app
+
+Verified:
+- Full preview has `EXPO_PUBLIC_APP_STORE_SAFE=false`, Groups tab, live/fixture cards, Stats, and Party Mode.
+- Apple submission link stays safe: Open/Results only, no Groups tab.
+- Supabase has 104 full World Cup fixtures and 15 safe challenge rows.
+- `npx tsc --noEmit` passed.
+
+Caveat: the full preview uses a preview-only `index.html` runtime flag injection because Expo web export strips `extra.appStoreSafe` from public constants and the current optional `process.env` lookup is not inlined. No app source or Apple-safe production metadata was changed. Telegram update sent and `workers/20260626-035059-2049396.last.txt` written.

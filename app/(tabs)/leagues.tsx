@@ -16,7 +16,7 @@ import { Button, Card, Empty, Icon, IconTile, Loading, ScreenHeader } from "../.
 import { fetchMyLeagues, joinLeague } from "../../lib/api";
 import { notify } from "../../lib/notify";
 import { useI18n } from "../../lib/i18n";
-import { accentFor, colors, radius, spacing, shadow } from "../../lib/theme";
+import { accentFor, colors, radius, spacing } from "../../lib/theme";
 import { League } from "../../lib/types";
 
 export default function Leagues() {
@@ -55,7 +55,7 @@ export default function Leagues() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bgLeagues }}>
-      <ScreenHeader title={t("tab_leagues")} subtitle={t("leagues_sub")} />
+      <ScreenHeader title="Competitions" subtitle="Private prediction groups with your own matches." />
 
       <FlatList
         data={leagues}
@@ -66,17 +66,9 @@ export default function Leagues() {
         }
         ListHeaderComponent={
           <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
-            <Pressable style={styles.soireeBtn} onPress={() => router.push("/soiree")}>
-              <IconTile name="mic" color={colors.purple} size={44} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.soireeBtnTitle}>Soirée Mode</Text>
-                <Text style={styles.soireeBtnSub}>Party micro-challenges en live</Text>
-              </View>
-              <Icon name="chevron-forward" size={20} color={colors.blanc} />
-            </Pressable>
             <View style={{ flexDirection: "row", gap: spacing.sm }}>
-              <Button title={t("btn_create")} icon="add" variant="green" onPress={() => router.push("/create-league")} style={{ flex: 1, height: 48 }} />
-              <Button title={t("btn_join")} icon="enter-outline" variant="purple" onPress={() => setJoinModal(true)} style={{ flex: 1, height: 48 }} />
+              <Button title="Create" icon="add" variant="green" onPress={() => router.push("/create-league")} style={{ flex: 1, height: 48 }} />
+              <Button title="Join" icon="enter-outline" variant="purple" onPress={() => setJoinModal(true)} style={{ flex: 1, height: 48 }} />
             </View>
           </View>
         }
@@ -104,7 +96,7 @@ export default function Leagues() {
             <Icon name="chevron-forward" size={22} color={colors.textFaint} />
           </Card>
         )}
-        ListEmptyComponent={<Empty icon="podium-outline" title={t("no_leagues")} sub={t("no_leagues_sub")} />}
+        ListEmptyComponent={<Empty icon="podium-outline" title="No competitions yet" sub="Create a private competition, add custom matches, then invite friends by code." />}
       />
 
       {/* ── Join modal ── */}
@@ -112,7 +104,7 @@ export default function Leagues() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={0}>
           <Pressable style={styles.backdrop} onPress={() => setJoinModal(false)}>
             <Pressable style={styles.sheet} onPress={() => {}} >
-              <Text style={styles.sheetTitle}>{t("join_title")}</Text>
+              <Text style={styles.sheetTitle}>Join a competition</Text>
               <TextInput
                 style={styles.input}
                 placeholder={t("code_placeholder")}
@@ -125,7 +117,7 @@ export default function Leagues() {
                 onSubmitEditing={doJoin}
                 maxLength={6}
               />
-              <Button title={t("btn_join_league")} variant="purple" onPress={doJoin} loading={busy} />
+              <Button title="Join competition" variant="purple" onPress={doJoin} loading={busy} />
             </Pressable>
           </Pressable>
         </KeyboardAvoidingView>
@@ -135,16 +127,6 @@ export default function Leagues() {
 }
 
 const styles = StyleSheet.create({
-  soireeBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.surfaceDark,
-    borderRadius: radius.xl,
-    padding: spacing.md,
-  },
-  soireeBtnTitle: { color: colors.blanc, fontSize: 16, fontWeight: "900" },
-  soireeBtnSub: { color: "rgba(255,255,255,0.55)", fontSize: 12, fontWeight: "600" },
   lgName: { color: colors.text, fontSize: 16, fontWeight: "800" },
   lgCode: { color: colors.textDim, fontSize: 12 },
   chip: { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: "rgba(251,140,60,0.1)", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },

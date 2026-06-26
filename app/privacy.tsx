@@ -8,7 +8,7 @@ export default function PrivacyPolicy() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Privacy Policy</Text>
-        <Text style={styles.subtitle}>YaFoot — football prediction challenges with friends</Text>
+        <Text style={styles.subtitle}>YaFoot - private football prediction competitions with friends</Text>
         <Text style={styles.date}>Last updated: June 2026</Text>
 
         <Section title="1. What We Collect">
@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
             YaFoot collects only what is necessary to run the app:
           </Paragraph>
           <Bullet>A username you choose (no real name, email, or phone number required)</Bullet>
-          <Bullet>Your match predictions and league activity</Bullet>
+          <Bullet>Your match predictions and competition activity</Bullet>
           <Bullet>An optional profile photo you upload</Bullet>
           <Bullet>Anonymous device authentication tokens (no personal identifiers)</Bullet>
         </Section>
@@ -25,9 +25,9 @@ export default function PrivacyPolicy() {
           <Paragraph>
             Your data is used solely to operate the YaFoot prediction game:
           </Paragraph>
-          <Bullet>Display your username and predictions to league members you invite</Bullet>
+          <Bullet>Display your username and predictions to competition members you invite</Bullet>
           <Bullet>Calculate scores and leaderboard rankings</Bullet>
-          <Bullet>Enable real-time league chat and direct messages with friends you add</Bullet>
+          <Bullet>Enable real-time competition chat and direct messages with friends you add</Bullet>
         </Section>
 
         <Section title="3. Data Storage">
@@ -52,7 +52,7 @@ export default function PrivacyPolicy() {
             analytics providers, or data brokers receive your information.
           </Paragraph>
           <Paragraph>
-            Your username and prediction activity are visible to other members of leagues you join
+            Your username and prediction activity are visible to other members of competitions you join
             or create. Direct messages are visible only to you and the recipient.
           </Paragraph>
         </Section>

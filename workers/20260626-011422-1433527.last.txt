@@ -1,0 +1,5 @@
+Done. All watched workers finished.
+
+Reported PASS to Telegram and wrote the same summary to `workers/20260626-011422-1433527.last.txt`.
+
+Key result: no remaining blockers; support/privacy are public; App Store-safe fixes shipped at `1eb2a8d` with screenshot/report follow-up `02c154c`; fresh screenshots are in `/tmp/screenshots`.

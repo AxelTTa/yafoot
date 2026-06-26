@@ -10,7 +10,7 @@ export default function Support() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>YaFoot Support</Text>
-        <Text style={styles.subtitle}>Help for football prediction challenges with friends</Text>
+        <Text style={styles.subtitle}>Help for private football prediction competitions with friends</Text>
         <Text style={styles.date}>Last updated: June 2026</Text>
 
         <Section title="Contact">
@@ -19,10 +19,10 @@ export default function Support() {
         </Section>
 
         <Section title="Using YaFoot">
-          <Bullet>Create a challenge by entering two teams or countries and a start time.</Bullet>
-          <Bullet>Invite friends through your friend link or a league invite code.</Bullet>
-          <Bullet>Pick exact scores before the match starts and compare results on leaderboards.</Bullet>
-          <Bullet>Use Party Mode for live, friend-hosted prediction rounds during a match.</Bullet>
+          <Bullet>Create a private competition, then add your own matches with two sides and a start time.</Bullet>
+          <Bullet>Invite friends through your friend link or a competition invite code.</Bullet>
+          <Bullet>Pick exact scores inside the competition before each match starts.</Bullet>
+          <Bullet>Compare open predictions, previous picks, chat, and leaderboard results with invited members.</Bullet>
         </Section>
 
         <Section title="Account And Data">

@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import MatchCard from "../../components/MatchCard";
@@ -24,6 +24,10 @@ export default function Matches() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>("upcoming");
+
+  if (APP_STORE_SAFE) {
+    return <Redirect href="/(tabs)/leagues" />;
+  }
 
   const load = useCallback(async () => {
     const [m, p] = await Promise.all([fetchMatches(), fetchMyPredictions().catch(() => ({}))]);

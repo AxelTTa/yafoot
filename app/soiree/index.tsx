@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -16,12 +16,17 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Header, Icon, IconTile, Loading } from "../../components/ui";
 import { fetchMatches } from "../../lib/api";
 import { useI18n } from "../../lib/i18n";
+import { APP_STORE_SAFE } from "../../lib/mode";
 import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
 import { Match } from "../../lib/types";
 
 export default function SoireeIndex() {
+  if (APP_STORE_SAFE) {
+    return <Redirect href="/(tabs)/leagues" />;
+  }
+
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { t } = useI18n();

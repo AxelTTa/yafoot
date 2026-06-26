@@ -1,32 +1,15 @@
-PASS.
+PASS. Shipped and reported to Axel on Telegram.
 
-Fixed App Store-safe resubmission blockers and shipped.
-
-Changed:
-- Made `/support` and `/privacy` public clean-browser routes, not auth/language-gated.
-- Added `/support` to the root stack and left both pages with support contact, help, privacy, and delete-account info.
-- Replaced app UI trophy icon usage with neutral medal, podium, and star icons.
-- Removed stale tracked `_shots/*.png` App Store-adjacent screenshots.
-- Updated App Store-safe review note wording to avoid trophy references.
-- Updated `scripts/take-screenshots.mjs` so fresh screenshots create a reviewer-safe user challenge first and auto-accept the web alert after challenge creation.
+Fixed:
+- `/support` and `/privacy` are public in a clean browser.
+- Replaced award-cup UI icons with neutral medal/podium/star icons.
+- Removed stale tracked `_shots` screenshots.
+- Generated fresh Apple-safe screenshots in `/tmp/screenshots`.
 
 Shipped:
-- Web live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
-- Vercel deployment: https://dist-jjjur2pu1-axelcassou2-1440s-projects.vercel.app
-- Expo OTA update: https://expo.dev/accounts/axelttas-team/projects/yafoot/updates/12925cd6-282d-476b-9b5c-8ab345eb5947
-- App/source deploy commit: 1eb2a8d
+- Live: https://dist-five-zeta-92i4a6g3xx.vercel.app
+- App deploy commit: `1eb2a8d`
+- Follow-up screenshot tooling/report commit: `02c154c`
+- Expo OTA completed.
 
-Fresh screenshot set:
-- `/tmp/screenshots/iphone_01.png` through `/tmp/screenshots/iphone_04.png`
-- `/tmp/screenshots/ipad_01.png` through `/tmp/screenshots/ipad_04.png`
-- Dimensions verified: iPhone 1290x2796, iPad 2048x2732.
-- Visual spot-check: user-created `Friends Friday`, `Riverside` vs `Hilltown`; no event branding.
-
-Verification:
-- `bash scripts/deploy.sh` passed typecheck, web export, native iOS export, Vercel deploy, Expo OTA, git push.
-- Clean-browser `/support`: PASS, shows YaFoot Support and `support@yafoot.app`, not gated.
-- Clean-browser `/privacy`: PASS, shows Privacy Policy and deletion/contact info, not gated.
-- Focused source/public-surface scan over `app`, `components`, `lib`, `APP_STORE_SAFE.md`, ASC metadata script, and screenshot script: no FIFA / World Cup / Coupe du Monde / Mundial / trophy UI references.
-- Bundle scan only finds `trophy` inside third-party vector-icon glyph maps, not app UI strings or icon names.
-
-Resubmission status: PASS.
+Verification passed: typecheck, web export, iOS export, Vercel deploy, Expo OTA, public-page browser checks, screenshot dimensions, and focused App Store-safe source scans. Summary written to `workers/20260626-011153-1430954.last.txt`.

@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
@@ -12,6 +12,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar, Button, Header, Icon, IconTile, Loading } from "../../components/ui";
 import { useI18n, SOIREE_PUNISHMENTS, SOIREE_ROUNDS } from "../../lib/i18n";
+import { APP_STORE_SAFE } from "../../lib/mode";
 import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
@@ -38,6 +39,10 @@ interface Member {
 }
 
 export default function SoireeRoom() {
+  if (APP_STORE_SAFE) {
+    return <Redirect href="/(tabs)/leagues" />;
+  }
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { t, lang } = useI18n();

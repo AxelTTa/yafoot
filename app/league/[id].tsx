@@ -11,17 +11,20 @@ import {
   TextInput,
   View,
 } from "react-native";
+import MatchCard from "../../components/MatchCard";
 import { Avatar, Empty, Header, Icon, Loading, QRModal, Screen } from "../../components/ui";
 import { inviteBase } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { notify, confirmAsync } from "../../lib/notify";
-import { leagueLeaderboard, reportMessage } from "../../lib/api";
+import { fetchCompetitionMatches, fetchMyPredictions, leagueLeaderboard, reportMessage } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
+import { Match, Prediction, isFinished, isLive, isUpcoming } from "../../lib/types";
 
 type Row = { user_id: string; points: number; role: string; profiles: any };
 type Msg = { id: number; sender_id: string; body: string; created_at: string };
+type LeagueMatchRow = { ordinal: number; match: Match };
 
 export default function LeagueDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -29,10 +32,12 @@ export default function LeagueDetail() {
   const { session } = useAuth();
   const me = session?.user?.id;
   const { t } = useI18n();
-  const [tab, setTab] = useState<"standings" | "chat">("standings");
+  const [tab, setTab] = useState<"matches" | "standings" | "chat">("matches");
   const [league, setLeague] = useState<{ name: string; code: string; max_matches?: number | null; punishment?: string | null } | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
+  const [leagueMatches, setLeagueMatches] = useState<LeagueMatchRow[]>([]);
+  const [preds, setPreds] = useState<Record<number, Prediction>>({});
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -43,6 +48,17 @@ export default function LeagueDetail() {
       setRows((await leagueLeaderboard(leagueId)) as Row[]);
     } catch {}
     setLoading(false);
+  }, [leagueId]);
+
+  const loadMatches = useCallback(async () => {
+    try {
+      const [items, predictions] = await Promise.all([
+        fetchCompetitionMatches(leagueId),
+        fetchMyPredictions().catch(() => ({} as Record<number, Prediction>)),
+      ]);
+      setLeagueMatches(items);
+      setPreds(predictions);
+    } catch {}
   }, [leagueId]);
 
   const loadMsgs = useCallback(async () => {
@@ -63,6 +79,7 @@ export default function LeagueDetail() {
       .single()
       .then(({ data }) => data && setLeague(data as typeof league));
     loadBoard();
+    loadMatches();
     loadMsgs();
     // Use a unique channel name per mount to avoid the race condition where
     // supabase.channel(name) returns the still-being-cleaned-up previous channel,
@@ -78,6 +95,7 @@ export default function LeagueDetail() {
           setMsgs((m) => (m.some((x) => x.id === n.id) ? m : [...m, n]));
         }
       )
+      .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => loadMatches())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
@@ -122,11 +140,21 @@ export default function LeagueDetail() {
   if (loading) return <Loading />;
 
   const rankColor = (i: number) => (i === 0 ? colors.gold : i === 1 ? colors.silver : i === 2 ? colors.bronze : colors.textFaint);
+  const orderedMatches = [...leagueMatches].sort((a, b) => {
+    const am = a.match;
+    const bm = b.match;
+    const aOpen = isUpcoming(am.status) || isLive(am.status);
+    const bOpen = isUpcoming(bm.status) || isLive(bm.status);
+    if (aOpen !== bOpen) return aOpen ? -1 : 1;
+    const at = am.utc_kickoff ? new Date(am.utc_kickoff).getTime() : 0;
+    const bt = bm.utc_kickoff ? new Date(bm.utc_kickoff).getTime() : 0;
+    return aOpen ? at - bt : bt - at;
+  });
 
   return (
     <Screen>
       <Header
-        title={league?.name ?? "League"}
+        title={league?.name ?? "Competition"}
         right={
           league ? (
             <Pressable onPress={() => setShowQR(true)} hitSlop={8} style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: colors.surfaceDark, alignItems: "center", justifyContent: "center" }}>
@@ -140,21 +168,61 @@ export default function LeagueDetail() {
           visible={showQR}
           onClose={() => setShowQR(false)}
           value={`${inviteBase()}/join/${league.code}`}
-          title="League QR"
+          title="Competition QR"
           subtitle={`Scan to join ${league.name}`}
         />
       ) : null}
       <View style={styles.tabs}>
-        {(["standings", "chat"] as const).map((tb) => (
+        {(["matches", "standings", "chat"] as const).map((tb) => (
           <Pressable key={tb} onPress={() => setTab(tb)} style={[styles.tab, tab === tb && styles.tabActive]}>
             <Text style={[styles.tabText, tab === tb && styles.tabTextActive]}>
-              {tb === "standings" ? t("standings") : t("chat")}
+              {tb === "matches" ? "Matches" : tb === "standings" ? t("standings") : t("chat")}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      {tab === "standings" ? (
+      {tab === "matches" ? (
+        <FlatList
+          data={orderedMatches}
+          keyExtractor={(r) => String(r.match.id)}
+          contentContainerStyle={{ padding: spacing.lg, gap: spacing.md, paddingBottom: 40 }}
+          ListHeaderComponent={
+            <View style={{ gap: spacing.sm, marginBottom: spacing.xs }}>
+              {league ? (
+                <Pressable
+                  onPress={() => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      navigator.clipboard.writeText(league.code).catch(() => {});
+                    }
+                    notify(t("copy_code"), `Share "${league.code}" so friends can join ${league.name}.`);
+                  }}
+                  style={styles.invite}
+                >
+                  <View>
+                    <Text style={styles.inviteLabel}>{t("invite_code")}</Text>
+                    <Text style={styles.inviteCode}>{league.code}</Text>
+                  </View>
+                  <Text style={styles.inviteShare}>Share</Text>
+                </Pressable>
+              ) : null}
+              <View style={styles.matchSummary}>
+                <Icon name="football" size={16} color={colors.greenDark} />
+                <Text style={styles.matchSummaryTxt}>
+                  {orderedMatches.filter((r) => isUpcoming(r.match.status) || isLive(r.match.status)).length} open, {orderedMatches.filter((r) => isFinished(r.match.status) || (!isUpcoming(r.match.status) && !isLive(r.match.status))).length} previous
+                </Text>
+              </View>
+            </View>
+          }
+          renderItem={({ item }) => (
+            <MatchCard
+              match={item.match}
+              prediction={preds[item.match.id]}
+            />
+          )}
+          ListEmptyComponent={<Empty icon="calendar-outline" title="No matches yet" sub="Create a new competition and add custom matches before inviting friends." />}
+        />
+      ) : tab === "standings" ? (
         <FlatList
           data={rows}
           keyExtractor={(r) => r.user_id}
@@ -240,12 +308,12 @@ export default function LeagueDetail() {
                 </Pressable>
               );
             }}
-            ListEmptyComponent={<Empty icon="chatbubbles-outline" title="No messages yet" sub="Say hi to your league!" />}
+            ListEmptyComponent={<Empty icon="chatbubbles-outline" title="No messages yet" sub="Say hi to your competition!" />}
           />
           <View style={styles.composer}>
             <TextInput
               style={styles.composerInput}
-              placeholder="Message your league…"
+              placeholder="Message your competition..."
               placeholderTextColor={colors.textFaint}
               value={text}
               onChangeText={setText}
@@ -282,6 +350,8 @@ const styles = StyleSheet.create({
   punText: { color: colors.ink, fontSize: 14, fontWeight: "800", marginTop: 2, lineHeight: 20 },
   durBanner: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: "rgba(34,199,192,0.1)", borderRadius: radius.md, padding: spacing.sm + 2, borderWidth: 1, borderColor: "rgba(34,199,192,0.25)" },
   durBannerTxt: { color: colors.cyan, fontSize: 13, fontWeight: "800" },
+  matchSummary: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, borderWidth: 1, borderColor: colors.border },
+  matchSummaryTxt: { color: colors.textDim, fontSize: 13, fontWeight: "800" },
   invite: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surfaceDark, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.xs },
   inviteLabel: { color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: "800", letterSpacing: 1 },
   inviteCode: { color: colors.blanc, fontSize: 22, fontWeight: "900", letterSpacing: 3 },
