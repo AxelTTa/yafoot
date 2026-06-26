@@ -10,7 +10,7 @@ ROOT="$(pwd)"
 echo "[1/6] typecheck"; npx tsc --noEmit
 echo "[2/6] build web bundle"; rm -rf dist; npx expo export --platform web --output-dir dist
 echo "[3/6] ship icon font + SPA rewrite"; mkdir -p dist/fonts dist/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts; cp assets/fonts/Ionicons.ttf dist/fonts/ionicons.ttf; cp assets/fonts/Ionicons.ttf dist/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676fd56f6bdc51.ttf
-printf '%s' '{ "rewrites": [ { "source": "/(.*)", "destination": "/index.html" } ] }' > dist/vercel.json
+printf '%s' '{ "routes": [ { "handle": "filesystem" }, { "src": "/.*", "dest": "/index.html" } ] }' > dist/vercel.json
 echo "[4/6] sanity: native bundle compiles (Expo Go must always work)"; npx expo export --platform ios --output-dir /tmp/yf-ios-check >/dev/null 2>&1 && echo "  native OK" && rm -rf /tmp/yf-ios-check || echo "  WARN: native bundle failed — fix before relying on Expo Go"
 echo "[5/6] deploy web -> Vercel"; ( cd dist && npx -y vercel@latest deploy --prod --yes --token "$VERCEL_TOKEN" --scope axelcassou2-1440s-projects | tail -1 )
 if [ -n "${EXPO_TOKEN:-}" ] && [ "$EXPO_TOKEN" != "__SET_EXPO_TOKEN__" ]; then

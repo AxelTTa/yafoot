@@ -47,9 +47,14 @@ data syncs, audits, multi-step work):
 
 WRITE GOOD TASKS: workers read CLAUDE.md for context, but be specific — what to build/fix, acceptance,
 and that they must ship via scripts/deploy.sh. One task per worker; spin up several for parallel work.
-Worker self-reports must be phone-friendly: first line `[worker <id>] 🟢 PASS`, `🟠 PARTIAL`, or
-`🔴 BLOCKED`; then 3-6 short bullets max for changed/tested, blocker, metrics, links/artifacts, and next
-action. Keep under ~900 chars unless critical. Avoid giant one-line status blocks.
+Worker self-reports must be very short and phone-friendly. First line must be
+`[worker <id>] 🟢 PASS | running: <N>`, `[worker <id>] 🟠 PARTIAL | running: <N>`, or
+`[worker <id>] 🔴 BLOCKED | running: <N>`; preserve those emoji statuses. Workers should compute
+`N` before final Telegram with a safe command like
+`pgrep -af 'codx.*YaFoot WORKER agent' 2>/dev/null | wc -l | tr -d ' '`, and omit ` | running: <N>`
+only if unavailable. Then max 3 short lines: `- Done: ...`, `- Blocker: ...` only when relevant,
+and `- Next: ...`. Keep under ~450 chars unless critical. For test workers, add one compact metric
+line only if useful. Avoid long prose.
 
 ARMY RUNS: when Axel asks to run an "army", delegate it as an iterative fix loop, not a report-only
 audit. The worker must run simulated users/tests, record issues, classify each high/medium/low, fix
