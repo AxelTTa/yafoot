@@ -7,6 +7,7 @@ import { Empty, Icon, Loading } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { fetchMatches, fetchMyPredictions } from "../../lib/api";
+import { APP_STORE_SAFE } from "../../lib/mode";
 import { computeGroups } from "../../lib/standings";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, spacing } from "../../lib/theme";
@@ -36,7 +37,7 @@ export default function Matches() {
   }, [load]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  const groups = useMemo(() => computeGroups(matches), [matches]);
+  const groups = useMemo(() => (APP_STORE_SAFE ? [] : computeGroups(matches)), [matches]);
   const filtered = useMemo(() => {
     if (filter === "results") return matches.filter((m) => isFinished(m.status)).reverse();
     if (filter === "upcoming") {
@@ -51,11 +52,16 @@ export default function Matches() {
 
   if (loading) return <Loading />;
 
-  const tabs: { key: Filter; label: string; color: string }[] = [
-    { key: "upcoming", label: t("filter_upcoming"), color: colors.greenDark },
-    { key: "groups", label: t("filter_groups"), color: colors.purple },
-    { key: "results", label: t("filter_results"), color: colors.orange },
-  ];
+  const tabs: { key: Filter; label: string; color: string }[] = APP_STORE_SAFE
+    ? [
+        { key: "upcoming", label: "Open", color: colors.greenDark },
+        { key: "results", label: t("filter_results"), color: colors.orange },
+      ]
+    : [
+        { key: "upcoming", label: t("filter_upcoming"), color: colors.greenDark },
+        { key: "groups", label: t("filter_groups"), color: colors.purple },
+        { key: "results", label: t("filter_results"), color: colors.orange },
+      ];
 
   const Filters = (
     <View style={styles.filters}>
@@ -77,11 +83,18 @@ export default function Matches() {
       <View style={styles.topbar}>
         <View>
           <Text style={styles.hi}>Hi, @{profile?.username ?? "player"}</Text>
-          <Text style={styles.title}>{t("matches_sub")}</Text>
+          <Text style={styles.title}>{APP_STORE_SAFE ? "Friend challenges" : t("matches_sub")}</Text>
         </View>
-        <Pressable onPress={() => router.push("/notifications")} style={styles.bell} hitSlop={8}>
-          <Icon name="notifications" size={22} color={colors.ink} />
-        </Pressable>
+        <View style={styles.actions}>
+          {APP_STORE_SAFE ? (
+            <Pressable onPress={() => router.push("/create-challenge")} style={[styles.bell, styles.add]} hitSlop={8}>
+              <Icon name="add" size={25} color={colors.blanc} />
+            </Pressable>
+          ) : null}
+          <Pressable onPress={() => router.push("/notifications")} style={styles.bell} hitSlop={8}>
+            <Icon name="notifications" size={22} color={colors.ink} />
+          </Pressable>
+        </View>
       </View>
 
       {filter === "groups" ? (
@@ -103,13 +116,29 @@ export default function Matches() {
           contentContainerStyle={styles.list}
           refreshControl={refresh}
           ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          renderItem={({ item }) => <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />}
-          ListEmptyComponent={
-            <Empty
-              icon={filter === "results" ? "list" : "calendar"}
-              color={filter === "results" ? colors.orange : colors.greenDark}
-              title={filter === "results" ? t("empty_results") : t("empty_upcoming")}
+          renderItem={({ item }) => (
+            <MatchCard
+              match={item}
+              prediction={preds[item.id]}
+              onPress={() => router.push(`/match/${item.id}`)}
+              onStats={APP_STORE_SAFE ? undefined : () => router.push(`/stats/${item.id}`)}
             />
+          )}
+          ListEmptyComponent={
+            <View>
+              <Empty
+                icon={filter === "results" ? "list" : "calendar"}
+                color={filter === "results" ? colors.orange : colors.greenDark}
+                title={filter === "results" ? t("empty_results") : APP_STORE_SAFE ? "No open challenges" : t("empty_upcoming")}
+                sub={APP_STORE_SAFE && filter !== "results" ? "Create a match challenge and invite friends to predict the score." : undefined}
+              />
+              {APP_STORE_SAFE && filter !== "results" ? (
+                <Pressable onPress={() => router.push("/create-challenge")} style={styles.emptyButton}>
+                  <Icon name="add-circle" size={18} color={colors.blanc} />
+                  <Text style={styles.emptyButtonText}>Create challenge</Text>
+                </Pressable>
+              ) : null}
+            </View>
           }
         />
       )}
@@ -122,8 +151,12 @@ const styles = StyleSheet.create({
   hi: { color: colors.textDim, fontSize: 14, fontWeight: "800" },
   title: { color: colors.ink, fontSize: 28, fontWeight: "900", letterSpacing: -0.6 },
   bell: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center" },
+  actions: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  add: { backgroundColor: colors.greenDark },
   list: { paddingHorizontal: spacing.lg, paddingBottom: 120 },
   filters: { flexDirection: "row", gap: spacing.sm, paddingVertical: spacing.md, flexWrap: "wrap" },
   chip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: spacing.lg, paddingVertical: 10, borderRadius: radius.pill, backgroundColor: colors.surface },
   chipText: { color: colors.ink, fontWeight: "900", fontSize: 13 },
+  emptyButton: { alignSelf: "center", flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.greenDark, borderRadius: radius.pill, paddingHorizontal: spacing.lg, paddingVertical: 12, marginTop: -spacing.md },
+  emptyButtonText: { color: colors.blanc, fontSize: 14, fontWeight: "900" },
 });

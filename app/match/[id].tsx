@@ -7,6 +7,7 @@ import { notify, confirmAsync } from "../../lib/notify";
 import { colors, radius, spacing } from "../../lib/theme";
 import { Match, Prediction, isUpcoming } from "../../lib/types";
 import { prettyTeam, teamFlag } from "../../lib/teams";
+import { APP_STORE_SAFE } from "../../lib/mode";
 
 function Stepper({ value, set, color }: { value: number; set: (n: number) => void; color: string }) {
   return (
@@ -67,7 +68,7 @@ export default function MatchDetail() {
 
   return (
     <Screen>
-      <Header title={match.group_name ?? match.stage?.replace(/_/g, " ") ?? "Match"} />
+      <Header title={match.group_name ?? match.stage?.replace(/_/g, " ") ?? (APP_STORE_SAFE ? "Friend challenge" : "Match")} />
       <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg, paddingBottom: 40 }}>
         <View style={styles.hero}>
           <View style={styles.heroTeam}>

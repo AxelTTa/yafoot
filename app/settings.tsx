@@ -1,10 +1,10 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Avatar, Button, Header, Icon, Screen, ScrollView } from "../components/ui";
 import { useAuth } from "../lib/auth";
 import { useI18n, Lang } from "../lib/i18n";
-import { updateProfile } from "../lib/api";
+import { deleteMyAccount, updateProfile } from "../lib/api";
 import { pickAndUploadAvatar } from "../lib/avatar";
 import { confirmAsync, notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
@@ -45,6 +45,18 @@ export default function Settings() {
       }
     }
     setUploading(false);
+  }
+
+  async function deleteAccount() {
+    const ok = await confirmAsync(t("delete_account_title"), t("delete_account_msg"));
+    if (!ok) return;
+    try {
+      await deleteMyAccount();
+      await signOut();
+      router.replace("/(auth)/welcome");
+    } catch (e: any) {
+      notify("Could not delete account", e.message);
+    }
   }
 
   const langs: { key: Lang; label: string; flag: string }[] = [
@@ -126,6 +138,29 @@ export default function Settings() {
               <Icon name="warning-outline" size={18} color={colors.orange} />
               <Text style={styles.infoTxt}>{t("account_warn")}</Text>
             </View>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <View style={[styles.iconTile, { backgroundColor: colors.cyan }]}><Icon name="help-buoy" size={18} color={colors.blanc} /></View>
+              <Text style={styles.sectionTitle}>Support</Text>
+            </View>
+            <Text style={styles.infoTxt}>Help, privacy, and account deletion info are available on the YaFoot support page.</Text>
+            <Button
+              title="Open support"
+              variant="outline"
+              icon="open-outline"
+              onPress={() => Linking.openURL("https://dist-five-zeta-92i4a6g3xx.vercel.app/support")}
+            />
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.row}>
+              <View style={[styles.iconTile, { backgroundColor: colors.rouge }]}><Icon name="trash" size={18} color={colors.blanc} /></View>
+              <Text style={styles.sectionTitle}>{t("danger_zone")}</Text>
+            </View>
+            <Text style={styles.infoTxt}>{t("delete_account_warn")}</Text>
+            <Button title={t("btn_delete_account")} variant="danger" icon="trash-outline" onPress={deleteAccount} />
           </View>
 
           <Button

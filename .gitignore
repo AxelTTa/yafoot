@@ -3,12 +3,15 @@ node_modules/
 dist/
 web-build/
 *.log
+__pycache__/
+*.pyc
 .DS_Store
 .env
 ios/
 android/
 yafoot.env
 yafoot_sessions.json
+yafoot_sessions_codx.json
 asc-key.p8
 credentials/
 credentials.json

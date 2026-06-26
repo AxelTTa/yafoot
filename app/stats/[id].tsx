@@ -8,6 +8,7 @@ import { supabase } from "../../lib/supabase";
 import { prettyTeam, teamFlag } from "../../lib/teams";
 import { Match } from "../../lib/types";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
+import { APP_STORE_SAFE } from "../../lib/mode";
 
 type FormResult = "W" | "D" | "L";
 
@@ -201,7 +202,7 @@ export default function MatchStats() {
 
         {stage ? (
           <View style={styles.contextPill}>
-            <Text style={styles.contextTxt}>FIFA World Cup 2026 — {stage}</Text>
+            <Text style={styles.contextTxt}>{APP_STORE_SAFE ? "Friend challenge" : "Tournament"} — {stage}</Text>
           </View>
         ) : null}
 
@@ -282,7 +283,7 @@ export default function MatchStats() {
             </>
           ) : showHistorical ? (
             <>
-              {/* Historical WC H2H summary */}
+              {/* Historical head-to-head summary */}
               {histSummary && histSummary.total > 0 && (
                 <View style={styles.h2hSummary}>
                   <View style={styles.h2hSummaryBlock}>
@@ -300,7 +301,7 @@ export default function MatchStats() {
                 </View>
               )}
               <Text style={styles.h2hAllComp}>
-                World Cup history · {histSummary?.total ?? histMatches.length} meetings
+                Match history · {histSummary?.total ?? histMatches.length} meetings
               </Text>
               <View style={styles.divider} />
               {histMatches.map((hm, i) => {
@@ -335,14 +336,14 @@ export default function MatchStats() {
             </>
           ) : localH2H.length > 0 ? (
             <>
-              <Text style={styles.h2hAllComp}>WC 2026 meetings</Text>
+              <Text style={styles.h2hAllComp}>Previous meetings</Text>
               {localH2H.map((hm: any, i: number) => {
                 const homeFirst = hm.home_team === match.home_team;
                 const hmScore = homeFirst ? (hm.home_score ?? 0) : (hm.away_score ?? 0);
                 const awScore = homeFirst ? (hm.away_score ?? 0) : (hm.home_score ?? 0);
                 const winTeam = hmScore > awScore ? homeN : awScore > hmScore ? awayN : null;
                 const date = hm.utc_kickoff ? new Date(hm.utc_kickoff).toLocaleDateString([], { month: "short", day: "numeric", year: "2-digit" }) : "TBD";
-                const comp = hm.group_name ?? hm.stage?.replace(/_/g, " ") ?? "World Cup 2026";
+                const comp = hm.group_name ?? hm.stage?.replace(/_/g, " ") ?? "Previous match";
                 return (
                   <View key={i} style={[styles.h2hRow, i > 0 && styles.h2hRowBorder]}>
                     <View style={{ flex: 1 }}>
@@ -364,7 +365,7 @@ export default function MatchStats() {
             <View style={{ alignItems: "center", paddingVertical: spacing.md }}>
               <Text style={styles.h2hBigNum}>🏆</Text>
               <Text style={[styles.emptyTxt, { textAlign: "center", marginTop: spacing.sm }]}>
-                First ever meeting at the World Cup
+                First recorded meeting
               </Text>
             </View>
           ) : (
@@ -372,8 +373,8 @@ export default function MatchStats() {
           )}
         </View>
 
-        {/* ── Tournament Form ── */}
-        <Text style={styles.sectionTitle}>Tournament Form</Text>
+        {/* ── Recent Form ── */}
+        <Text style={styles.sectionTitle}>Recent Form</Text>
         <View style={styles.card}>
           <View style={styles.formRow}>
             <View style={styles.formTeamLabel}>
@@ -404,14 +405,14 @@ export default function MatchStats() {
           </View>
         </View>
 
-        {/* ── Tournament Stats ── */}
+        {/* ── Match Stats ── */}
         {(homeGoals.played > 0 || awayGoals.played > 0) && (
           <>
-            <Text style={styles.sectionTitle}>Tournament Stats</Text>
+            <Text style={styles.sectionTitle}>Match Stats</Text>
             <View style={styles.card}>
               <View style={str.row}>
                 <Text style={[str.val, { color: colors.green, fontWeight: "900" }]}>{homeN}</Text>
-                <Text style={[str.lbl, { color: colors.textFaint, fontSize: 11 }]}>WC 2026</Text>
+                <Text style={[str.lbl, { color: colors.textFaint, fontSize: 11 }]}>MATCHES</Text>
                 <Text style={[str.val, { color: colors.purple, fontWeight: "900" }]}>{awayN}</Text>
               </View>
               <View style={styles.divider} />

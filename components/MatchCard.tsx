@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { Icon } from "./ui";
 import { savePrediction } from "../lib/api";
+import { APP_STORE_SAFE } from "../lib/mode";
 import { notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 import { Match, Prediction, isFinished, isLive } from "../lib/types";
@@ -153,7 +154,7 @@ export default function MatchCard({
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, shadow, pressed && { opacity: 0.95 }, prediction && !live && !finished && styles.cardPredicted]}>
       <View style={styles.header}>
-        <Text style={styles.group}>{match.group_name ?? match.stage?.replace(/_/g, " ") ?? "World Cup"}</Text>
+        <Text style={styles.group}>{match.group_name ?? match.stage?.replace(/_/g, " ") ?? (APP_STORE_SAFE ? "Friend challenge" : "Tournament match")}</Text>
         {live ? (
           <View style={styles.livePill}>
             <Animated.View style={[styles.dot, { opacity: pulse }]} />

@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
-"""YaFoot Telegram <-> claud MANAGER bridge (non-blocking, delegating).
+"""YaFoot Telegram <-> codx MANAGER bridge (non-blocking, delegating).
 
 - Main thread long-polls Telegram and NEVER blocks (so Axel can always talk).
 - A single consumer thread runs MANAGER turns sequentially (safe session --resume).
 - The manager DELEGATES heavy work to detached background workers (scripts/delegate.sh).
-- Supports bidirectional images/files: Axel can send photos → Claude reads them;
-  Claude responses containing image paths → bridge auto-sends the photos back.
+- Supports bidirectional images/files: Axel can send photos -> the manager reads them;
+  manager responses containing image paths -> bridge auto-sends the photos back.
 Stdlib only."""
 import os, json, time, queue, threading, subprocess, urllib.request, urllib.parse, urllib.error
 import re, mimetypes, tempfile
 
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 ALLOWED = str(os.environ["TELEGRAM_ALLOWED_CHAT_ID"]).strip()
-CLAUD_BIN = os.environ.get("CLAUD_BIN", "claud")
+CLAUD_BIN = os.environ.get("CLAUD_BIN", "codx")
 WORKDIR = os.environ.get("WORKDIR", "/home/ubuntu/yafoot")
+CODEX_MODEL = os.environ.get("CODEX_MODEL", "gpt-5.5")
 API = f"https://api.telegram.org/bot{TOKEN}"
 FILE_API = f"https://api.telegram.org/file/bot{TOKEN}"
 SESS_FILE = os.path.join(WORKDIR, "yafoot_sessions.json")
+CODEX_SESS_FILE = os.environ.get(
+    "CODEX_SESS_FILE",
+    os.path.splitext(SESS_FILE)[0] + "_codx.json",
+)
 
 # Image paths in responses that the bridge will auto-send as Telegram photos
 IMG_PATTERN = re.compile(
@@ -31,6 +36,7 @@ Project root: /home/ubuntu/yafoot. Live web: https://dist-five-zeta-92i4a6g3xx.v
 
 YOUR JOB: be a fast, always-available manager. You DELEGATE the actual work and stay free to chat.
 You do NOT run builds, edits, tests, deploys, npm install, or long scripts yourself.
+All manager and worker agents must run through codx. Never launch claud or Claude Code workers.
 
 HOW TO DELEGATE (do this for anything beyond a quick answer — code changes, builds, deploys, tests,
 data syncs, audits, multi-step work):
@@ -191,47 +197,111 @@ def extract_and_send_images(chat_id, response_text):
 _lock = threading.Lock()
 
 
-def load_sessions():
+def load_sessions(path=SESS_FILE):
     try:
-        return json.load(open(SESS_FILE))
+        return json.load(open(path))
     except Exception:
         return {}
 
 
-def save_sessions(s):
+def save_sessions(s, path=SESS_FILE):
     with _lock:
-        json.dump(s, open(SESS_FILE, "w"))
+        json.dump(s, open(path, "w"))
+
+
+def agent_env():
+    env = dict(os.environ)
+    required = [
+        "/home/ubuntu/.local/bin",
+        "/home/ubuntu/.npm-global/bin",
+        "/home/ubuntu/.local/npm-global/bin",
+        "/usr/local/bin",
+        "/usr/bin",
+        "/bin",
+    ]
+    existing = [p for p in env.get("PATH", "").split(":") if p]
+    env["PATH"] = ":".join(required + [p for p in existing if p not in required])
+    return env
+
+
+def parse_codx_session(stdout):
+    for line in stdout.splitlines():
+        if line.startswith("session id:"):
+            return line.split(":", 1)[1].strip()
+    return ""
+
+
+def run_codx(system_prompt, text, chat_id):
+    sessions = load_sessions(CODEX_SESS_FILE)
+    sid = sessions.get(str(chat_id))
+    fd, out_path = tempfile.mkstemp(prefix="yafoot-codx-", suffix=".txt")
+    os.close(fd)
+    prompt = f"{system_prompt}\n\nTELEGRAM USER MESSAGE:\n{text}"
+    def build_cmd(resume_id):
+        if resume_id:
+            return [
+                CLAUD_BIN, "exec", "resume",
+                "-m", CODEX_MODEL,
+                "--skip-git-repo-check",
+                "--ignore-user-config",
+                "--ignore-rules",
+                "--dangerously-bypass-approvals-and-sandbox",
+                "-o", out_path,
+                resume_id, prompt,
+            ]
+        return [
+            CLAUD_BIN, "exec",
+            "-m", CODEX_MODEL,
+            "--skip-git-repo-check",
+            "--ignore-user-config",
+            "--ignore-rules",
+            "--dangerously-bypass-approvals-and-sandbox",
+            "-o", out_path,
+            "--color", "never",
+            prompt,
+        ]
+    try:
+        for attempt in range(2):
+            proc = subprocess.run(
+                build_cmd(sid), cwd=WORKDIR, capture_output=True, text=True,
+                env=agent_env(), start_new_session=True,
+            )
+            if proc.returncode == 0:
+                break
+            detail = ((proc.stderr or "") + "\n" + (proc.stdout or "")).strip()
+            stale_resume = sid and (
+                "thread/resume failed" in detail or "no rollout found" in detail
+            )
+            if attempt == 0 and stale_resume:
+                sessions.pop(str(chat_id), None)
+                save_sessions(sessions, CODEX_SESS_FILE)
+                sid = ""
+                continue
+            return f"(manager error)\n{detail[-1200:]}"
+        new_sid = parse_codx_session((proc.stdout or "") + "\n" + (proc.stderr or ""))
+        if new_sid:
+            sessions[str(chat_id)] = new_sid
+            save_sessions(sessions, CODEX_SESS_FILE)
+        try:
+            result = open(out_path).read().strip()
+        except Exception:
+            result = ""
+        return result or (proc.stdout or "(no output)")[-1500:]
+    except Exception as e:
+        return f"(manager error: {e})"
+    finally:
+        try:
+            os.unlink(out_path)
+        except OSError:
+            pass
 
 
 # ── Manager invocation ──────────────────────────────────────────────────────────
 
 def run_manager(text, chat_id):
-    sessions = load_sessions()
-    sid = sessions.get(str(chat_id))
-    cmd = [
-        CLAUD_BIN, "-p", text,
-        "--append-system-prompt", MANAGER_SYS,
-        "--permission-mode", "bypassPermissions",
-        "--allowedTools", "Bash", "Read",
-        "--output-format", "json",
-        "--max-turns", "24",
-    ]
-    if sid:
-        cmd += ["--resume", sid]
-    proc = subprocess.run(
-        cmd, cwd=WORKDIR, capture_output=True, text=True,
-        env=dict(os.environ), start_new_session=True,
-    )
-    if proc.returncode != 0:
-        return f"(manager error)\n{(proc.stderr or '')[-500:]}"
-    try:
-        envj = json.loads(proc.stdout)
-        if envj.get("session_id"):
-            sessions[str(chat_id)] = envj["session_id"]
-            save_sessions(sessions)
-        return envj.get("result", "(no result)")
-    except Exception:
-        return (proc.stdout or "(no output)")[-1500:]
+    if os.path.basename(CLAUD_BIN) != "codx":
+        return "(manager error)\nCLAUD_BIN must be codx; Claude workers are disabled."
+    return run_codx(MANAGER_SYS, text, chat_id)
 
 
 # ── Consumer thread ─────────────────────────────────────────────────────────────

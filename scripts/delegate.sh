@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
-# delegate.sh "<task>"  — spawn a DETACHED background worker (claud) that does the task end-to-end
+# delegate.sh "<task>"  — spawn a DETACHED background worker (codx) that does the task end-to-end
 # and self-reports to Telegram when done. Survives bridge restarts. Used by the YaFoot manager bot
 # so the manager stays free to chat while work runs.
 set -euo pipefail
 cd /home/ubuntu/yafoot 2>/dev/null || cd "$(dirname "$0")/.."
 TASK="${1:?usage: delegate.sh \"<task>\"}"
-ENGINE="${2:-claud}"
+ENGINE="codx"
+CODEX_MODEL="${CODEX_MODEL:-gpt-5.5}"
+export PATH="/home/ubuntu/.local/bin:/home/ubuntu/.npm-global/bin:/home/ubuntu/.local/npm-global/bin:/usr/local/bin:/usr/bin:/bin:${PATH:-}"
 mkdir -p workers
 TS="$(date -u +%Y%m%d-%H%M%S)-$$"
 LOG="workers/${TS}.log"
+OUT="workers/${TS}.last.txt"
 
 read -r -d '' WSYS <<EOF || true
 You are a YaFoot WORKER agent running headless on the server (worker id ${TS}). Project root: /home/ubuntu/yafoot.
@@ -22,10 +25,20 @@ When finished (or if blocked), send Axel a short Telegram update by running:
 Keep going until the task is fully done.
 EOF
 
-nohup setsid "$ENGINE" -p "$TASK" \
-  --append-system-prompt "$WSYS" \
-  --permission-mode bypassPermissions \
-  --allowedTools Bash Read Write Edit \
-  --output-format json --max-turns 300 \
+PROMPT="${WSYS}
+
+TASK:
+${TASK}"
+
+nohup setsid "$ENGINE" exec \
+  -m "$CODEX_MODEL" \
+  --skip-git-repo-check \
+  --ignore-user-config \
+  --ignore-rules \
+  --dangerously-bypass-approvals-and-sandbox \
+  -C /home/ubuntu/yafoot \
+  -o "$OUT" \
+  --color never \
+  "$PROMPT" \
   > "$LOG" 2>&1 < /dev/null &
 echo "WORKER_STARTED id=${TS} pid=$! engine=${ENGINE} log=${LOG}"

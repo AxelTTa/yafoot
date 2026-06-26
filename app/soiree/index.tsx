@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Header, Icon, IconTile, Loading } from "../../components/ui";
+import { fetchMatches } from "../../lib/api";
 import { useI18n } from "../../lib/i18n";
 import { notify } from "../../lib/notify";
 import { supabase } from "../../lib/supabase";
@@ -39,13 +40,8 @@ export default function SoireeIndex() {
 
   async function loadMatches() {
     setLoadingMatches(true);
-    const { data } = await supabase
-      .from("matches")
-      .select("*")
-      .in("status", ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"])
-      .order("utc_kickoff", { ascending: true })
-      .limit(20);
-    setMatches((data as Match[]) ?? []);
+    const data = await fetchMatches();
+    setMatches(data.filter((m) => ["SCHEDULED", "TIMED", "IN_PLAY", "PAUSED"].includes(m.status)).slice(0, 20));
     setLoadingMatches(false);
   }
 

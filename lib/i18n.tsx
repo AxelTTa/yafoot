@@ -96,7 +96,7 @@ const T = {
     lang_continue: "Let's play",
 
     // welcome
-    welcome_tagline: "Predict the World Cup.\nBeat your mates.",
+    welcome_tagline: "Create football prediction challenges.\nBeat your mates.",
     welcome_invited: "Your mate invited you!",
     username_label: "YOUR NAME",
     username_placeholder: "Your name (e.g. Axel)",
@@ -117,14 +117,14 @@ const T = {
     btn_continue: "Continue to app",
 
     // tabs
-    tab_matches: "Matches",
+    tab_matches: "Challenges",
     tab_predict: "Predict",
     tab_leagues: "Leagues",
     tab_friends: "Friends",
     tab_profile: "Profile",
 
     // matches screen
-    matches_sub: "World Cup 2026",
+    matches_sub: "Friend challenges",
     filter_live: "Live",
     filter_upcoming: "Upcoming",
     filter_groups: "Groups",
@@ -332,7 +332,7 @@ const T = {
     lang_continue: "C'est parti",
 
     // welcome
-    welcome_tagline: "Préds la Coupe du Monde.\nDéfonce tes potes.",
+    welcome_tagline: "Crée des défis de pronos foot.\nDéfonce tes potes.",
     welcome_invited: "Un pote t'a invité !",
     username_label: "TON PRÉNOM",
     username_placeholder: "Ton prénom (ex. Axel)",
@@ -353,14 +353,14 @@ const T = {
     btn_continue: "Aller dans l'app",
 
     // tabs
-    tab_matches: "Matchs",
+    tab_matches: "Défis",
     tab_predict: "Pronos",
     tab_leagues: "Ligues",
     tab_friends: "Potes",
     tab_profile: "Profil",
 
     // matches
-    matches_sub: "Coupe du Monde 2026",
+    matches_sub: "Défis entre potes",
     filter_live: "En direct",
     filter_upcoming: "À venir",
     filter_groups: "Groupes",

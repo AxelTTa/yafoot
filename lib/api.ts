@@ -1,11 +1,14 @@
 import { supabase } from "./supabase";
+import { APP_STORE_SAFE, SAFE_COMPETITION } from "./mode";
 import { League, Match, Prediction } from "./types";
 
 export async function fetchMatches(): Promise<Match[]> {
-  const { data, error } = await supabase
+  let query = supabase
     .from("matches")
     .select("*")
     .order("utc_kickoff", { ascending: true });
+  if (APP_STORE_SAFE) query = query.eq("competition", SAFE_COMPETITION);
+  const { data, error } = await query;
   if (error) throw error;
   return (data as Match[]) ?? [];
 }
@@ -32,6 +35,22 @@ export async function savePrediction(matchId: number, home: number, away: number
     { onConflict: "user_id,match_id" }
   );
   if (error) throw error;
+}
+
+export async function createChallengeMatch(input: {
+  homeTeam: string;
+  awayTeam: string;
+  kickoffIso: string;
+  challengeName?: string;
+}) {
+  const { data, error } = await supabase.rpc("create_challenge_match", {
+    p_home_team: input.homeTeam.trim(),
+    p_away_team: input.awayTeam.trim(),
+    p_kickoff: input.kickoffIso,
+    p_challenge_name: input.challengeName?.trim() || null,
+  });
+  if (error) throw error;
+  return data as Match;
 }
 
 export async function fetchMyForecasts() {

@@ -1,4 +1,4 @@
-// Humanizes World Cup team slots. openfootball uses bracket placeholders for the
+// Humanizes provider team slots. Some feeds use bracket placeholders for the
 // knockout stage before participants are decided: "1A" = Winner Group A, "2B" = Runner-up Group B,
 // "W73" = Winner of match 73, "L101" = Loser of match 101, "3A/B/C/D/F" = a best-third-place slot.
 

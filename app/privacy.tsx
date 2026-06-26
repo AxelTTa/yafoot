@@ -8,12 +8,12 @@ export default function PrivacyPolicy() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Privacy Policy</Text>
-        <Text style={styles.subtitle}>YaFoot — World Cup 2026 Predictions</Text>
+        <Text style={styles.subtitle}>YaFoot — football prediction challenges with friends</Text>
         <Text style={styles.date}>Last updated: June 2026</Text>
 
         <Section title="1. What We Collect">
           <Paragraph>
-            YaFoot collects only what is strictly necessary to run the app:
+            YaFoot collects only what is necessary to run the app:
           </Paragraph>
           <Bullet>A username you choose (no real name, email, or phone number required)</Bullet>
           <Bullet>Your match predictions and league activity</Bullet>
@@ -71,7 +71,7 @@ export default function PrivacyPolicy() {
             are anonymous, we will need your username to locate your data.
           </Paragraph>
           <Paragraph>
-            To request data deletion, contact us at the support URL below.
+            You can also request data deletion by emailing support@yafoot.app with your YaFoot username.
           </Paragraph>
         </Section>
 
@@ -91,8 +91,8 @@ export default function PrivacyPolicy() {
 
         <Section title="10. Contact">
           <Paragraph>
-            Questions about this policy? Reach us at:{"\n"}
-            https://dist-five-zeta-92i4a6g3xx.vercel.app
+            Questions about this policy? Reach us at support@yafoot.app or visit:{"\n"}
+            https://dist-five-zeta-92i4a6g3xx.vercel.app/support
           </Paragraph>
         </Section>
       </View>

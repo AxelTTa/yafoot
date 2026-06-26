@@ -10,6 +10,11 @@ const APP_ID    = "6782063727";
 const KEY_PATH  = "/home/ubuntu/yafoot/asc-key.p8";
 const SHOTS_DIR = "/tmp/screenshots";
 const BASE      = "https://api.appstoreconnect.apple.com/v1";
+const SUPPORT_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
+const MARKETING_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app";
+const SAFE_DESCRIPTION = "Create football prediction challenges with friends. Add your own match by entering two teams or countries and a start time, invite friends, pick exact scores, and follow private league leaderboards. YaFoot keeps setup fast with username-only play, shareable league codes, friend invites, chat, direct messages, and Party Mode for live friend-hosted prediction rounds. Free to play. No email required.";
+const SAFE_KEYWORDS = "football,soccer,predictions,friends,league,leaderboard,scores,challenge,chat,party";
+const SAFE_SUBTITLE = "Friend Score Predictions";
 
 // ── JWT generation ────────────────────────────────────────────────────────────
 function makeJwt() {
@@ -140,10 +145,10 @@ async function main() {
       type: "appStoreVersionLocalizations",
       id: locId,
       attributes: {
-        description: "Pick the exact score for every FIFA World Cup 2026 match. Compete in private leagues with friends, climb the leaderboard, and prove your football instincts. YaFoot is the prediction game built for the greatest tournament on earth — 104 matches, live scores, and real-time standings. Create or join a league with a shareable code, chat with your crew, and track every prediction as results come in. Match probabilities and community forecasts make every game more interesting. Free to play. No account needed — just pick a username and start predicting.",
-        keywords: "world cup,football,soccer,predictions,2026,FIFA,league,friends,scores,pronostics",
-        supportUrl: "https://dist-five-zeta-92i4a6g3xx.vercel.app",
-        marketingUrl: "https://dist-five-zeta-92i4a6g3xx.vercel.app",
+        description: SAFE_DESCRIPTION,
+        keywords: SAFE_KEYWORDS,
+        supportUrl: SUPPORT_URL,
+        marketingUrl: MARKETING_URL,
       },
     },
   });
@@ -180,7 +185,7 @@ async function main() {
               id: aiLocId,
               attributes: {
                 name: "YaFoot",
-                subtitle: "World Cup 2026 Predictions",
+                subtitle: SAFE_SUBTITLE,
               },
             },
           });
@@ -202,7 +207,7 @@ async function main() {
             id: aiLocId,
             attributes: {
               name: "YaFoot",
-              subtitle: "World Cup 2026 Predictions",
+              subtitle: SAFE_SUBTITLE,
             },
           },
         });

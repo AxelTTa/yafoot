@@ -5,6 +5,7 @@ import MatchCard from "../../components/MatchCard";
 import { Card, Empty, Loading, ScreenHeader } from "../../components/ui";
 import { fetchMatches, fetchMyPredictions } from "../../lib/api";
 import { useI18n } from "../../lib/i18n";
+import { APP_STORE_SAFE } from "../../lib/mode";
 import { colors, radius, spacing } from "../../lib/theme";
 import { Match, Prediction, isUpcoming } from "../../lib/types";
 
@@ -30,7 +31,7 @@ export default function Predict() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
-      <ScreenHeader title={t("tab_predict")} subtitle={t("predict_sub")} />
+      <ScreenHeader title={t("tab_predict")} subtitle={APP_STORE_SAFE ? "Pick scores for friend-created challenges." : t("predict_sub")} />
 
       <FlatList
         data={upcoming}
@@ -39,7 +40,7 @@ export default function Predict() {
         ListHeaderComponent={
           <Card style={styles.progressCard}>
             <View style={styles.progressRow}>
-              <Text style={styles.progressLabel}>{t("predict_round")}</Text>
+              <Text style={styles.progressLabel}>{APP_STORE_SAFE ? "Your challenge picks" : t("predict_round")}</Text>
               <Text style={styles.progressNum}>{predictedCount} / {upcoming.length}</Text>
             </View>
             <View style={styles.bar}>
@@ -51,9 +52,9 @@ export default function Predict() {
           <RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} tintColor={colors.bleu} />
         }
         renderItem={({ item }) => (
-          <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={() => router.push(`/stats/${item.id}`)} />
+          <MatchCard match={item} prediction={preds[item.id]} onPress={() => router.push(`/match/${item.id}`)} onStats={APP_STORE_SAFE ? undefined : () => router.push(`/stats/${item.id}`)} />
         )}
-        ListEmptyComponent={<Empty icon="create-outline" title={t("predict_empty_title")} sub={t("predict_empty")} />}
+        ListEmptyComponent={<Empty icon="create-outline" title={t("predict_empty_title")} sub={APP_STORE_SAFE ? "Create a challenge first, then come back to track your picks." : t("predict_empty")} />}
       />
     </View>
   );

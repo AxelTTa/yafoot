@@ -1,0 +1,5 @@
+Audit complete. Telegram sent.
+
+Key result: App Store Connect is still on iOS version `1.0`, build `5`, status `WAITING_FOR_REVIEW`, attached to EAS commit `f59dfdf` from June 19. Current repo/web deploy is `bd88cad` from June 21 at https://dist-five-zeta-92i4a6g3xx.vercel.app.
+
+Conclusion: the submitted App Store build is not current. It is missing later updates through `bd88cad`, including compliance fixes, party mode, H2H/inline predictions, realtime fixes, stats/history work, and profile prediction editing. No code changes were made. Recommended next action: cancel/reject the pending review if still possible and submit a fresh iOS build from `bd88cad` or newer with an incremented build number.
