@@ -1,0 +1,39 @@
+Implemented and shipped Axel's Apple-safe competition UX fixes plus latency pass.
+
+Live: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Expo OTA: https://expo.dev/accounts/axelttas-team/projects/yafoot/updates/7a601d5a-2698-4f60-a383-c43ff86d7f74
+
+Changed:
+- Restored the previous full punishment selection system in competition creation: skip card, severity filters, preset punishment cards with subtitles, and custom punishment card.
+- Removed the description/stakes text input from the first create step.
+- Replaced match side free text with a country picker and stored country codes/flags on custom matches.
+- Replaced raw kickoff typing with guided date chips and hour/minute steppers, with future-time validation in UI and DB.
+- Changed predictions from debounced auto-save to an explicit "Submit prediction" button.
+- Added host-only final score controls in competition detail and a secure `finalize_competition_match` RPC. Finalization scores predictions and updates standings/history through `score_match`.
+- Kept Apple-safe mode competition-first: global Matches/Predict hidden, Party Mode hidden, support/privacy public, no licensed event/logo framing added.
+
+Latency/performance audit and fixes:
+- Vercel has no meaningful server runtime logs for the static Expo export path; live URL returns 200 and static assets are served from Vercel.
+- Supabase direct timings from server show a ~105-125ms network floor for major calls: profiles p50 123ms, competitions p50 113ms, competition matches p50 108ms, standings p50 106ms, chat p50 106ms, friends p50 110ms.
+- Narrowed competition detail predictions from all user predictions to only competition match ids. Sample payload changed from 47 rows / 11,049 bytes to 5 rows / 1,178 bytes.
+- Added indexes: `matches(competition, utc_kickoff)`, `league_members(user_id, league_id)`, friendship requester/addressee status indexes, and `direct_messages(recipient_id, sender_id, created_at)`; removed a redundant predictions index.
+- Narrowed friends, DM, and competition match realtime subscriptions so they no longer listen to whole tables/global match updates.
+
+Verified:
+- `npx tsc --noEmit`
+- Supabase migration applied
+- Backend smoke: create country competition -> prediction -> non-host finalize denied -> host finalize scores + standings update
+- Web export
+- Native Expo iOS export
+- Browser smoke: onboarding -> create competition -> punishment picker -> country picker -> explicit submit prediction -> host result controls
+- `bash scripts/deploy.sh` passed: typecheck, web build, native compile, Vercel deploy, Expo Go OTA, git push
+
+How to test:
+- Open Competitions -> Create.
+- Name competition, choose/skip punishment via severity picker, select two countries, choose date/time, create.
+- Open competition, adjust score pick, tap "Submit prediction".
+- As host, use "Finalize score" after the match and check standings update.
+
+Known limitations:
+- Existing old competitions keep their previous data; new country metadata applies to newly created matches.
+- Performance measurements were from server-to-Supabase direct calls, not a full mobile device trace.
