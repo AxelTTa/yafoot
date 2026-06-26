@@ -1,0 +1,6 @@
+[worker 20260626-185031-714187] 🟢 PASS
+- Changed/tested: Added create-competition network retry, fixed web Ionicons asset rewrite, added mandatory live UI competition smoke, and shipped via deploy.
+- Blocker: none
+- Metrics: post-deploy smoke PASS: league 61/code 0080FB; create RPC 200; guest joined; both predicted; host finalized; typecheck/native/Vercel/Expo OTA OK.
+- Link/artifacts: https://dist-five-zeta-92i4a6g3xx.vercel.app · commit d898bdd · /tmp/yafoot-live-competition-smoke-postdeploy-20260626-185031-714187/report.json
+- Next: none
