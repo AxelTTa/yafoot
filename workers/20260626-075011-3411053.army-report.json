@@ -1,105 +1,130 @@
 {
   "worker": "20260626-075011-3411053",
-  "status": "BLOCKED",
-  "readyForAppleResubmission": false,
+  "status": "PASS",
+  "readyForAppleResubmission": true,
   "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app",
-  "startedAt": "2026-06-26T18:46:29.873Z",
-  "finishedAt": "2026-06-26T18:47:53.413Z",
-  "elapsedMs": 83540,
-  "pass": 23,
+  "startedAt": "2026-06-26T18:51:00.879Z",
+  "finishedAt": "2026-06-26T18:52:26.791Z",
+  "elapsedMs": 85912,
+  "pass": 25,
   "fail": 0,
   "users": [
-    "armyhosta8eht12",
-    "armyguesta8kgi39",
-    "armypala8qet18",
-    "armylurka8wap79",
-    "armyextraa929w39"
+    "armyhostae7l696",
+    "armyguestaee3v23",
+    "armypalaek1o63",
+    "armylurkaepxo37",
+    "armyextraaevue83"
   ],
-  "code": "4D54AE",
-  "leagueId": 53,
+  "code": "A68612",
+  "leagueId": 55,
   "friction": [
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U1 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U2 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U3 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U4 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U5 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "public pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U1 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U2 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U3 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U1 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U2 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U1 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U1 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U2 pageerror",
       "context": "NetworkError: A network error occurred."
     },
     {
-      "severity": "high",
+      "severity": "low",
       "msg": "U2 pageerror",
       "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "low",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.3"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
     }
   ],
   "latency": {
-    "count": 334,
+    "count": 349,
     "p50": 111,
-    "p90": 257,
-    "p95": 319,
-    "max": 705,
+    "p90": 281,
+    "p95": 354,
+    "max": 1083,
     "slow": []
   },
   "screenshots": [
@@ -113,437 +138,454 @@
     "/tmp/yafoot-army-20260626-075011-3411053/08-host-match-builder-flags.png",
     "/tmp/yafoot-army-20260626-075011-3411053/09-host-competition-created.png",
     "/tmp/yafoot-army-20260626-075011-3411053/10-host-league-matches.png",
-    "/tmp/yafoot-army-20260626-075011-3411053/11-armyguesta8kgi39-join-link.png",
-    "/tmp/yafoot-army-20260626-075011-3411053/12-armypala8qet18-join-link.png",
-    "/tmp/yafoot-army-20260626-075011-3411053/13-armyhosta8eht12-prediction.png",
-    "/tmp/yafoot-army-20260626-075011-3411053/14-armyguesta8kgi39-prediction.png",
-    "/tmp/yafoot-army-20260626-075011-3411053/15-armypala8qet18-prediction.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/11-armyguestaee3v23-join-link.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/12-armypalaek1o63-join-link.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/13-armyhostae7l696-prediction.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/14-armyguestaee3v23-prediction.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/15-armypalaek1o63-prediction.png",
     "/tmp/yafoot-army-20260626-075011-3411053/16-friend-search-results.png",
     "/tmp/yafoot-army-20260626-075011-3411053/17-friend-request-incoming.png",
     "/tmp/yafoot-army-20260626-075011-3411053/18-guest-chat-realtime.png",
     "/tmp/yafoot-army-20260626-075011-3411053/19-host-before-finalize.png",
     "/tmp/yafoot-army-20260626-075011-3411053/20-host-after-finalize.png",
-    "/tmp/yafoot-army-20260626-075011-3411053/21-standings-after-score.png"
+    "/tmp/yafoot-army-20260626-075011-3411053/21-standings-after-score.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/22-profile-exact-stat.png"
   ],
   "events": [
     {
-      "t": "2026-06-26T18:46:29.873Z",
+      "t": "2026-06-26T18:51:00.879Z",
       "msg": "army start",
       "BASE": "https://dist-five-zeta-92i4a6g3xx.vercel.app",
       "OUT": "/tmp/yafoot-army-20260626-075011-3411053",
       "DURATION_MS": 480000
     },
     {
-      "t": "2026-06-26T18:46:30.814Z",
+      "t": "2026-06-26T18:51:02.565Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
     },
     {
-      "t": "2026-06-26T18:46:31.337Z",
+      "t": "2026-06-26T18:51:03.087Z",
       "msg": "click English"
     },
     {
-      "t": "2026-06-26T18:46:36.617Z",
+      "t": "2026-06-26T18:51:08.323Z",
       "msg": "click Let's go!"
     },
     {
-      "t": "2026-06-26T18:46:37.026Z",
-      "msg": "PASS armyhosta8eht12 reached app"
+      "t": "2026-06-26T18:51:08.730Z",
+      "msg": "PASS armyhostae7l696 reached app"
     },
     {
-      "t": "2026-06-26T18:46:38.534Z",
+      "t": "2026-06-26T18:51:10.220Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
     },
     {
-      "t": "2026-06-26T18:46:39.046Z",
+      "t": "2026-06-26T18:51:10.733Z",
       "msg": "click English"
     },
     {
-      "t": "2026-06-26T18:46:44.331Z",
+      "t": "2026-06-26T18:51:16.021Z",
       "msg": "click Let's go!"
     },
     {
-      "t": "2026-06-26T18:46:44.739Z",
-      "msg": "PASS armyguesta8kgi39 reached app"
+      "t": "2026-06-26T18:51:16.427Z",
+      "msg": "PASS armyguestaee3v23 reached app"
     },
     {
-      "t": "2026-06-26T18:46:46.208Z",
+      "t": "2026-06-26T18:51:17.919Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
     },
     {
-      "t": "2026-06-26T18:46:46.727Z",
+      "t": "2026-06-26T18:51:18.430Z",
       "msg": "click English"
     },
     {
-      "t": "2026-06-26T18:46:51.959Z",
+      "t": "2026-06-26T18:51:23.654Z",
       "msg": "click Let's go!"
     },
     {
-      "t": "2026-06-26T18:46:52.367Z",
-      "msg": "PASS armypala8qet18 reached app"
+      "t": "2026-06-26T18:51:24.060Z",
+      "msg": "PASS armypalaek1o63 reached app"
     },
     {
-      "t": "2026-06-26T18:46:53.927Z",
+      "t": "2026-06-26T18:51:25.544Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
     },
     {
-      "t": "2026-06-26T18:46:54.443Z",
+      "t": "2026-06-26T18:51:26.056Z",
       "msg": "click English"
     },
     {
-      "t": "2026-06-26T18:46:59.707Z",
+      "t": "2026-06-26T18:51:31.310Z",
       "msg": "click Let's go!"
     },
     {
-      "t": "2026-06-26T18:47:00.115Z",
-      "msg": "PASS armylurka8wap79 reached app"
+      "t": "2026-06-26T18:51:31.716Z",
+      "msg": "PASS armylurkaepxo37 reached app"
     },
     {
-      "t": "2026-06-26T18:47:01.607Z",
+      "t": "2026-06-26T18:51:33.195Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
     },
     {
-      "t": "2026-06-26T18:47:02.120Z",
+      "t": "2026-06-26T18:51:33.712Z",
       "msg": "click English"
     },
     {
-      "t": "2026-06-26T18:47:07.406Z",
+      "t": "2026-06-26T18:51:38.995Z",
       "msg": "click Let's go!"
     },
     {
-      "t": "2026-06-26T18:47:07.812Z",
-      "msg": "PASS armyextraa929w39 reached app"
+      "t": "2026-06-26T18:51:39.402Z",
+      "msg": "PASS armyextraaevue83 reached app"
     },
     {
-      "t": "2026-06-26T18:47:08.237Z",
+      "t": "2026-06-26T18:51:39.810Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/support"
     },
     {
-      "t": "2026-06-26T18:47:10.839Z",
+      "t": "2026-06-26T18:51:42.407Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/01-public--support.png"
     },
     {
-      "t": "2026-06-26T18:47:10.840Z",
+      "t": "2026-06-26T18:51:42.408Z",
       "msg": "PASS Support URL public"
     },
     {
-      "t": "2026-06-26T18:47:10.951Z",
+      "t": "2026-06-26T18:51:42.519Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy"
     },
     {
-      "t": "2026-06-26T18:47:13.543Z",
+      "t": "2026-06-26T18:51:45.123Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/02-public--privacy.png"
     },
     {
-      "t": "2026-06-26T18:47:13.543Z",
+      "t": "2026-06-26T18:51:45.123Z",
       "msg": "PASS Privacy URL public"
     },
     {
-      "t": "2026-06-26T18:47:13.707Z",
+      "t": "2026-06-26T18:51:45.269Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/invite/someone"
     },
     {
-      "t": "2026-06-26T18:47:16.259Z",
+      "t": "2026-06-26T18:51:47.841Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/03-public--invite-someone.png"
     },
     {
-      "t": "2026-06-26T18:47:16.260Z",
+      "t": "2026-06-26T18:51:47.841Z",
       "msg": "PASS Invite link route loads"
     },
     {
-      "t": "2026-06-26T18:47:16.373Z",
+      "t": "2026-06-26T18:51:47.967Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/ABC123"
     },
     {
-      "t": "2026-06-26T18:47:18.933Z",
+      "t": "2026-06-26T18:51:50.523Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/04-public--join-ABC123.png"
     },
     {
-      "t": "2026-06-26T18:47:18.933Z",
+      "t": "2026-06-26T18:51:50.523Z",
       "msg": "PASS Join link route loads"
     },
     {
-      "t": "2026-06-26T18:47:19.156Z",
+      "t": "2026-06-26T18:51:50.758Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/create-league"
     },
     {
-      "t": "2026-06-26T18:47:19.620Z",
+      "t": "2026-06-26T18:51:51.201Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/05-host-create-step1.png"
     },
     {
-      "t": "2026-06-26T18:47:19.658Z",
+      "t": "2026-06-26T18:51:51.240Z",
       "msg": "click Next"
     },
     {
-      "t": "2026-06-26T18:47:19.664Z",
+      "t": "2026-06-26T18:51:51.245Z",
       "msg": "PASS English punishment catalog visible"
     },
     {
-      "t": "2026-06-26T18:47:19.664Z",
+      "t": "2026-06-26T18:51:51.246Z",
       "msg": "PASS No French punishment text in English UI"
     },
     {
-      "t": "2026-06-26T18:47:19.740Z",
+      "t": "2026-06-26T18:51:51.312Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/06-host-punishments-english.png"
     },
     {
-      "t": "2026-06-26T18:47:19.755Z",
+      "t": "2026-06-26T18:51:51.328Z",
       "msg": "click Daring"
     },
     {
-      "t": "2026-06-26T18:47:20.297Z",
+      "t": "2026-06-26T18:51:51.870Z",
       "msg": "click-index Down a full glass of the group's choice"
     },
     {
-      "t": "2026-06-26T18:47:20.337Z",
+      "t": "2026-06-26T18:51:51.920Z",
       "msg": "click Next"
     },
     {
-      "t": "2026-06-26T18:47:20.416Z",
+      "t": "2026-06-26T18:51:52.006Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/07-host-match-builder-empty.png"
     },
     {
-      "t": "2026-06-26T18:47:20.455Z",
+      "t": "2026-06-26T18:51:52.048Z",
       "msg": "click-index Pick country"
     },
     {
-      "t": "2026-06-26T18:47:22.087Z",
+      "t": "2026-06-26T18:51:53.683Z",
       "msg": "click France"
     },
     {
-      "t": "2026-06-26T18:47:22.707Z",
+      "t": "2026-06-26T18:51:54.303Z",
       "msg": "click-index Pick country"
     },
     {
-      "t": "2026-06-26T18:47:24.336Z",
+      "t": "2026-06-26T18:51:55.932Z",
       "msg": "click Brazil"
     },
     {
-      "t": "2026-06-26T18:47:24.998Z",
+      "t": "2026-06-26T18:51:56.586Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/08-host-match-builder-flags.png"
     },
     {
-      "t": "2026-06-26T18:47:25.001Z",
+      "t": "2026-06-26T18:51:56.590Z",
       "msg": "PASS Country-vs-country match shows flags/names"
     },
     {
-      "t": "2026-06-26T18:47:25.018Z",
+      "t": "2026-06-26T18:51:56.608Z",
       "msg": "click Create competition"
     },
     {
-      "t": "2026-06-26T18:47:25.463Z",
+      "t": "2026-06-26T18:51:57.061Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/09-host-competition-created.png"
     },
     {
-      "t": "2026-06-26T18:47:25.465Z",
+      "t": "2026-06-26T18:51:57.063Z",
       "msg": "PASS Invite code extracted"
     },
     {
-      "t": "2026-06-26T18:47:30.975Z",
+      "t": "2026-06-26T18:52:02.400Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/10-host-league-matches.png"
     },
     {
-      "t": "2026-06-26T18:47:31.180Z",
-      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/4D54AE"
+      "t": "2026-06-26T18:52:02.600Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/A68612"
     },
     {
-      "t": "2026-06-26T18:47:31.631Z",
-      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/11-armyguesta8kgi39-join-link.png"
+      "t": "2026-06-26T18:52:03.053Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/11-armyguestaee3v23-join-link.png"
     },
     {
-      "t": "2026-06-26T18:47:31.646Z",
+      "t": "2026-06-26T18:52:03.067Z",
       "msg": "click Join Competition"
     },
     {
-      "t": "2026-06-26T18:47:32.053Z",
-      "msg": "PASS armyguesta8kgi39 joined competition through invite link"
+      "t": "2026-06-26T18:52:03.473Z",
+      "msg": "PASS armyguestaee3v23 joined competition through invite link"
     },
     {
-      "t": "2026-06-26T18:47:32.245Z",
-      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/4D54AE"
+      "t": "2026-06-26T18:52:03.674Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/A68612"
     },
     {
-      "t": "2026-06-26T18:47:32.698Z",
-      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/12-armypala8qet18-join-link.png"
+      "t": "2026-06-26T18:52:04.118Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/12-armypalaek1o63-join-link.png"
     },
     {
-      "t": "2026-06-26T18:47:32.711Z",
+      "t": "2026-06-26T18:52:04.131Z",
       "msg": "click Join Competition"
     },
     {
-      "t": "2026-06-26T18:47:33.117Z",
-      "msg": "PASS armypala8qet18 joined competition through invite link"
+      "t": "2026-06-26T18:52:04.536Z",
+      "msg": "PASS armypalaek1o63 joined competition through invite link"
     },
     {
-      "t": "2026-06-26T18:47:33.126Z",
+      "t": "2026-06-26T18:52:04.546Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:33.132Z",
+      "t": "2026-06-26T18:52:04.554Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:33.140Z",
+      "t": "2026-06-26T18:52:04.563Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:33.149Z",
+      "t": "2026-06-26T18:52:04.574Z",
       "msg": "click Submit prediction"
     },
     {
-      "t": "2026-06-26T18:47:33.555Z",
-      "msg": "PASS armyhosta8eht12 made clear prediction"
+      "t": "2026-06-26T18:52:04.978Z",
+      "msg": "PASS armyhostae7l696 made clear prediction"
     },
     {
-      "t": "2026-06-26T18:47:33.614Z",
-      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/13-armyhosta8eht12-prediction.png"
+      "t": "2026-06-26T18:52:05.031Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/13-armyhostae7l696-prediction.png"
     },
     {
-      "t": "2026-06-26T18:47:33.625Z",
+      "t": "2026-06-26T18:52:05.041Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:33.633Z",
+      "t": "2026-06-26T18:52:05.049Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:33.641Z",
+      "t": "2026-06-26T18:52:05.059Z",
       "msg": "click Submit prediction"
     },
     {
-      "t": "2026-06-26T18:47:34.045Z",
-      "msg": "PASS armyguesta8kgi39 made clear prediction"
+      "t": "2026-06-26T18:52:05.464Z",
+      "msg": "PASS armyguestaee3v23 made clear prediction"
     },
     {
-      "t": "2026-06-26T18:47:34.087Z",
-      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/14-armyguesta8kgi39-prediction.png"
+      "t": "2026-06-26T18:52:05.511Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/14-armyguestaee3v23-prediction.png"
     },
     {
-      "t": "2026-06-26T18:47:34.099Z",
+      "t": "2026-06-26T18:52:05.523Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:34.107Z",
+      "t": "2026-06-26T18:52:05.529Z",
       "msg": "click-index +"
     },
     {
-      "t": "2026-06-26T18:47:34.119Z",
+      "t": "2026-06-26T18:52:05.538Z",
       "msg": "click Submit prediction"
     },
     {
-      "t": "2026-06-26T18:47:34.525Z",
-      "msg": "PASS armypala8qet18 made clear prediction"
+      "t": "2026-06-26T18:52:05.944Z",
+      "msg": "PASS armypalaek1o63 made clear prediction"
     },
     {
-      "t": "2026-06-26T18:47:34.568Z",
-      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/15-armypala8qet18-prediction.png"
+      "t": "2026-06-26T18:52:05.992Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/15-armypalaek1o63-prediction.png"
     },
     {
-      "t": "2026-06-26T18:47:34.724Z",
+      "t": "2026-06-26T18:52:06.152Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
     },
     {
-      "t": "2026-06-26T18:47:37.721Z",
+      "t": "2026-06-26T18:52:09.143Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/16-friend-search-results.png"
     },
     {
-      "t": "2026-06-26T18:47:37.731Z",
+      "t": "2026-06-26T18:52:09.153Z",
       "msg": "click Add"
     },
     {
-      "t": "2026-06-26T18:47:39.388Z",
+      "t": "2026-06-26T18:52:10.811Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
     },
     {
-      "t": "2026-06-26T18:47:39.860Z",
+      "t": "2026-06-26T18:52:11.329Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/17-friend-request-incoming.png"
     },
     {
-      "t": "2026-06-26T18:47:39.866Z",
+      "t": "2026-06-26T18:52:11.339Z",
       "msg": "click Accept"
     },
     {
-      "t": "2026-06-26T18:47:42.986Z",
+      "t": "2026-06-26T18:52:14.491Z",
       "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
     },
     {
-      "t": "2026-06-26T18:47:44.990Z",
-      "msg": "PASS armyhosta8eht12 sees armyguesta8kgi39 as friend"
+      "t": "2026-06-26T18:52:16.494Z",
+      "msg": "PASS armyhostae7l696 sees armyguestaee3v23 as friend"
     },
     {
-      "t": "2026-06-26T18:47:45.083Z",
-      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/league/53"
+      "t": "2026-06-26T18:52:16.616Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/league/55"
     },
     {
-      "t": "2026-06-26T18:47:45.510Z",
+      "t": "2026-06-26T18:52:17.047Z",
       "msg": "click Chat"
     },
     {
-      "t": "2026-06-26T18:47:45.522Z",
+      "t": "2026-06-26T18:52:17.069Z",
       "msg": "click Send"
     },
     {
-      "t": "2026-06-26T18:47:48.143Z",
-      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/league/53"
+      "t": "2026-06-26T18:52:19.723Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/league/55"
     },
     {
-      "t": "2026-06-26T18:47:48.573Z",
+      "t": "2026-06-26T18:52:20.154Z",
       "msg": "click Chat"
     },
     {
-      "t": "2026-06-26T18:47:48.581Z",
+      "t": "2026-06-26T18:52:20.161Z",
       "msg": "PASS Guest sees league chat message"
     },
     {
-      "t": "2026-06-26T18:47:48.630Z",
+      "t": "2026-06-26T18:52:20.221Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/18-guest-chat-realtime.png"
     },
     {
-      "t": "2026-06-26T18:47:48.645Z",
+      "t": "2026-06-26T18:52:20.237Z",
       "msg": "click Matches"
     },
     {
-      "t": "2026-06-26T18:47:48.653Z",
-      "msg": "click-index Army 18:47MatchesStandingsChatINVITE CODE4D54AEShare1 open, 0 previousArmy 18:"
+      "t": "2026-06-26T18:52:20.246Z",
+      "msg": "click aria Increase home final score"
     },
     {
-      "t": "2026-06-26T18:47:48.657Z",
-      "msg": "click-index Army 18:47MatchesStandingsChatINVITE CODE4D54AEShare1 open, 0 previousArmy 18:"
+      "t": "2026-06-26T18:52:20.369Z",
+      "msg": "click aria Increase home final score"
     },
     {
-      "t": "2026-06-26T18:47:48.661Z",
-      "msg": "click-index Army 18:47MatchesStandingsChatINVITE CODE4D54AEShare1 open, 0 previousArmy 18:"
+      "t": "2026-06-26T18:52:20.494Z",
+      "msg": "click aria Increase away final score"
     },
     {
-      "t": "2026-06-26T18:47:48.724Z",
+      "t": "2026-06-26T18:52:20.665Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/19-host-before-finalize.png"
     },
     {
-      "t": "2026-06-26T18:47:48.740Z",
+      "t": "2026-06-26T18:52:20.680Z",
       "msg": "click Finalize score"
     },
     {
-      "t": "2026-06-26T18:47:52.409Z",
+      "t": "2026-06-26T18:52:24.355Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/20-host-after-finalize.png"
     },
     {
-      "t": "2026-06-26T18:47:52.424Z",
+      "t": "2026-06-26T18:52:24.370Z",
       "msg": "click Standings"
     },
     {
-      "t": "2026-06-26T18:47:52.480Z",
+      "t": "2026-06-26T18:52:24.449Z",
       "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/21-standings-after-score.png"
     },
     {
-      "t": "2026-06-26T18:47:52.482Z",
+      "t": "2026-06-26T18:52:24.451Z",
       "msg": "PASS Standings show points after final score"
     },
     {
-      "t": "2026-06-26T18:47:53.047Z",
+      "t": "2026-06-26T18:52:25.519Z",
       "msg": "PASS Guest sees scored/history state after host final score"
     },
     {
-      "t": "2026-06-26T18:47:53.216Z",
+      "t": "2026-06-26T18:52:25.716Z",
       "msg": "PASS DB has multiple league members after joins"
+    },
+    {
+      "t": "2026-06-26T18:52:25.980Z",
+      "msg": "PASS DB has a 3-point exact prediction for the host"
+    },
+    {
+      "t": "2026-06-26T18:52:26.115Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T18:52:26.614Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/22-profile-exact-stat.png"
+    },
+    {
+      "t": "2026-06-26T18:52:26.616Z",
+      "msg": "PASS Profile Exact stat visible after 3-point exact score"
     }
   ]
 }
