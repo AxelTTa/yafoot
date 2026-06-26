@@ -20,8 +20,10 @@ config/proxy). In code, read the binary from an env var defaulting to the wrappe
 ---
 
 ## 1. What YaFoot is
-A **prediction-first World Cup 2026 social app** — an MPP / mpp.football clone. Predict exact
-scores → join private leagues with friends → leaderboards + league chat + friend DMs.
+A prediction-first football app for private friend competitions. Users create competitions,
+add their own country-vs-country matches, invite friends, predict exact scores, and settle
+leaderboards when hosts enter final scores. The App Store-safe build avoids licensed event
+names, marks, preset schedules, and standalone public match feeds.
 Cross-platform (iOS + Android) from one **Expo (React Native)** codebase; also deployed as a
 web app on Vercel.
 
@@ -32,9 +34,8 @@ web app on Vercel.
 
 ### Stack
 - **App:** Expo (now **SDK 54** — see §4), React Native 0.81, expo-router (file-based), TypeScript.
-- **Backend:** Supabase — Auth, Postgres + RLS, Realtime (live scores + chat).
-- **Data:** **football-data.org is PRIMARY** (real WC2026 feed); `openfootball/worldcup.json`
-  (public domain, no key) is the no-key fallback.
+- **Backend:** Supabase — Auth, Postgres + RLS, realtime private competition chat and updates.
+- **Data:** App Store-safe mode uses user-created private competition matches.
 
 ---
 
@@ -44,11 +45,9 @@ web app on Vercel.
   client-side). **Service role key is a secret** — needed for `npm run sync`; not committed.
 - **Supabase auth:** `mailer_autoconfirm` ON (no SMTP yet) so signups work instantly. Onboarding
   is now **username-only** (anonymous auth; username carried in user metadata → profile trigger).
-- **football-data.org:** API key stored in the `app_config` table (key `fd_api_key`), NOT in
-  source. Free tier = 10 req/min. Matches keyed `wc-<fdId>`.
-- **pg_cron `yafoot-fd-sync`** runs every 2 min: updates score/status/minute, auto-fills knockout
-  teams + flags (`wc_flags` table). The FINISHED trigger auto-scores predictions.
-  openfootball fallback lives in `scripts/sync-worldcup.mjs`.
+- **Legacy data sync tooling:** historical seed/sync scripts remain in `scripts/` for non-review
+  internal use only. The App Store-safe review path is private competitions with user-created
+  matches.
 - **Vercel:** Hobby account (axel.cassou2@gmail.com / axelcassou2@gmail.com). Live web app:
   **https://dist-five-zeta-92i4a6g3xx.vercel.app** (project "dist", scope
   `axelcassou2-1440s-projects`). Redeploy:
@@ -70,8 +69,8 @@ web app on Vercel.
 - `supabase/` (apply in order): `schema.sql` → `rls.sql` → `rls-fix.sql` → `fixes-1.sql`
   (security hardening) → `cron-fd.sql` (live football-data cron).
 - `scripts/` test harness (run `URL=<vercel> node scripts/<x>.mjs`): `e2e-test` (18/18),
-  `load-test`, `multiplayer-test`, `friends-predict-test`, `invite-flow-test`, `onboarding-test`,
-  plus `sync-worldcup.mjs`. Browser tests use **puppeteer-core + `/usr/bin/google-chrome`**;
+  `load-test`, `multiplayer-test`, `friends-predict-test`, `invite-flow-test`, `onboarding-test`.
+  Browser tests use **puppeteer-core + `/usr/bin/google-chrome`**;
   two users need separate `browser.createBrowserContext()` (shared localStorage otherwise);
   RN-web inputs set via native value setter + input event.
 

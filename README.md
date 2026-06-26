@@ -1,21 +1,21 @@
-# YaFoot ⚽🇫🇷
+# YaFoot
 
-A prediction-first **World Cup 2026** social app — predict match scores, create private leagues with friends, climb leaderboards, and chat. Built like MPP (mpp.football), modernized with a French-flag palette.
+YaFoot is a prediction-first football app for private friend competitions. Users create competitions, add their own country-vs-country matches, invite friends, pick exact scores, chat, and settle standings when hosts enter final scores.
 
 Cross-platform (iOS + Android) from one codebase: **Expo (React Native) + Supabase**.
 
 ## Stack
-- **App:** Expo SDK 52, React Native 0.76, expo-router (file-based), TypeScript
-- **Backend:** Supabase — Auth, Postgres (RLS), Realtime (live scores + chat)
-- **Data:** `openfootball/worldcup.json` (public domain, no key) + optional `football-data.org` live layer
+- **App:** Expo SDK 54, React Native 0.81, expo-router (file-based), TypeScript
+- **Backend:** Supabase - Auth, Postgres (RLS), Realtime chat and private competition updates
+- **Data:** user-created football match challenges for private competitions
 
-## Features (working skeleton)
-- Email/password auth (auto-confirm enabled) with auto-created profiles
-- **Matches** tab — Live / Upcoming / Results, realtime score updates
-- **Predict** tab — pick exact scores; progress tracker; scoring (exact = 3 pts, right result = 1 pt)
-- **Leagues** — create (shareable 6-char code) / join; leaderboard; realtime league chat
-- **Friends** — search, request/accept, 1:1 realtime DMs
-- **Profile** — season stats, scoring rules
+## Features
+- Username-only onboarding with anonymous auth
+- **Competitions** - create private competitions, choose a punishment, add custom matches, and share invite codes
+- **Predictions** - friends pick exact scores before each match starts
+- **Standings** - hosts enter final scores and leaderboards update
+- **Friends** - search, request/accept, and 1:1 realtime DMs
+- **Profile** - stats, forecasts, display name, and profile photo
 
 ## Run it
 ```bash
@@ -23,14 +23,6 @@ npm install
 npx expo start            # press i (iOS sim), a (Android), or scan QR in Expo Go
 ```
 Supabase URL + anon key are baked into `app.json > extra` (anon key is safe client-side).
-
-## World Cup data
-```bash
-SERVICE_ROLE=<service_role_key> npm run sync          # seed/refresh from openfootball
-# optional true-live in-play minutes:
-SERVICE_ROLE=<key> FD_API_KEY=<football-data.org key> npm run sync
-```
-`scripts/sync-worldcup.mjs` upserts all 104 matches (and past editions via `SEASON=2022` etc).
 
 ## Backend
 - `supabase/schema.sql` — tables, scoring function + triggers
@@ -41,4 +33,3 @@ SERVICE_ROLE=<key> FD_API_KEY=<football-data.org key> npm run sync
 ## Roadmap to stores
 - Apple Developer account ($99/yr) + Google Play ($25) → `eas build` + `eas submit`
 - Configure SMTP in Supabase for production email confirmation
-- football-data.org key + a per-minute poller (Supabase cron / worker) for second-by-second live
