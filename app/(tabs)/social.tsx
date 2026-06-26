@@ -12,7 +12,8 @@ import { accentFor, colors, radius, spacing } from "../../lib/theme";
 
 export default function Social() {
   const router = useRouter();
-  const { profile } = useAuth();
+  const { profile, session } = useAuth();
+  const me = session?.user?.id;
   const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,9 +29,11 @@ export default function Social() {
   }, []);
   useFocusEffect(useCallback(() => { load(); }, [load]));
   useEffect(() => {
-    const ch = supabase.channel("friends-rt").on("postgres_changes", { event: "*", schema: "public", table: "friendships" }, () => load()).subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [load]);
+    if (!me) return;
+    const outgoing = supabase.channel(`friends-rt-out-${me}`).on("postgres_changes", { event: "*", schema: "public", table: "friendships", filter: `requester_id=eq.${me}` }, () => load()).subscribe();
+    const incoming = supabase.channel(`friends-rt-in-${me}`).on("postgres_changes", { event: "*", schema: "public", table: "friendships", filter: `addressee_id=eq.${me}` }, () => load()).subscribe();
+    return () => { supabase.removeChannel(outgoing); supabase.removeChannel(incoming); };
+  }, [load, me]);
 
   async function doSearch(text: string) {
     setQ(text);

@@ -52,9 +52,10 @@ export default function Chat() {
 
   useEffect(() => {
     load();
+    if (!me || !friendId) return;
     const ch = supabase
-      .channel(`dm-${me}-${friendId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, (p) => {
+      .channel(`dm-in-${me}-${friendId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` }, (p) => {
         const m = p.new as DM;
         const relevant =
           (m.sender_id === me && m.recipient_id === friendId) ||
@@ -62,8 +63,17 @@ export default function Chat() {
         if (relevant) setMsgs((cur) => (cur.some((x) => x.id === m.id) ? cur : [...cur, m]));
       })
       .subscribe();
+    const sent = supabase
+      .channel(`dm-out-${me}-${friendId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` }, (p) => {
+        const m = p.new as DM;
+        const relevant = m.sender_id === me && m.recipient_id === friendId;
+        if (relevant) setMsgs((cur) => (cur.some((x) => x.id === m.id) ? cur : [...cur, m]));
+      })
+      .subscribe();
     return () => {
       supabase.removeChannel(ch);
+      supabase.removeChannel(sent);
     };
   }, [load, me, friendId]);
 

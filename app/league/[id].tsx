@@ -17,7 +17,7 @@ import { inviteBase } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { notify, confirmAsync } from "../../lib/notify";
-import { fetchCompetitionMatches, fetchMyPredictions, leagueLeaderboard, reportMessage } from "../../lib/api";
+import { fetchCompetitionMatches, fetchMyPredictionsForMatches, finalizeCompetitionMatch, leagueLeaderboard, reportMessage } from "../../lib/api";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
 import { Match, Prediction, isFinished, isLive, isUpcoming } from "../../lib/types";
@@ -26,6 +26,59 @@ type Row = { user_id: string; points: number; role: string; profiles: any };
 type Msg = { id: number; sender_id: string; body: string; created_at: string };
 type LeagueMatchRow = { ordinal: number; match: Match };
 
+function ScoreStepper({ value, onChange }: { value: number; onChange: (value: number) => void }) {
+  return (
+    <View style={styles.resultStepper}>
+      <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={styles.resultStepBtn}>
+        <Icon name="remove" size={18} color={colors.ink} />
+      </Pressable>
+      <Text style={styles.resultStepVal}>{value}</Text>
+      <Pressable onPress={() => onChange(Math.min(20, value + 1))} style={styles.resultStepBtn}>
+        <Icon name="add" size={18} color={colors.ink} />
+      </Pressable>
+    </View>
+  );
+}
+
+function FinalScoreControls({ leagueId, match, onFinalized }: { leagueId: number; match: Match; onFinalized: () => Promise<void> }) {
+  const [home, setHome] = useState(match.home_score ?? 0);
+  const [away, setAway] = useState(match.away_score ?? 0);
+  const [busy, setBusy] = useState(false);
+
+  async function finalize() {
+    const ok = await confirmAsync("Finalize result?", `Set final score to ${home}-${away}. Predictions will be scored and standings updated.`);
+    if (!ok) return;
+    setBusy(true);
+    try {
+      await finalizeCompetitionMatch({ leagueId, matchId: match.id, homeScore: home, awayScore: away });
+      await onFinalized();
+      notify("Final score set", "Predictions and standings were updated.");
+    } catch (e: any) {
+      notify("Could not set result", e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <View style={styles.resultBox}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.resultTitle}>Host result</Text>
+        <Text style={styles.resultSub}>Set the real final score when this match is done.</Text>
+      </View>
+      <View style={styles.resultScores}>
+        <ScoreStepper value={home} onChange={setHome} />
+        <Text style={styles.resultDash}>-</Text>
+        <ScoreStepper value={away} onChange={setAway} />
+      </View>
+      <Pressable disabled={busy} onPress={finalize} style={[styles.finalizeBtn, busy && { opacity: 0.6 }]}>
+        <Icon name="checkmark-done" size={15} color={colors.blanc} />
+        <Text style={styles.finalizeTxt}>{busy ? "Finalizing..." : "Finalize score"}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 export default function LeagueDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const leagueId = Number(id);
@@ -33,7 +86,7 @@ export default function LeagueDetail() {
   const me = session?.user?.id;
   const { t } = useI18n();
   const [tab, setTab] = useState<"matches" | "standings" | "chat">("matches");
-  const [league, setLeague] = useState<{ name: string; code: string; max_matches?: number | null; punishment?: string | null } | null>(null);
+  const [league, setLeague] = useState<{ name: string; code: string; owner_id: string; max_matches?: number | null; punishment?: string | null } | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [rows, setRows] = useState<Row[]>([]);
   const [leagueMatches, setLeagueMatches] = useState<LeagueMatchRow[]>([]);
@@ -52,10 +105,8 @@ export default function LeagueDetail() {
 
   const loadMatches = useCallback(async () => {
     try {
-      const [items, predictions] = await Promise.all([
-        fetchCompetitionMatches(leagueId),
-        fetchMyPredictions().catch(() => ({} as Record<number, Prediction>)),
-      ]);
+      const items = await fetchCompetitionMatches(leagueId);
+      const predictions = await fetchMyPredictionsForMatches(items.map((item) => item.match.id)).catch(() => ({} as Record<number, Prediction>));
       setLeagueMatches(items);
       setPreds(predictions);
     } catch {}
@@ -74,7 +125,7 @@ export default function LeagueDetail() {
   useEffect(() => {
     supabase
       .from("leagues")
-      .select("name, code, max_matches, punishment")
+      .select("name, code, owner_id, max_matches, punishment")
       .eq("id", leagueId)
       .single()
       .then(({ data }) => data && setLeague(data as typeof league));
@@ -95,12 +146,24 @@ export default function LeagueDetail() {
           setMsgs((m) => (m.some((x) => x.id === n.id) ? m : [...m, n]));
         }
       )
-      .on("postgres_changes", { event: "*", schema: "public", table: "matches" }, () => loadMatches())
+      .on("postgres_changes", { event: "*", schema: "public", table: "league_members", filter: `league_id=eq.${leagueId}` }, () => loadBoard())
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
   }, [leagueId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const ids = leagueMatches.map((row) => row.match.id);
+    if (ids.length === 0) return;
+    const channels = ids.map((matchId) =>
+      supabase
+        .channel(`league-${leagueId}-match-${matchId}`)
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "matches", filter: `id=eq.${matchId}` }, () => loadMatches())
+        .subscribe()
+    );
+    return () => { channels.forEach((ch) => supabase.removeChannel(ch)); };
+  }, [leagueId, leagueMatches.map((row) => row.match.id).join(","), loadMatches]);
 
   async function reportMsg(msg: Msg) {
     if (msg.sender_id === me) return;
@@ -140,6 +203,7 @@ export default function LeagueDetail() {
   if (loading) return <Loading />;
 
   const rankColor = (i: number) => (i === 0 ? colors.gold : i === 1 ? colors.silver : i === 2 ? colors.bronze : colors.textFaint);
+  const isHost = !!me && league?.owner_id === me;
   const orderedMatches = [...leagueMatches].sort((a, b) => {
     const am = a.match;
     const bm = b.match;
@@ -215,10 +279,21 @@ export default function LeagueDetail() {
             </View>
           }
           renderItem={({ item }) => (
-            <MatchCard
-              match={item.match}
-              prediction={preds[item.match.id]}
-            />
+            <View style={{ gap: spacing.sm }}>
+              <MatchCard
+                match={item.match}
+                prediction={preds[item.match.id]}
+              />
+              {isHost && !isFinished(item.match.status) ? (
+                <FinalScoreControls
+                  leagueId={leagueId}
+                  match={item.match}
+                  onFinalized={async () => {
+                    await Promise.all([loadMatches(), loadBoard()]);
+                  }}
+                />
+              ) : null}
+            </View>
           )}
           ListEmptyComponent={<Empty icon="calendar-outline" title="No matches yet" sub="Create a new competition and add custom matches before inviting friends." />}
         />
@@ -352,6 +427,16 @@ const styles = StyleSheet.create({
   durBannerTxt: { color: colors.cyan, fontSize: 13, fontWeight: "800" },
   matchSummary: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, borderWidth: 1, borderColor: colors.border },
   matchSummaryTxt: { color: colors.textDim, fontSize: 13, fontWeight: "800" },
+  resultBox: { backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: spacing.md, gap: spacing.sm, ...shadow },
+  resultTitle: { color: colors.ink, fontSize: 13, fontWeight: "900" },
+  resultSub: { color: colors.textFaint, fontSize: 12, fontWeight: "700", marginTop: 2 },
+  resultScores: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.sm, backgroundColor: colors.surfaceAlt, borderRadius: radius.md, padding: spacing.sm },
+  resultStepper: { flexDirection: "row", alignItems: "center", gap: 6 },
+  resultStepBtn: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.border },
+  resultStepVal: { color: colors.ink, fontSize: 20, fontWeight: "900", minWidth: 26, textAlign: "center" },
+  resultDash: { color: colors.textFaint, fontSize: 18, fontWeight: "900" },
+  finalizeBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, backgroundColor: colors.surfaceDark, borderRadius: radius.pill, minHeight: 42, paddingHorizontal: spacing.md },
+  finalizeTxt: { color: colors.blanc, fontSize: 13, fontWeight: "900" },
   invite: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surfaceDark, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.xs },
   inviteLabel: { color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: "800", letterSpacing: 1 },
   inviteCode: { color: colors.blanc, fontSize: 22, fontWeight: "900", letterSpacing: 3 },

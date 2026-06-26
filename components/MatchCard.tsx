@@ -38,6 +38,7 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
   const [home, setHome] = useState(prediction?.pred_home ?? 0);
   const [away, setAway] = useState(prediction?.pred_away ?? 0);
   const [saveState, setSaveState] = useState<SaveState>(prediction ? "saved" : "idle");
+  const [hasSubmitted, setHasSubmitted] = useState(!!prediction);
   const lastSaved = useRef({ h: prediction?.pred_home ?? 0, a: prediction?.pred_away ?? 0 });
   const fadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -54,34 +55,20 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
     const h = prediction.pred_home;
     const a = prediction.pred_away;
     setHome(h); setAway(a);
+    setHasSubmitted(true);
     lastSaved.current = { h, a };
     setSaveState("saved");
     scheduleFade();
   }, [prediction?.pred_home, prediction?.pred_away]);
 
-  // Debounced auto-save when values drift from lastSaved
-  useEffect(() => {
-    if (home === lastSaved.current.h && away === lastSaved.current.a) return;
-    if (fadeRef.current) clearTimeout(fadeRef.current);
-    setSaveState("saving");
-    const t = setTimeout(async () => {
-      try {
-        await savePrediction(matchId, home, away);
-        lastSaved.current = { h: home, a: away };
-        setSaveState("saved");
-        scheduleFade();
-      } catch {
-        setSaveState("error");
-      }
-    }, 800);
-    return () => clearTimeout(t);
-  }, [home, away, matchId]);
+  const dirty = home !== lastSaved.current.h || away !== lastSaved.current.a || !hasSubmitted;
 
-  const retry = async () => {
+  const submit = async () => {
     setSaveState("saving");
     try {
       await savePrediction(matchId, home, away);
       lastSaved.current = { h: home, a: away };
+      setHasSubmitted(true);
       setSaveState("saved");
       scheduleFade();
     } catch {
@@ -92,19 +79,25 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
 
   return (
     <View style={il.wrap}>
-      <MiniStep value={home} onChange={setHome} />
-      <Text style={il.dash}>–</Text>
-      <MiniStep value={away} onChange={setAway} />
+      <View style={il.scoreRow}>
+        <MiniStep value={home} onChange={(n) => { setHome(n); setSaveState("idle"); }} />
+        <Text style={il.dash}>–</Text>
+        <MiniStep value={away} onChange={(n) => { setAway(n); setSaveState("idle"); }} />
+      </View>
+      <Pressable onPress={submit} disabled={saveState === "saving" || !dirty} style={[il.submitBtn, !dirty && il.submitBtnQuiet]} hitSlop={4}>
+        <Icon name="checkmark-circle" size={13} color={dirty ? colors.blanc : colors.greenDark} />
+        <Text style={[il.submitTxt, !dirty && il.submitTxtQuiet]}>{dirty ? "Submit prediction" : "Prediction submitted"}</Text>
+      </Pressable>
       {saveState === "saving" ? (
         <View style={[il.badge, { backgroundColor: colors.orange }]}>
-          <Text style={il.badgeTxt}>Saving...</Text>
+          <Text style={il.badgeTxt}>Submitting...</Text>
         </View>
       ) : saveState === "saved" ? (
         <View style={[il.badge, { backgroundColor: colors.green }]}>
-          <Text style={il.badgeTxt}>Saved</Text>
+          <Text style={il.badgeTxt}>Submitted</Text>
         </View>
       ) : saveState === "error" ? (
-        <Pressable onPress={retry} style={[il.badge, { backgroundColor: colors.red }]} hitSlop={4}>
+        <Pressable onPress={submit} style={[il.badge, { backgroundColor: colors.red }]} hitSlop={4}>
           <Text style={il.badgeTxt}>Error — retry</Text>
         </Pressable>
       ) : null}
@@ -113,12 +106,17 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
 }
 
 const il = StyleSheet.create({
-  wrap: { flexDirection: "row", alignItems: "center", gap: 6 },
+  wrap: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 6 },
+  scoreRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   stepper: { flexDirection: "row", alignItems: "center", gap: 4 },
   btn: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center" },
   sign: { color: colors.ink, fontSize: 17, fontWeight: "900", lineHeight: 19 },
   val: { color: colors.ink, fontSize: 19, fontWeight: "900", minWidth: 24, textAlign: "center" },
   dash: { color: colors.textFaint, fontSize: 15, fontWeight: "800" },
+  submitBtn: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.greenDark, borderRadius: radius.pill, paddingHorizontal: 10, minHeight: 30 },
+  submitBtnQuiet: { backgroundColor: "rgba(166,230,61,0.2)" },
+  submitTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
+  submitTxtQuiet: { color: colors.greenDark },
   badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   badgeTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
 });
@@ -193,7 +191,7 @@ export default function MatchCard({
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
               {prediction.scored ? (
-                <View style={[styles.ptsPill, { backgroundColor: prediction.points_awarded >= 5 ? colors.green : prediction.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
+                <View style={[styles.ptsPill, { backgroundColor: prediction.points_awarded >= 3 ? colors.green : prediction.points_awarded > 0 ? colors.yellow : colors.surfaceAlt }]}>
                   <Text style={[styles.ptsText, { color: prediction.points_awarded > 0 ? colors.blanc : colors.textFaint }]}>+{prediction.points_awarded}</Text>
                 </View>
               ) : (

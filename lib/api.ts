@@ -55,18 +55,21 @@ export async function createChallengeMatch(input: {
 
 export async function createPredictionCompetition(input: {
   name: string;
-  description?: string;
   punishment?: string | null;
   matches: CompetitionMatchInput[];
 }) {
   const payload = input.matches.map((m) => ({
     home_team: m.homeTeam.trim(),
+    home_code: m.homeCode?.trim() || null,
+    home_flag: m.homeFlag || null,
     away_team: m.awayTeam.trim(),
+    away_code: m.awayCode?.trim() || null,
+    away_flag: m.awayFlag || null,
     kickoff: m.kickoffIso,
   }));
   const { data, error } = await supabase.rpc("create_prediction_competition", {
     p_name: input.name.trim(),
-    p_description: input.description?.trim() || null,
+    p_description: null,
     p_public: false,
     p_punishment: input.punishment?.trim() || null,
     p_matches: payload,
@@ -85,6 +88,33 @@ export async function fetchCompetitionMatches(leagueId: number): Promise<Competi
   return ((data as any[]) ?? [])
     .map((row) => ({ ordinal: row.ordinal as number, match: row.match as Match }))
     .filter((row) => row.match);
+}
+
+export async function fetchMyPredictionsForMatches(matchIds: number[]): Promise<Record<number, Prediction>> {
+  if (matchIds.length === 0) return {};
+  const { data, error } = await supabase
+    .from("predictions")
+    .select("*")
+    .in("match_id", matchIds);
+  if (error) throw error;
+  const map: Record<number, Prediction> = {};
+  for (const p of (data as Prediction[]) ?? []) map[p.match_id] = p;
+  return map;
+}
+
+export async function finalizeCompetitionMatch(input: {
+  leagueId: number;
+  matchId: number;
+  homeScore: number;
+  awayScore: number;
+}) {
+  const { error } = await supabase.rpc("finalize_competition_match", {
+    p_league_id: input.leagueId,
+    p_match_id: input.matchId,
+    p_home_score: input.homeScore,
+    p_away_score: input.awayScore,
+  });
+  if (error) throw error;
 }
 
 export async function fetchMyForecasts() {
@@ -107,7 +137,7 @@ export async function updateProfile(fields: { display_name?: string; avatar_url?
 export async function fetchMyLeagues(): Promise<League[]> {
   const { data, error } = await supabase
     .from("leagues")
-    .select("*, league_members!inner(user_id)")
+    .select("id, name, code, owner_id, description, is_public, created_at, max_matches, punishment, league_members!inner(user_id)")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data as League[]) ?? [];
@@ -203,7 +233,8 @@ export async function fetchFriends() {
     .from("friendships")
     .select(
       "id, status, requester_id, addressee_id, req:profiles!friendships_requester_id_fkey(id,username,display_name,avatar_url,total_points), add:profiles!friendships_addressee_id_fkey(id,username,display_name,avatar_url,total_points)"
-    );
+    )
+    .or(`requester_id.eq.${uid},addressee_id.eq.${uid}`);
   const rows = (data as any[]) ?? [];
   const accepted = rows
     .filter((r) => r.status === "accepted")

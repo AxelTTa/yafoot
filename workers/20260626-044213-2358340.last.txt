@@ -1,0 +1,19 @@
+Done. I did not edit code or deploy.
+
+Ran the corrected 5-user simulated mobile army against production and stopped early on a severe blocker.
+
+Status: `BLOCKED`
+
+Full report:
+[workers/20260626-044213-2358340.last.txt](/home/ubuntu/yafoot/workers/20260626-044213-2358340.last.txt)
+
+Artifacts:
+`/tmp/yafoot-army-20260626-044213-2358340-rerun`
+
+Top findings:
+- No owner UI to finalize actual scores for custom competitions, so winners/history cannot be verified end-to-end.
+- “Clear prediction” button is not visible after saving a pick on competition match cards.
+- DM flow had friction: after friend accept, message did not appear in the attempted DM path.
+- Latency: p50 `4066ms`, p95 `12362ms`, max `24673ms`.
+
+Telegram update was sent successfully.

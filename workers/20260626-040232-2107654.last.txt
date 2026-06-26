@@ -1,1 +1,21 @@
-[worker 20260626-040232-2107654] Shipped Apple-safe YaFoot as private prediction competitions: Party Mode/global Matches hidden, competition creation now adds multiple custom matches, competition detail has Matches/Standings/Chat with inline predictions/history, support/privacy/App Store-safe copy updated. Live: https://dist-five-zeta-92i4a6g3xx.vercel.app. Test: create competition -> add Alpha/Beta and Gamma/Delta matches -> open competition -> save prediction inside Matches tab -> see 2 open matches and no Party Mode text. Checks: npx tsc --noEmit, Supabase migration applied, bash scripts/deploy.sh (web + native OK + Vercel + Expo OTA), production Puppeteer smoke OK with screenshot workers/20260626-040232-2107654-smoke.png. Known limitation: leaderboard points still use the existing league_members scoring model rather than a newly scoped per-competition points ledger.
+Implemented and shipped Axel’s Apple-safe YaFoot vision.
+
+Live: https://dist-five-zeta-92i4a6g3xx.vercel.app
+
+Changed:
+- Hid Party Mode and the standalone/global Matches tab in Apple-safe flow.
+- Made Competitions the primary surface.
+- Added competition creation with multiple editable custom matches.
+- Added competition detail Matches / Standings / Chat with inline predictions and history.
+- Added Supabase `league_matches` mapping and `create_prediction_competition` RPC.
+- Updated support/privacy/App Store-safe copy.
+
+Verified:
+- `npx tsc --noEmit`
+- Supabase migration applied
+- `bash scripts/deploy.sh` passed: web build, native Expo compile, Vercel deploy, Expo OTA
+- Production Puppeteer smoke passed: create competition -> add 2 matches -> open -> predict -> no Party Mode text
+
+Telegram report sent to Axel. Summary written to `workers/20260626-040232-2107654.last.txt`.
+
+Known limitation: leaderboard points still use the existing aggregate `league_members` scoring model, not a new per-competition points ledger.

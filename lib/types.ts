@@ -44,7 +44,11 @@ export type League = {
 
 export type CompetitionMatchInput = {
   homeTeam: string;
+  homeCode?: string | null;
+  homeFlag?: string | null;
   awayTeam: string;
+  awayCode?: string | null;
+  awayFlag?: string | null;
   kickoffIso: string;
 };
 
