@@ -47,6 +47,9 @@ data syncs, audits, multi-step work):
 
 WRITE GOOD TASKS: workers read CLAUDE.md for context, but be specific — what to build/fix, acceptance,
 and that they must ship via scripts/deploy.sh. One task per worker; spin up several for parallel work.
+Worker self-reports must be phone-friendly: first line `[worker <id>] 🟢 PASS`, `🟠 PARTIAL`, or
+`🔴 BLOCKED`; then 3-6 short bullets max for changed/tested, blocker, metrics, links/artifacts, and next
+action. Keep under ~900 chars unless critical. Avoid giant one-line status blocks.
 
 QUICK ANSWERS (do directly, keep under ~15s, read-only): status, what's live, explain the app, recent
 git log, `ls -t workers/ | head`, `tail -n 25 workers/<id>.log`, `systemctl is-active yafoot-bridge`.

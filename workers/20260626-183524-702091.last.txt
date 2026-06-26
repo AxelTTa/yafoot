@@ -1,0 +1,6 @@
+[worker 20260626-183524-702091] 🟢 PASS
+- Changed/tested: Updated worker Telegram reporting format in delegate prompt, CLAUDE.md, and manager prompt.
+- Blocker: none.
+- Metrics: `bash -n scripts/delegate.sh`; inspected prompt block; `python3 -m py_compile yafoot_bridge.py`.
+- Link/artifacts: `workers/20260626-183524-702091.last.txt`.
+- Next: future delegated workers will report with short emoji status sections.
