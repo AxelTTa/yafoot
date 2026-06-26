@@ -1,0 +1,20 @@
+PASS
+
+Fixed English/French punishment localization in create-competition punishment step and deployed.
+
+What changed:
+- Punishment catalog is now language keyed via PUNISHMENTS_BY_LANG and I18nProvider serves the active language list.
+- English punishment card titles/subtitles are fully English and semantically paired with the French restored system.
+- Create-competition punishment severity labels and custom/validation UI use translations instead of hardcoded English.
+- Scanned key punishment strings for English/French leakage.
+
+Checks:
+- npx tsc --noEmit: PASS
+- Local web export: PASS
+- Local English punishment step: PASS, screenshot /tmp/yafoot-local-punishment-en.png
+- Local French punishment step: coherent French cards, screenshot /tmp/yafoot-local-punishment-fr.png
+- scripts/deploy.sh: PASS, native Expo export OK, Vercel deployed, Expo OTA published, git pushed
+- Live English punishment step: PASS, no French primary labels, screenshot /tmp/yafoot-live-punishment-en-20260626-080023-3468173.png
+
+Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Commit: 1190be5 deploy 2026-06-26T08:07:03Z
