@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -302,6 +302,12 @@ export default function CreateCompetitionWizard() {
       await Share.share({ message: msg });
     } catch {}
   }
+
+  useEffect(() => {
+    if (!done) return;
+    const timer = setTimeout(() => router.replace(`/league/${done.id}`), 3500);
+    return () => clearTimeout(timer);
+  }, [done, router]);
 
   const bottomPad = Math.max(insets.bottom, 16);
   const stepAccent: Record<Step, string> = { 1: colors.purple, 2: colors.orange, 3: colors.cyan, 4: colors.green };

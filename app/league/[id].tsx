@@ -94,6 +94,7 @@ export default function LeagueDetail() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [chatStatus, setChatStatus] = useState<"connecting" | "live" | "fallback">("connecting");
   const listRef = useRef<FlatList>(null);
 
   const loadBoard = useCallback(async () => {
@@ -147,11 +148,25 @@ export default function LeagueDetail() {
         }
       )
       .on("postgres_changes", { event: "*", schema: "public", table: "league_members", filter: `league_id=eq.${leagueId}` }, () => loadBoard())
-      .subscribe();
+      .subscribe((status) => {
+        setChatStatus(status === "SUBSCRIBED" ? "live" : status === "CHANNEL_ERROR" || status === "TIMED_OUT" ? "fallback" : "connecting");
+        if (status === "SUBSCRIBED") loadMsgs();
+      });
+    const fallback = setInterval(() => {
+      loadMsgs();
+    }, 6000);
     return () => {
+      clearInterval(fallback);
       supabase.removeChannel(ch);
     };
   }, [leagueId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (tab !== "chat") return;
+    loadMsgs();
+    const fast = setInterval(() => loadMsgs(), 3000);
+    return () => clearInterval(fast);
+  }, [tab, loadMsgs]);
 
   useEffect(() => {
     const ids = leagueMatches.map((row) => row.match.id);
@@ -193,11 +208,17 @@ export default function LeagueDetail() {
     const body = text.trim();
     if (!body || !me) return;
     setText("");
-    const { error } = await supabase.from("league_messages").insert({ league_id: leagueId, sender_id: me, body });
+    const { data, error } = await supabase
+      .from("league_messages")
+      .insert({ league_id: leagueId, sender_id: me, body })
+      .select("id, sender_id, body, created_at")
+      .single();
     if (error) {
       setText(body); // restore so the message isn't lost
       notify("Message not sent", error.message);
+      return;
     }
+    if (data) setMsgs((m) => (m.some((x) => x.id === data.id) ? m : [...m, data as Msg]));
   }
 
   if (loading) return <Loading />;
@@ -384,6 +405,11 @@ export default function LeagueDetail() {
               );
             }}
             ListEmptyComponent={<Empty icon="chatbubbles-outline" title="No messages yet" sub="Say hi to your competition!" />}
+            ListFooterComponent={
+              chatStatus === "fallback" ? (
+                <Text style={styles.chatFallback}>Refreshing chat automatically</Text>
+              ) : null
+            }
           />
           <View style={styles.composer}>
             <TextInput
@@ -449,6 +475,7 @@ const styles = StyleSheet.create({
   mine: { alignSelf: "flex-end", backgroundColor: colors.bleu, borderBottomRightRadius: 4 },
   theirs: { alignSelf: "flex-start", backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderBottomLeftRadius: 4 },
   msgText: { color: colors.text, fontSize: 15 },
+  chatFallback: { color: colors.textFaint, fontSize: 11, fontWeight: "700", textAlign: "center", paddingVertical: spacing.sm },
   composer: { flexDirection: "row", gap: spacing.sm, padding: spacing.md, backgroundColor: colors.surface, borderTopWidth: 1, borderTopColor: colors.border },
   composerInput: { flex: 1, backgroundColor: colors.bg, borderRadius: radius.pill, paddingHorizontal: spacing.lg, height: 46, color: colors.text, borderWidth: 1, borderColor: colors.border },
   sendBtn: { backgroundColor: colors.bleu, borderRadius: radius.pill, paddingHorizontal: spacing.lg, alignItems: "center", justifyContent: "center" },

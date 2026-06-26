@@ -1,9 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Button, Screen, Tricolor } from "../../components/ui";
 import { Logo } from "../../components/Brand";
+import { useAuth } from "../../lib/auth";
 import { supabase } from "../../lib/supabase";
 import { consumePendingInvite, getPendingInvite } from "../../lib/invite";
 import { useI18n } from "../../lib/i18n";
@@ -13,13 +14,25 @@ function toHandle(displayName: string) {
   return displayName.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRateLimit(error: any) {
+  const status = error?.status || error?.__isAuthError && error?.status;
+  const message = String(error?.message ?? "").toLowerCase();
+  return status === 429 || message.includes("rate limit") || message.includes("too many");
+}
+
 export default function Welcome() {
   const router = useRouter();
+  const { session, refreshProfile } = useAuth();
   const { t } = useI18n();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [invited, setInvited] = useState(false);
+  const inFlight = useRef(false);
 
   useEffect(() => {
     getPendingInvite().then((c) => setInvited(!!c));
@@ -28,36 +41,60 @@ export default function Welcome() {
   const handle = toHandle(name);
 
   async function start() {
+    if (inFlight.current) return;
     const displayName = name.trim();
     setError(null);
     if (displayName.length < 2) return setError(t("err_short"));
     if (handle.length < 2) return setError(t("err_short"));
+    inFlight.current = true;
     setLoading(true);
-    const { error: e } = await supabase.auth.signInAnonymously({
-      options: { data: { username: handle, display_name: displayName } },
-    });
-    if (e) { setLoading(false); setError(e.message); return; }
+    const delays = [0, 2500, 7000, 15000];
+    let authError: any = null;
+    for (let attempt = 0; attempt < delays.length; attempt += 1) {
+      if (delays[attempt]) await sleep(delays[attempt]);
+      const existing = session ?? (await supabase.auth.getSession()).data.session;
+      if (existing?.user?.id) {
+        authError = null;
+        break;
+      }
+      if (attempt > 0) setError("Still creating your account. Retrying automatically...");
+      const { error: e } = await supabase.auth.signInAnonymously({
+        options: { data: { username: handle, display_name: displayName } },
+      });
+      authError = e;
+      if (!e) break;
+      if (!isRateLimit(e) || attempt === delays.length - 1) break;
+    }
+    if (authError) {
+      setLoading(false);
+      inFlight.current = false;
+      setError(isRateLimit(authError) ? "Signup is busy right now. Wait a moment, then try again." : authError.message);
+      return;
+    }
     const { data: who } = await supabase.auth.getUser();
     if (who.user?.id) {
       const { error: ue } = await supabase.from("profiles").update({ username: handle, display_name: displayName }).eq("id", who.user.id);
       if (ue?.code === "23505") {
         // unique violation on username
-        await supabase.auth.signOut();
         setLoading(false);
+        inFlight.current = false;
         setError(t("err_chars"));
         return;
       }
+      await refreshProfile();
     }
     // Check pending league join (from scanning a league QR before having an account)
     const pendingJoin = await AsyncStorage.getItem("yafoot.pending_join");
     if (pendingJoin) {
       await AsyncStorage.removeItem("yafoot.pending_join");
       setLoading(false);
+      inFlight.current = false;
       router.replace(`/join/${pendingJoin}`);
       return;
     }
     const friended = await consumePendingInvite();
     setLoading(false);
+    inFlight.current = false;
     if (friended === "ok") router.replace("/(tabs)/social");
     else router.replace("/onboarding/invite");
   }

@@ -1,51 +1,19 @@
-ASC metadata/screenshots prepared for Apple-safe YaFoot resubmission.
+Done.
 
-Updated in App Store Connect for iOS version 1.0.1:
-- Name: YaFoot
-- Subtitle: Friend Score Predictions
-- Description, keywords, promotional text, support URL, marketing URL, privacy URL
-- Primary category: Sports
-- Secondary category: Social Networking
-- Review notes, reviewer instructions/demo guidance, review contact, demo account required: false
-- Copyright: 2026 Axel Cassou
-- Screenshots replaced for APP_IPHONE_67 and APP_IPAD_PRO_3GEN_129
+Updated/prepared ASC for Apple-safe resubmission:
+- Metadata, support/privacy URLs, categories, review notes/contact, demo guidance.
+- Replaced screenshots: `/tmp/screenshots/iphone_01-04.png`, `/tmp/screenshots/ipad_01-04.png`.
+- ASC read-back: iOS `1.0.1` is `REJECTED`; attached build is still `5`; no build `6` found via API.
+- Screenshot sets are `COMPLETE`: 4 iPhone + 4 iPad.
 
-ASC read-back:
-- Version ID: 43edbe23-ec41-4263-a20d-eac287e3ccfa
-- Version/status: 1.0.1 / REJECTED
-- Attached build: 5, processingState VALID
-- Build 6 availability via ASC API: none found
-- What’s New: not editable through ASC API in current rejected state; APP_STORE_SAFE.md and scripts/asc-upload.mjs contain the safe copy to paste if ASC UI allows it.
-- Screenshot sets: APP_IPHONE_67 has 4 COMPLETE screenshots; APP_IPAD_PRO_3GEN_129 has 4 COMPLETE screenshots.
+Committed and pushed: `4368307` (`Prepare App Store safe ASC metadata`).
 
-Fresh screenshot files:
-- /tmp/screenshots/iphone_01.png
-- /tmp/screenshots/iphone_02.png
-- /tmp/screenshots/iphone_03.png
-- /tmp/screenshots/iphone_04.png
-- /tmp/screenshots/ipad_01.png
-- /tmp/screenshots/ipad_02.png
-- /tmp/screenshots/ipad_03.png
-- /tmp/screenshots/ipad_04.png
+Remaining manual ASC steps:
+1. Upload/process iOS build `6`.
+2. Attach build `6` to version `1.0.1`.
+3. Confirm age rating/privacy answers.
+4. Paste “What’s New” if ASC UI allows; API says it is locked in current state.
+5. Replace review contact phone if Axel wants a real number instead of the placeholder.
+6. Submit for review.
 
-Verified:
-- Screenshot dimensions: iPhone 1290x2796, iPad 2048x2732
-- Public support URL: https://dist-five-zeta-92i4a6g3xx.vercel.app/support (200)
-- Public privacy URL: https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy (200)
-- Focused ASC/support/privacy safe-term scan passed
-- node --check scripts/asc-upload.mjs
-- node --check scripts/take-screenshots.mjs
-- npx tsc --noEmit
-
-Repo updates:
-- APP_STORE_SAFE.md now documents all listing fields, review note/demo guidance, category, privacy/support URLs, and age-rating guidance.
-- scripts/asc-upload.mjs now targets 1.0.1, skips review submission by default, updates safe metadata/review fields/screenshots, verifies attached build, and treats ASC screenshot state COMPLETE as successful.
-- scripts/take-screenshots.mjs now creates an injected screenshot-only session to avoid anonymous auth rate limits and refuses to save onboarding screenshots.
-
-Remaining manual resubmission steps:
-1. Upload or process iOS build 6 from the current App Store-safe app; ASC API currently shows no build 6.
-2. Attach build 6 to iOS version 1.0.1 in App Store Connect.
-3. Confirm/adjust age-rating and privacy questionnaire answers in ASC: no gambling, no betting, no real-money prizes, no loot boxes, no ads, no unrestricted web access; private user-created football predictions with chat/DMs.
-4. Paste the safe What’s New text if ASC UI allows editing: "App Store-safe review build focused on private football prediction competitions: create competitions, add custom country-vs-country matches, invite friends, submit predictions, enter final scores as host, and follow standings."
-5. Replace the review contact phone if Axel wants a real phone number instead of the current placeholder +33600000000.
-6. Submit for review only after build 6 is attached and the above ASC fields are confirmed.
+Telegram update sent.

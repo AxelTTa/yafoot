@@ -1,0 +1,1659 @@
+{
+  "worker": "20260626-075011-3411053",
+  "status": "BLOCKED",
+  "readyForAppleResubmission": false,
+  "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app",
+  "startedAt": "2026-06-26T08:42:23.708Z",
+  "finishedAt": "2026-06-26T09:02:45.145Z",
+  "elapsedMs": 1221437,
+  "pass": 21,
+  "fail": 2,
+  "users": [
+    "armyhostonir666",
+    "armyguestononz36",
+    "armypalorvrv79",
+    "armylurkou0el89",
+    "armyextraow53w29"
+  ],
+  "code": "65EEA4",
+  "leagueId": 51,
+  "friction": [
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 console error",
+      "context": "Failed to load resource: the server responded with a status of 429 ()"
+    },
+    {
+      "severity": "high",
+      "msg": "armypalonul981 anonymous auth rate-limited",
+      "context": "attempt 1"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 console error",
+      "context": "Failed to load resource: the server responded with a status of 429 ()"
+    },
+    {
+      "severity": "high",
+      "msg": "armypalopx0738 anonymous auth rate-limited",
+      "context": "attempt 2"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 console error",
+      "context": "Failed to load resource: the server responded with a status of 429 ()"
+    },
+    {
+      "severity": "high",
+      "msg": "armylurkorxzz21 anonymous auth rate-limited",
+      "context": "attempt 1"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 console error",
+      "context": "Failed to load resource: the server responded with a status of 429 ()"
+    },
+    {
+      "severity": "high",
+      "msg": "armyextraou2o677 anonymous auth rate-limited",
+      "context": "attempt 1"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "public pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "armyhostonir666 made clear prediction",
+      "context": ""
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "Guest sees league chat message",
+      "context": ""
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "lurker possible text overflow",
+      "context": "[{\"txt\":\"dist-five-zeta-92i4a6g3xx.vercel.app/invite/armylurkou0el89\",\"w\":267,\"sw\":366}]"
+    },
+    {
+      "severity": "medium",
+      "msg": "extra possible text overflow",
+      "context": "[{\"txt\":\"dist-five-zeta-92i4a6g3xx.vercel.app/invite/armyextraow53w29\",\"w\":267,\"sw\":382}]"
+    },
+    {
+      "severity": "medium",
+      "msg": "lurker possible text overflow",
+      "context": "[{\"txt\":\"dist-five-zeta-92i4a6g3xx.vercel.app/invite/armylurkou0el89\",\"w\":267,\"sw\":366}]"
+    },
+    {
+      "severity": "medium",
+      "msg": "extra possible text overflow",
+      "context": "[{\"txt\":\"dist-five-zeta-92i4a6g3xx.vercel.app/invite/armyextraow53w29\",\"w\":267,\"sw\":382}]"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U1 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U2 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U3 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U4 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    }
+  ],
+  "latency": {
+    "count": 676,
+    "p50": 85,
+    "p90": 250,
+    "p95": 317,
+    "max": 691,
+    "slow": []
+  },
+  "screenshots": [
+    "/tmp/yafoot-army-20260626-075011-3411053/01-public--support.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/02-public--privacy.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/03-public--invite-someone.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/04-public--join-ABC123.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/05-host-create-step1.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/06-host-punishments-english.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/07-host-match-builder-empty.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/08-host-match-builder-flags.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/09-host-competition-created.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/10-host-league-matches.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/11-armyguestononz36-join-link.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/12-armypalorvrv79-join-link.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/13-armyhostonir666-prediction.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/14-armyguestononz36-prediction.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/15-armypalorvrv79-prediction.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/16-friend-search-results.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/17-friend-request-incoming.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/18-guest-chat-realtime.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/19-host-before-finalize.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/20-host-after-finalize.png",
+    "/tmp/yafoot-army-20260626-075011-3411053/21-standings-after-score.png"
+  ],
+  "events": [
+    {
+      "t": "2026-06-26T08:42:23.708Z",
+      "msg": "army start",
+      "BASE": "https://dist-five-zeta-92i4a6g3xx.vercel.app",
+      "OUT": "/tmp/yafoot-army-20260626-075011-3411053",
+      "DURATION_MS": 1200000
+    },
+    {
+      "t": "2026-06-26T08:42:24.564Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:42:25.089Z",
+      "msg": "click English"
+    },
+    {
+      "t": "2026-06-26T08:42:30.360Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:42:30.766Z",
+      "msg": "PASS armyhostonir666 reached app"
+    },
+    {
+      "t": "2026-06-26T08:42:32.234Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:42:32.766Z",
+      "msg": "click English"
+    },
+    {
+      "t": "2026-06-26T08:42:38.035Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:42:38.443Z",
+      "msg": "PASS armyguestononz36 reached app"
+    },
+    {
+      "t": "2026-06-26T08:42:39.926Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:42:40.439Z",
+      "msg": "click English"
+    },
+    {
+      "t": "2026-06-26T08:42:45.676Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:42:46.081Z",
+      "msg": "auth rate limit; retrying",
+      "username": "armypalonul981",
+      "attempt": 1
+    },
+    {
+      "t": "2026-06-26T08:44:16.302Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:44:17.398Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:44:17.803Z",
+      "msg": "auth rate limit; retrying",
+      "username": "armypalopx0738",
+      "attempt": 2
+    },
+    {
+      "t": "2026-06-26T08:45:47.967Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:45:49.078Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:45:49.486Z",
+      "msg": "PASS armypalorvrv79 reached app"
+    },
+    {
+      "t": "2026-06-26T08:45:50.945Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:45:51.458Z",
+      "msg": "click English"
+    },
+    {
+      "t": "2026-06-26T08:45:56.708Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:45:57.113Z",
+      "msg": "auth rate limit; retrying",
+      "username": "armylurkorxzz21",
+      "attempt": 1
+    },
+    {
+      "t": "2026-06-26T08:47:27.333Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:47:28.447Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:47:28.853Z",
+      "msg": "PASS armylurkou0el89 reached app"
+    },
+    {
+      "t": "2026-06-26T08:47:30.332Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:47:30.834Z",
+      "msg": "click English"
+    },
+    {
+      "t": "2026-06-26T08:47:36.109Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:47:36.514Z",
+      "msg": "auth rate limit; retrying",
+      "username": "armyextraou2o677",
+      "attempt": 1
+    },
+    {
+      "t": "2026-06-26T08:49:06.731Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "t": "2026-06-26T08:49:07.882Z",
+      "msg": "click Let's go!"
+    },
+    {
+      "t": "2026-06-26T08:49:08.288Z",
+      "msg": "PASS armyextraow53w29 reached app"
+    },
+    {
+      "t": "2026-06-26T08:49:08.742Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/support"
+    },
+    {
+      "t": "2026-06-26T08:49:11.332Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/01-public--support.png"
+    },
+    {
+      "t": "2026-06-26T08:49:11.333Z",
+      "msg": "PASS Support URL public"
+    },
+    {
+      "t": "2026-06-26T08:49:11.449Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy"
+    },
+    {
+      "t": "2026-06-26T08:49:14.054Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/02-public--privacy.png"
+    },
+    {
+      "t": "2026-06-26T08:49:14.054Z",
+      "msg": "PASS Privacy URL public"
+    },
+    {
+      "t": "2026-06-26T08:49:14.199Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/invite/someone"
+    },
+    {
+      "t": "2026-06-26T08:49:16.766Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/03-public--invite-someone.png"
+    },
+    {
+      "t": "2026-06-26T08:49:16.766Z",
+      "msg": "PASS Invite link route loads"
+    },
+    {
+      "t": "2026-06-26T08:49:16.901Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/ABC123"
+    },
+    {
+      "t": "2026-06-26T08:49:19.468Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/04-public--join-ABC123.png"
+    },
+    {
+      "t": "2026-06-26T08:49:19.468Z",
+      "msg": "PASS Join link route loads"
+    },
+    {
+      "t": "2026-06-26T08:49:19.670Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/create-league"
+    },
+    {
+      "t": "2026-06-26T08:49:20.121Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/05-host-create-step1.png"
+    },
+    {
+      "t": "2026-06-26T08:49:20.161Z",
+      "msg": "click Next"
+    },
+    {
+      "t": "2026-06-26T08:49:20.166Z",
+      "msg": "PASS English punishment catalog visible"
+    },
+    {
+      "t": "2026-06-26T08:49:20.166Z",
+      "msg": "PASS No French punishment text in English UI"
+    },
+    {
+      "t": "2026-06-26T08:49:20.244Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/06-host-punishments-english.png"
+    },
+    {
+      "t": "2026-06-26T08:49:20.259Z",
+      "msg": "click Daring"
+    },
+    {
+      "t": "2026-06-26T08:49:20.799Z",
+      "msg": "click-index Down a full glass of the group's choice"
+    },
+    {
+      "t": "2026-06-26T08:49:20.830Z",
+      "msg": "click Next"
+    },
+    {
+      "t": "2026-06-26T08:49:20.885Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/07-host-match-builder-empty.png"
+    },
+    {
+      "t": "2026-06-26T08:49:20.911Z",
+      "msg": "click-index Pick country"
+    },
+    {
+      "t": "2026-06-26T08:49:22.545Z",
+      "msg": "click France"
+    },
+    {
+      "t": "2026-06-26T08:49:23.166Z",
+      "msg": "click-index Pick country"
+    },
+    {
+      "t": "2026-06-26T08:49:24.793Z",
+      "msg": "click Brazil"
+    },
+    {
+      "t": "2026-06-26T08:49:25.449Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/08-host-match-builder-flags.png"
+    },
+    {
+      "t": "2026-06-26T08:49:25.452Z",
+      "msg": "PASS Country-vs-country match shows flags/names"
+    },
+    {
+      "t": "2026-06-26T08:49:25.469Z",
+      "msg": "click Create competition"
+    },
+    {
+      "t": "2026-06-26T08:49:25.922Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/09-host-competition-created.png"
+    },
+    {
+      "t": "2026-06-26T08:49:25.924Z",
+      "msg": "PASS Invite code extracted"
+    },
+    {
+      "t": "2026-06-26T08:49:31.290Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/10-host-league-matches.png"
+    },
+    {
+      "t": "2026-06-26T08:49:31.460Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/65EEA4"
+    },
+    {
+      "t": "2026-06-26T08:49:31.919Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/11-armyguestononz36-join-link.png"
+    },
+    {
+      "t": "2026-06-26T08:49:31.928Z",
+      "msg": "click Join Competition"
+    },
+    {
+      "t": "2026-06-26T08:49:32.333Z",
+      "msg": "PASS armyguestononz36 joined competition through invite link"
+    },
+    {
+      "t": "2026-06-26T08:49:32.472Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/join/65EEA4"
+    },
+    {
+      "t": "2026-06-26T08:49:32.910Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/12-armypalorvrv79-join-link.png"
+    },
+    {
+      "t": "2026-06-26T08:49:32.921Z",
+      "msg": "click Join Competition"
+    },
+    {
+      "t": "2026-06-26T08:49:33.727Z",
+      "msg": "PASS armypalorvrv79 joined competition through invite link"
+    },
+    {
+      "t": "2026-06-26T08:50:34.113Z",
+      "msg": "FAIL armyhostonir666 made clear prediction",
+      "context": ""
+    },
+    {
+      "t": "2026-06-26T08:50:34.154Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/13-armyhostonir666-prediction.png"
+    },
+    {
+      "t": "2026-06-26T08:50:34.167Z",
+      "msg": "click-index +"
+    },
+    {
+      "t": "2026-06-26T08:50:34.178Z",
+      "msg": "click-index +"
+    },
+    {
+      "t": "2026-06-26T08:50:34.187Z",
+      "msg": "click Submit prediction"
+    },
+    {
+      "t": "2026-06-26T08:50:34.997Z",
+      "msg": "PASS armyguestononz36 made clear prediction"
+    },
+    {
+      "t": "2026-06-26T08:50:35.036Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/14-armyguestononz36-prediction.png"
+    },
+    {
+      "t": "2026-06-26T08:50:35.049Z",
+      "msg": "click-index +"
+    },
+    {
+      "t": "2026-06-26T08:50:35.059Z",
+      "msg": "click-index +"
+    },
+    {
+      "t": "2026-06-26T08:50:35.069Z",
+      "msg": "click Submit prediction"
+    },
+    {
+      "t": "2026-06-26T08:50:35.474Z",
+      "msg": "PASS armypalorvrv79 made clear prediction"
+    },
+    {
+      "t": "2026-06-26T08:50:35.521Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/15-armypalorvrv79-prediction.png"
+    },
+    {
+      "t": "2026-06-26T08:50:35.685Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
+    },
+    {
+      "t": "2026-06-26T08:50:38.668Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/16-friend-search-results.png"
+    },
+    {
+      "t": "2026-06-26T08:50:38.676Z",
+      "msg": "click Add"
+    },
+    {
+      "t": "2026-06-26T08:50:40.345Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
+    },
+    {
+      "t": "2026-06-26T08:50:40.810Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/17-friend-request-incoming.png"
+    },
+    {
+      "t": "2026-06-26T08:50:40.820Z",
+      "msg": "click Accept"
+    },
+    {
+      "t": "2026-06-26T08:50:43.978Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
+    },
+    {
+      "t": "2026-06-26T08:50:45.981Z",
+      "msg": "PASS armyhostonir666 sees armyguestononz36 as friend"
+    },
+    {
+      "t": "2026-06-26T08:50:46.137Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/social"
+    },
+    {
+      "t": "2026-06-26T08:51:45.265Z",
+      "msg": "FAIL Guest sees league chat message",
+      "context": ""
+    },
+    {
+      "t": "2026-06-26T08:51:45.317Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/18-guest-chat-realtime.png"
+    },
+    {
+      "t": "2026-06-26T08:52:13.567Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/19-host-before-finalize.png"
+    },
+    {
+      "t": "2026-06-26T08:52:27.353Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/20-host-after-finalize.png"
+    },
+    {
+      "t": "2026-06-26T08:52:37.494Z",
+      "msg": "screenshot /tmp/yafoot-army-20260626-075011-3411053/21-standings-after-score.png"
+    },
+    {
+      "t": "2026-06-26T08:52:37.495Z",
+      "msg": "PASS Standings show points after final score"
+    },
+    {
+      "t": "2026-06-26T08:52:38.472Z",
+      "msg": "PASS Guest sees scored/history state after host final score"
+    },
+    {
+      "t": "2026-06-26T08:52:38.677Z",
+      "msg": "PASS DB has multiple league members after joins"
+    },
+    {
+      "t": "2026-06-26T08:52:45.144Z",
+      "msg": "click Standings"
+    },
+    {
+      "t": "2026-06-26T08:53:07.267Z",
+      "msg": "click Chat"
+    },
+    {
+      "t": "2026-06-26T08:53:23.081Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:53:24.447Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:53:25.800Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:53:27.145Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:53:28.511Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:54:50.270Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:54:51.647Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:54:53.007Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:54:54.340Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:54:55.702Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:56:17.447Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:56:18.812Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:56:20.169Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:56:21.528Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:56:22.880Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:57:44.639Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:57:45.990Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:57:47.330Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:57:48.678Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:57:50.027Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:59:11.792Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:59:13.158Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:59:14.525Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:59:15.901Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T08:59:17.239Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:00:39.009Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:00:40.351Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:00:41.710Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:00:43.042Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:00:44.398Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:02:06.168Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:02:07.533Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:02:08.896Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:02:10.262Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "t": "2026-06-26T09:02:11.623Z",
+      "msg": "goto https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    }
+  ]
+}

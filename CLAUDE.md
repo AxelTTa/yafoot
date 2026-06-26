@@ -97,6 +97,13 @@ Two delivery targets — keep BOTH current:
   - First line exactly `[worker <id>] 🟢 PASS`, `[worker <id>] 🟠 PARTIAL`, or `[worker <id>] 🔴 BLOCKED`.
   - Then 3-6 short bullets max: changed/tested, blocker if any, metrics if relevant, links/artifacts, next action.
   - Keep under ~900 characters unless critical; avoid long one-line status blocks.
+- **Army runs are fix loops by default, not report-only audits.** When Axel asks to run an "army",
+  workers must simulate users, record issues, classify each issue as high / medium / low, fix safe
+  scoped high/medium issues, run `bash scripts/deploy.sh`, then rerun the army/test loop. Repeat
+  until no high/medium issues remain, or until a clear blocker/time/budget cap is hit. Do not make
+  risky or product-changing fixes without explicit task context. Low-only findings may be reported
+  without blocking PASS. Tasks explicitly described as read-only/audit-only remain read-only and must
+  not edit, deploy, or fix.
 
 ## Auto-commit rule
 After completing changes: `git add -A && git commit -m "..." && git push`.

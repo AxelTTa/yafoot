@@ -1,30 +1,14 @@
-PASS - focused App Store policy/compliance audit completed.
+PASS. Completed the focused App Store compliance cleanup and pushed commit `be16c94` to `staging`.
 
-Changes made:
-- Cleaned README.md reviewer-copy risk: removed old licensed-event/live-data framing and replaced with private football prediction competitions.
-- Cleaned HANDOFF.md reviewer-copy risk: removed old licensed-event/live-data framing and marked legacy data sync scripts as non-review internal tooling.
-- Regenerated tracked dist-staging web bundle from current App Store-safe source so the built staging artifact no longer contains stale event names or licensed-event copy.
+Changed:
+- Cleaned `README.md` and `HANDOFF.md` reviewer-copy risk.
+- Regenerated tracked `dist-staging` from App Store-safe source.
+- Wrote report to `workers/20260626-082930-3636747.last.txt`.
+- Sent Telegram update successfully.
 
-Deploy/live status:
-- Did not run scripts/deploy.sh because no app source or live production bundle changes were required, and the shared worktree still contains unrelated worker artifacts that deploy.sh would git add -A and commit.
-- Live public URL remains https://dist-five-zeta-92i4a6g3xx.vercel.app.
-- Live rendered support page check: https://dist-five-zeta-92i4a6g3xx.vercel.app/support, risky-term regex false, public 200.
-- Live rendered privacy page check: https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy, risky-term regex false, public 200.
+Verified:
+- Targeted risky-term scans clean across app/source, ASC scripts, support/privacy, screenshots, production `dist`, and `dist-staging`.
+- Live `/support` and `/privacy` render publicly with no risky terms.
+- `npx tsc --noEmit` passed.
 
-Exact scans/checks performed:
-- rg -i "world cup|worldcup|wc 2026|wc26|coupe du monde|mundial|fifa|official tournament|club world cup|live scores" over app, components, lib, public, assets, APP_STORE_SAFE.md, README.md, HANDOFF.md, scripts/asc-upload.mjs, scripts/take-screenshots.mjs, dist-staging, and /tmp/screenshots: no matches.
-- rg -i same terms over full repo excluding node_modules/.git/workers: remaining matches are non-reviewer legacy/internal only.
-- rg -i same terms over dist production bundle: no matches.
-- Browser-rendered Puppeteer checks for /support and /privacy: no risky terms in visible text.
-- Raw fetch checks for /support and /privacy: HTTP 200 and no risky terms.
-- npx tsc --noEmit: passed.
-
-Remaining non-reviewer legacy references:
-- CLAUDE.md project history/context still describes the original licensed-event version.
-- supabase/schema.sql, supabase/cron-fd.sql, supabase/cron-sync.sql retain old internal data-sync schema/function names and defaults.
-- package.json script name and scripts/sync-worldcup.mjs / scripts/seed-historical-wc.mjs retain legacy sync/seed wording.
-- Older test harnesses still accept old labels in assertions for backwards compatibility.
-
-App Store readiness:
-- App UI/source, support/privacy pages, ASC upload script, App Store-safe docs, screenshot folder, production dist, and tracked staging dist are clean for the requested risky terms.
-- ASC status from worker 20260626-081302-3544561: metadata/screenshots updated, version 1.0.1 is REJECTED, attached build remains 5, build 6 is not available via ASC API. Manual build 6 upload/attach is still required before resubmission.
+Did not run `scripts/deploy.sh` because no app/live source change was needed, and the shared tree still has unrelated worker artifacts that deploy would commit via `git add -A`. Remaining App Store blocker is ASC-side: build `6` still needs upload/attach before resubmission.

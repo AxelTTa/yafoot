@@ -1,6 +1,9 @@
-[worker 20260626-183524-702091] 🟢 PASS
-- Changed/tested: Updated worker Telegram reporting format in delegate prompt, CLAUDE.md, and manager prompt.
-- Blocker: none.
-- Metrics: `bash -n scripts/delegate.sh`; inspected prompt block; `python3 -m py_compile yafoot_bridge.py`.
-- Link/artifacts: `workers/20260626-183524-702091.last.txt`.
-- Next: future delegated workers will report with short emoji status sections.
+Done.
+
+Updated and pushed commit `412de73` to `staging`:
+- `scripts/delegate.sh` now gives workers the required multiline Telegram format.
+- `CLAUDE.md` and `yafoot_bridge.py` now document/enforce the same phone-friendly status rules.
+- Wrote `workers/20260626-183524-702091.last.txt`.
+- Verified with `bash -n scripts/delegate.sh`, prompt inspection, and `python3 -m py_compile yafoot_bridge.py`.
+
+No `deploy.sh` run because this was script/docs only, no app change. Telegram self-report sent successfully. Existing unrelated worker artifacts remain dirty and untouched.

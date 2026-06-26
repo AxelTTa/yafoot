@@ -62,7 +62,7 @@ export default function OnboardingInvite() {
           <Text style={styles.linkLabel}>{t("invite_link_label")}</Text>
           <View style={styles.linkPill}>
             <Icon name="link" size={15} color={colors.purple} />
-            <Text style={styles.linkText} numberOfLines={1}>{link.replace(/^https?:\/\//, "")}</Text>
+            <Text style={styles.linkText}>{link.replace(/^https?:\/\//, "")}</Text>
           </View>
           <View style={styles.btnRow}>
             <Pressable onPress={copy} style={({ pressed }) => [styles.actionBtn, { flex: 1, backgroundColor: colors.surfaceDark }, pressed && { opacity: 0.88 }]}>
@@ -88,8 +88,15 @@ const styles = StyleSheet.create({
   sub: { color: colors.ink, opacity: 0.65, fontSize: 14, textAlign: "center", lineHeight: 20, fontWeight: "600" },
   linkCard: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.md, ...shadow },
   linkLabel: { color: colors.textDim, fontSize: 11, fontWeight: "900", letterSpacing: 1 },
-  linkPill: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.surfaceAlt, borderRadius: radius.md, paddingHorizontal: spacing.md, height: 42 },
-  linkText: { flex: 1, color: colors.ink, fontSize: 13, fontWeight: "700" },
+  linkPill: { flexDirection: "row", alignItems: "flex-start", gap: 8, backgroundColor: colors.surfaceAlt, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, minHeight: 44 },
+  linkText: {
+    flex: 1,
+    color: colors.ink,
+    fontSize: 13,
+    fontWeight: "700",
+    lineHeight: 18,
+    ...(Platform.OS === "web" ? ({ wordBreak: "break-all", overflowWrap: "anywhere" } as any) : {}),
+  },
   btnRow: { flexDirection: "row", gap: spacing.sm },
   actionBtn: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: radius.pill, height: 44 },
   actionTxt: { color: colors.blanc, fontWeight: "900", fontSize: 15 },

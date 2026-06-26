@@ -35,6 +35,16 @@ Status line must be one of:
 Keep it under ~900 characters unless critical. Use 3-6 short bullets max.
 Avoid giant run-on sentences.
 
+Army-run default behavior:
+- If the task asks to run an "army", treat it as a fix loop, not a report-only audit.
+- Run simulated users/tests and record issues with severity: high, medium, or low.
+- Fix high/medium issues when the fix is safe, scoped, and consistent with the task context.
+- Do not make risky or product-changing fixes without explicit task context.
+- After each safe fix, run: bash scripts/deploy.sh
+- Rerun the army/test loop after deploy. Repeat until no high/medium issues remain, or until a clear time/budget cap/blocker is hit.
+- Low-only findings can be reported without blocking PASS.
+- If the task is explicitly read-only/audit-only, keep it read-only: do not edit, deploy, or fix.
+
 Send it by running:
   curl -s -X POST "https://api.telegram.org/bot\$TELEGRAM_BOT_TOKEN/sendMessage" \
     --data-urlencode chat_id=\$TELEGRAM_ALLOWED_CHAT_ID \

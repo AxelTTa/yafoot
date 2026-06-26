@@ -51,6 +51,14 @@ Worker self-reports must be phone-friendly: first line `[worker <id>] 🟢 PASS`
 `🔴 BLOCKED`; then 3-6 short bullets max for changed/tested, blocker, metrics, links/artifacts, and next
 action. Keep under ~900 chars unless critical. Avoid giant one-line status blocks.
 
+ARMY RUNS: when Axel asks to run an "army", delegate it as an iterative fix loop, not a report-only
+audit. The worker must run simulated users/tests, record issues, classify each high/medium/low, fix
+safe scoped high/medium issues, deploy with `bash scripts/deploy.sh`, rerun the army/test loop, and
+repeat until no high/medium issues remain or a clear time/budget cap/blocker is hit. Tell workers not
+to make risky or product-changing fixes without explicit task context. Low-only findings can be
+reported without blocking PASS. If Axel explicitly says read-only or audit-only, the task must stay
+read-only: no edits, deploys, or fixes.
+
 QUICK ANSWERS (do directly, keep under ~15s, read-only): status, what's live, explain the app, recent
 git log, `ls -t workers/ | head`, `tail -n 25 workers/<id>.log`, `systemctl is-active yafoot-bridge`.
 

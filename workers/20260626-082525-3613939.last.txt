@@ -1,0 +1,14 @@
+BLOCKED, but the live app test pass was good.
+
+I ran a seeded 5-user production army against `https://dist-five-zeta-92i4a6g3xx.vercel.app`:
+- 11/11 assertions passed
+- p95 latency: `275ms`
+- Screenshots: `/tmp/yafoot-army-20260626-082525-3613939`
+- Report: `workers/20260626-082525-3613939.last.txt`
+- Typecheck passed: `npx tsc --noEmit`
+
+I did not deploy because App Store Connect worker `20260626-081302-3544561` was still active and had uncommitted metadata/screenshot changes. Deploying would have committed its in-progress work.
+
+One real app bug found and documented: Profile “Exact” stat counts `points_awarded = 5`, but exact scores are worth `3`. It should be patched in `app/(tabs)/profile.tsx` once the deploy lane is clear.
+
+Telegram update sent to Axel.

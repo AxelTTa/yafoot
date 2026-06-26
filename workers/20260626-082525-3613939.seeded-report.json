@@ -1,0 +1,1324 @@
+{
+  "startedAt": "2026-06-26T08:30:48.018Z",
+  "base": "https://dist-five-zeta-92i4a6g3xx.vercel.app",
+  "commit": "",
+  "pass": 11,
+  "fail": 0,
+  "users": [
+    {
+      "username": "axarmymquo8lhv1",
+      "id": "c2300609-b84b-498d-aba8-4e2f4043362c"
+    },
+    {
+      "username": "axarmymquo8lzl2",
+      "id": "995db48c-7b25-43e8-a35a-b04738c311f5"
+    },
+    {
+      "username": "axarmymquo8mgi3",
+      "id": "37dc016b-1ca3-41d1-81b5-05cedf617e44"
+    },
+    {
+      "username": "axarmymquo8muj4",
+      "id": "7439167c-a9ef-4d58-b9f3-c2af30b4d0e7"
+    },
+    {
+      "username": "axarmymquo8n8b5",
+      "id": "737d0573-5623-4c5f-9645-be77f036a220"
+    }
+  ],
+  "screenshots": [
+    "/tmp/yafoot-army-20260626-082525-3613939/01-public-support.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/02-public-privacy.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/03-home-challenges.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/04-create-name.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/05-punishment-picker.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/06-match-builder-empty.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/07-match-added.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/08-competition-detail.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/09-join-code.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/10-prediction-submitted.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/11-friend-search.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/12-friend-request.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/13-league-chat.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/14-host-final-score.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/15-standings-after-final.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/16-settings.png",
+    "/tmp/yafoot-army-20260626-082525-3613939/17-profile.png"
+  ],
+  "friction": [
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U3 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U4 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U2 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U1 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "high",
+      "msg": "U5 pageerror",
+      "context": "NetworkError: A network error occurred."
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=eq.5"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id&points_awarded=gt.0"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions?select=id"
+    },
+    {
+      "severity": "medium",
+      "msg": "U5 request failed",
+      "context": "net::ERR_ABORTED https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members?select=league_id"
+    }
+  ],
+  "latency": [
+    {
+      "label": "U5",
+      "ms": 100,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/support"
+    },
+    {
+      "label": "U5",
+      "ms": 84,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U5",
+      "ms": 19,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U5",
+      "ms": 139,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 140,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 256,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 551,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 29,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy"
+    },
+    {
+      "label": "U5",
+      "ms": 13,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U5",
+      "ms": 17,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U5",
+      "ms": 109,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 218,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 76,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/"
+    },
+    {
+      "label": "U1",
+      "ms": 83,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U1",
+      "ms": 16,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U1",
+      "ms": 31,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U1",
+      "ms": 43,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U1",
+      "ms": 15,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U1",
+      "ms": 110,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 109,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 59,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U1",
+      "ms": 238,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 191,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U1",
+      "ms": 353,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 63,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/create-league"
+    },
+    {
+      "label": "U1",
+      "ms": 10,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U1",
+      "ms": 35,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U1",
+      "ms": 56,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U1",
+      "ms": 97,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U1",
+      "ms": 107,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 221,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 66,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/league/49"
+    },
+    {
+      "label": "U1",
+      "ms": 48,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U1",
+      "ms": 18,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U1",
+      "ms": 18,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U1",
+      "ms": 37,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U1",
+      "ms": 39,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U1",
+      "ms": 40,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 133,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 151,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U1",
+      "ms": 248,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 233,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U1",
+      "ms": 236,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U1",
+      "ms": 21,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U1",
+      "ms": 367,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 21,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U1",
+      "ms": 21,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U1",
+      "ms": 172,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 77,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/join/C109AD"
+    },
+    {
+      "label": "U2",
+      "ms": 76,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U2",
+      "ms": 20,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U2",
+      "ms": 54,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U2",
+      "ms": 57,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U2",
+      "ms": 109,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U2",
+      "ms": 108,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U2",
+      "ms": 269,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U2",
+      "ms": 393,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U2",
+      "ms": 28,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/rpc/join_league_by_code"
+    },
+    {
+      "label": "U2",
+      "ms": 146,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/rpc/join_league_by_code"
+    },
+    {
+      "label": "U2",
+      "ms": 10,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U2",
+      "ms": 23,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U2",
+      "ms": 38,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U2",
+      "ms": 37,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U2",
+      "ms": 38,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U2",
+      "ms": 152,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U2",
+      "ms": 212,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U2",
+      "ms": 215,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U2",
+      "ms": 215,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U2",
+      "ms": 27,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 142,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U1",
+      "ms": 110,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U2",
+      "ms": 114,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 26,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U1",
+      "ms": 145,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U1",
+      "ms": 22,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U1",
+      "ms": 147,
+      "status": 201,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 24,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U2",
+      "ms": 135,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U2",
+      "ms": 31,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 146,
+      "status": 201,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U3",
+      "ms": 83,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/(tabs)/social"
+    },
+    {
+      "label": "U3",
+      "ms": 137,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U3",
+      "ms": 28,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U3",
+      "ms": 15,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U3",
+      "ms": 75,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U3",
+      "ms": 106,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U3",
+      "ms": 107,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U3",
+      "ms": 81,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 108,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U3",
+      "ms": 224,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U3",
+      "ms": 194,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 31,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U3",
+      "ms": 368,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U3",
+      "ms": 146,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U3",
+      "ms": 112,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 21,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U3",
+      "ms": 135,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U3",
+      "ms": 109,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 22,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U3",
+      "ms": 136,
+      "status": 201,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U3",
+      "ms": 108,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 116,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U3",
+      "ms": 106,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 111,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U4",
+      "ms": 81,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/(tabs)/social"
+    },
+    {
+      "label": "U4",
+      "ms": 97,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U4",
+      "ms": 53,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U4",
+      "ms": 46,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U4",
+      "ms": 38,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U4",
+      "ms": 51,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U4",
+      "ms": 107,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U4",
+      "ms": 108,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U4",
+      "ms": 49,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U4",
+      "ms": 167,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U4",
+      "ms": 236,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U4",
+      "ms": 30,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U4",
+      "ms": 354,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U4",
+      "ms": 167,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U4",
+      "ms": 25,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U4",
+      "ms": 143,
+      "status": 204,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U4",
+      "ms": 113,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U4",
+      "ms": 121,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U3",
+      "ms": 110,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U4",
+      "ms": 117,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/auth/v1/user"
+    },
+    {
+      "label": "U3",
+      "ms": 121,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U4",
+      "ms": 115,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/friendships"
+    },
+    {
+      "label": "U1",
+      "ms": 31,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/league/49"
+    },
+    {
+      "label": "U1",
+      "ms": 51,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U1",
+      "ms": 28,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U1",
+      "ms": 111,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 148,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U1",
+      "ms": 166,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 165,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U1",
+      "ms": 167,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U1",
+      "ms": 10,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U1",
+      "ms": 234,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 50,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U1",
+      "ms": 107,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U1",
+      "ms": 22,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U1",
+      "ms": 135,
+      "status": 201,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U2",
+      "ms": 62,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/league/49"
+    },
+    {
+      "label": "U2",
+      "ms": 49,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U2",
+      "ms": 22,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U2",
+      "ms": 119,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U2",
+      "ms": 114,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U2",
+      "ms": 170,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U2",
+      "ms": 291,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U2",
+      "ms": 141,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 341,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U2",
+      "ms": 342,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U2",
+      "ms": 13,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U2",
+      "ms": 53,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U1",
+      "ms": 64,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/league/49"
+    },
+    {
+      "label": "U1",
+      "ms": 38,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U1",
+      "ms": 16,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U1",
+      "ms": 107,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 113,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/leagues"
+    },
+    {
+      "label": "U1",
+      "ms": 153,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_messages"
+    },
+    {
+      "label": "U1",
+      "ms": 156,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 156,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U1",
+      "ms": 12,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U1",
+      "ms": 217,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U1",
+      "ms": 52,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U1",
+      "ms": 113,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U1",
+      "ms": 21,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/rpc/finalize_competition_match"
+    },
+    {
+      "label": "U1",
+      "ms": 133,
+      "status": 204,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/rpc/finalize_competition_match"
+    },
+    {
+      "label": "U1",
+      "ms": 114,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U1",
+      "ms": 125,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 121,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 115,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U1",
+      "ms": 110,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_matches"
+    },
+    {
+      "label": "U2",
+      "ms": 126,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 121,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U1",
+      "ms": 112,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U2",
+      "ms": 118,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U1",
+      "ms": 237,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U2",
+      "ms": 275,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U5",
+      "ms": 60,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/settings"
+    },
+    {
+      "label": "U5",
+      "ms": 50,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U5",
+      "ms": 48,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U5",
+      "ms": 67,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U5",
+      "ms": 78,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U5",
+      "ms": 116,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 279,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 100,
+      "status": 200,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/profile"
+    },
+    {
+      "label": "U5",
+      "ms": 26,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/_expo/static/js/web/entry-06cc4b64fd9e057ad9787a428b2c6489.js"
+    },
+    {
+      "label": "U5",
+      "ms": 43,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/favicon.ico"
+    },
+    {
+      "label": "U5",
+      "ms": 29,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/fonts/ionicons.ttf"
+    },
+    {
+      "label": "U5",
+      "ms": 22,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U5",
+      "ms": 35,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U5",
+      "ms": 37,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U5",
+      "ms": 35,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/league_members"
+    },
+    {
+      "label": "U5",
+      "ms": 38,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U5",
+      "ms": 68,
+      "status": 304,
+      "url": "https://dist-five-zeta-92i4a6g3xx.vercel.app/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/Ionicons.b4eb097d35f44ed943676f"
+    },
+    {
+      "label": "U5",
+      "ms": 105,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 143,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/predictions"
+    },
+    {
+      "label": "U5",
+      "ms": 265,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    },
+    {
+      "label": "U5",
+      "ms": 107,
+      "status": 200,
+      "url": "https://zfsgclwyaapgwxjtzvyd.supabase.co/rest/v1/profiles"
+    }
+  ],
+  "changes": [],
+  "finishedAt": "2026-06-26T08:31:38.236Z",
+  "latencySummary": {
+    "count": 198,
+    "p50": 107,
+    "p90": 233,
+    "p95": 275,
+    "max": 551
+  }
+}

@@ -1,0 +1,6 @@
+PASS. Audit completed with no app edits/deploy from this worker.
+
+Checked App Store-facing metadata/scripts, support/privacy live pages, and fresh `/tmp/screenshots` iPhone/iPad assets. No risky tournament terms, Party Mode/global Matches framing, stale screenshots, trophy/official mark contradiction, or mixed French punishment text found in the checked deployed state.
+
+Report: `workers/20260626-075000-3409426.last.txt`  
+Telegram update sent. Note: original polish worker `20260626-074949-3408500` still has no final marker, but the later deployed unblocker fixed the punishment-label blocker and the live URL is clean: https://dist-five-zeta-92i4a6g3xx.vercel.app

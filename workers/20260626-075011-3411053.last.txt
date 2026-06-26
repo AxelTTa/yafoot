@@ -1,0 +1,20 @@
+Completed the 20-minute simulated user army and sent Telegram update.
+
+Result: `BLOCKED` for Apple resubmission readiness.
+
+Report written to:
+`workers/20260626-075011-3411053.last.txt`
+
+Artifacts:
+`/tmp/yafoot-army-20260626-075011-3411053/`
+
+Key result:
+Core competition flow passed: create competition, localized English punishments, France vs Brazil flags, invite joins, guest predictions, friend accept, host final score, standings/history update.
+
+Blockers:
+1. Anonymous auth hit repeated 429 rate limits during fresh-user onboarding.
+2. Host prediction check failed in the run.
+3. League chat realtime message did not appear on guest side.
+4. Long invite URLs can overflow for long usernames.
+
+Latency looked good: p50 `85ms`, p95 `317ms`, max `691ms`, no >2s requests captured.
