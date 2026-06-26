@@ -108,6 +108,10 @@ async function createSafeChallenge(page) {
 async function shoot(browser, viewport, outFile, tabUrl) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
+  page.on("dialog", async (dialog) => {
+    console.log("  Dialog:", dialog.message());
+    await dialog.accept().catch(() => {});
+  });
   await page.setViewport(viewport);
   console.log("  Loading...");
   await page.goto(BASE_URL, { waitUntil: "networkidle2", timeout: 30000 });
