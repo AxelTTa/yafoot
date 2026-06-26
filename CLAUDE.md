@@ -79,6 +79,11 @@ Two delivery targets — keep BOTH current:
 - `e2e-test.mjs` (backend, needs `ws` polyfill + service role) — 18 checks.
 - `multiplayer-test.mjs` (2 users: league + realtime chat + leaderboard) — 7 checks.
 - `friends-predict-test.mjs`, `onboarding-test.mjs`, `tour.mjs` (screenshots), `font-diag.mjs`.
+- `live-competition-smoke.mjs` is the required production gate for competition work and army runs:
+  it creates a competition through the real live UI, asserts the Supabase create RPC succeeds,
+  extracts the invite code from the page, joins with a second clean browser user, submits predictions
+  as both users, has the host finalize the match, and fails loudly if create competition shows
+  "Could not create competition" or no usable league/code appears.
 - Browser tests use `puppeteer-core` + `/usr/bin/google-chrome`.
 
 ## Secrets (server-only, in yafoot.env — NEVER commit)
@@ -104,6 +109,11 @@ Two delivery targets — keep BOTH current:
   risky or product-changing fixes without explicit task context. Low-only findings may be reported
   without blocking PASS. Tasks explicitly described as read-only/audit-only remain read-only and must
   not edit, deploy, or fix.
+- Every army run must include the live competition UI path, not a direct DB/RPC shortcut:
+  `URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/live-competition-smoke.mjs`.
+  It must be run against the deployed live URL after deploy. A missing invite code, failed create
+  RPC, auth-blocked run, stale local build, bypassed UI creation, failed guest join, failed
+  prediction submit, or failed host finalize is a high-severity army failure.
 
 ## Auto-commit rule
 After completing changes: `git add -A && git commit -m "..." && git push`.

@@ -18,14 +18,14 @@ function kickoffLabel(iso: string | null) {
   return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
 }
 
-function MiniStep({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+function MiniStep({ value, label, onChange }: { value: number; label: "home" | "away"; onChange: (n: number) => void }) {
   return (
     <View style={il.stepper}>
-      <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={il.btn} hitSlop={6}>
+      <Pressable accessibilityLabel={`Decrease ${label} prediction`} onPress={() => onChange(Math.max(0, value - 1))} style={il.btn} hitSlop={6}>
         <Text style={il.sign}>−</Text>
       </Pressable>
       <Text style={il.val}>{value}</Text>
-      <Pressable onPress={() => onChange(Math.min(20, value + 1))} style={il.btn} hitSlop={6}>
+      <Pressable accessibilityLabel={`Increase ${label} prediction`} onPress={() => onChange(Math.min(20, value + 1))} style={il.btn} hitSlop={6}>
         <Text style={il.sign}>+</Text>
       </Pressable>
     </View>
@@ -80,9 +80,9 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
   return (
     <View style={il.wrap}>
       <View style={il.scoreRow}>
-        <MiniStep value={home} onChange={(n) => { setHome(n); setSaveState("idle"); }} />
+        <MiniStep value={home} label="home" onChange={(n) => { setHome(n); setSaveState("idle"); }} />
         <Text style={il.dash}>–</Text>
-        <MiniStep value={away} onChange={(n) => { setAway(n); setSaveState("idle"); }} />
+        <MiniStep value={away} label="away" onChange={(n) => { setAway(n); setSaveState("idle"); }} />
       </View>
       <Pressable onPress={submit} disabled={saveState === "saving" || !dirty} style={[il.submitBtn, !dirty && il.submitBtnQuiet]} hitSlop={4}>
         <Icon name="checkmark-circle" size={13} color={dirty ? colors.blanc : colors.greenDark} />

@@ -2,6 +2,25 @@ import { supabase } from "./supabase";
 import { APP_STORE_SAFE, SAFE_COMPETITION } from "./mode";
 import { CompetitionMatch, CompetitionMatchInput, League, Match, Prediction } from "./types";
 
+function isTransientNetworkError(error: unknown) {
+  const msg = error instanceof Error ? error.message : String(error ?? "");
+  return /load failed|failed to fetch|networkerror|network request failed|fetch/i.test(msg);
+}
+
+async function withNetworkRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let last: unknown;
+  for (let i = 0; i < attempts; i += 1) {
+    try {
+      return await fn();
+    } catch (error) {
+      last = error;
+      if (!isTransientNetworkError(error) || i === attempts - 1) break;
+      await new Promise((resolve) => setTimeout(resolve, 450 * (i + 1)));
+    }
+  }
+  throw last;
+}
+
 export async function fetchMatches(): Promise<Match[]> {
   let query = supabase
     .from("matches")
@@ -67,13 +86,15 @@ export async function createPredictionCompetition(input: {
     away_flag: m.awayFlag || null,
     kickoff: m.kickoffIso,
   }));
-  const { data, error } = await supabase.rpc("create_prediction_competition", {
-    p_name: input.name.trim(),
-    p_description: null,
-    p_public: false,
-    p_punishment: input.punishment?.trim() || null,
-    p_matches: payload,
-  });
+  const { data, error } = await withNetworkRetry(() =>
+    Promise.resolve(supabase.rpc("create_prediction_competition", {
+      p_name: input.name.trim(),
+      p_description: null,
+      p_public: false,
+      p_punishment: input.punishment?.trim() || null,
+      p_matches: payload,
+    }))
+  );
   if (error) throw error;
   return data as League;
 }

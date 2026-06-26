@@ -1,6 +1,8 @@
-[worker 20260626-183710-703644] 🟢 PASS
-- Changed/tested: Fixed anon onboarding retry/session reuse, league chat refresh fallback, invite URL wrapping, profile Exact=3, host final-score controls, and smoke race.
-- Blocker: none
-- Metrics: production smoke 25/25 pass; p95 354ms; max 1083ms; native export OK; Vercel + Expo OTA shipped.
-- Link/artifacts: https://dist-five-zeta-92i4a6g3xx.vercel.app · commit d86c664 · /tmp/yafoot-army-20260626-075011-3411053/22-profile-exact-stat.png
-- Next: none
+Done. Shipped to production and Expo OTA.
+
+Final status:
+- App deploy commit: `d86c664`
+- Final report commit: `d60f892`
+- Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
+- Production smoke: `25/25` pass, p95 `354ms`
+- Telegram update sent successfully.
