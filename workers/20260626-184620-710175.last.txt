@@ -1,0 +1,6 @@
+[worker 20260626-184620-710175] 🟢 PASS
+- Changed/tested: Built current Apple-safe iOS `1.0.1 (6)`, uploaded via EAS Submit, and attached build `6` to ASC version `1.0.1`.
+- Blocker: none.
+- Metrics: ASC read-back `READY_FOR_REVIEW`, build `b227f107-f692-4005-bf51-ed15151316d7`, `VALID`; screenshots 4 iPhone + 4 iPad; safe description scan has no FIFA/World Cup terms.
+- Link/artifacts: https://appstoreconnect.apple.com/apps/6782063727/testflight/ios ; https://expo.dev/accounts/axelttas-team/projects/yafoot/builds/02a99529-24cb-4764-b2e2-c2c8f81eaf87 ; live web https://dist-five-zeta-92i4a6g3xx.vercel.app
+- Next: Manual App Store Connect submit for review when Axel is ready.
