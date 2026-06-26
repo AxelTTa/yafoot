@@ -17,11 +17,24 @@ Full/tournament mode:
 App Store listing fields for resubmission:
 - Version: `1.0.1`
 - iOS build number: `6`
+- Name: `YaFoot`
 - Subtitle: `Friend Score Predictions`
 - Description: `Create private football prediction competitions with friends. Add your own matches with country pickers, flags, and guided start-time controls, invite friends with a code, submit exact-score predictions inside each competition, and follow standings, chat, previous picks, and results history. YaFoot keeps setup fast with username-only play, shareable competition codes, friend invites, chat, and direct messages. Free to play. No email required.`
 - Keywords: `football,soccer,predictions,friends,competition,leaderboard,scores,challenge,chat`
+- Promotional text: `Create private prediction competitions, add your own country matchups, invite friends, and settle the leaderboard when final scores are entered.`
+- What's new: `App Store-safe review build focused on private football prediction competitions: create competitions, add custom country-vs-country matches, invite friends, submit predictions, enter final scores as host, and follow standings.`
 - Support URL: `https://dist-five-zeta-92i4a6g3xx.vercel.app/support`
 - Marketing URL: `https://dist-five-zeta-92i4a6g3xx.vercel.app/support`
+- Privacy URL: `https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy`
+- Primary category: `Sports`
+- Secondary category: `Social Networking`
+- Age rating guidance: app is free-to-play, has username-only anonymous auth, private user-created football score predictions, private competition chat/direct messages, no gambling, no betting, no real-money prizes, no loot boxes, no ads, and no unrestricted web access.
 
 Reviewer note:
-`YaFoot is a generic friend-created football prediction competition app. The review build does not show licensed event names, preset event fixture lists, event logos, crests, award imagery, or marks. Reviewers can create a competition from the Competitions tab, add custom matches with country pickers and guided start-time controls, invite friends by code, submit predictions inside the competition detail, set final scores as host, and use friends/chat. There is no standalone match feed or live group round mode in the review path. Support and privacy/delete-account information are available at /support and /privacy.`
+`YaFoot is a generic friend-created football prediction competition app. The review build is limited to private competitions with user-created country-vs-country matches and does not include branded competition content, preset schedules, logos, crests, award imagery, or third-party marks. Reviewers can create a competition from the Competitions tab, add custom matches with country pickers and guided start-time controls, invite friends by code, submit predictions inside the competition detail, set final scores as host, and use friends/chat. There is no standalone match feed or live group round mode in the review path. Support and privacy/delete-account information are available at /support and /privacy.`
+
+Demo guidance:
+- No demo account is required. The app uses username-only anonymous onboarding.
+- Choose English, enter any reviewer username, tap Continue to app.
+- Open Competitions, create a private competition, choose a punishment, add country-vs-country matches with flags and start times, then submit predictions from inside the competition.
+- As host, enter final scores after the start time to update standings.

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// App Store Connect full listing upload: metadata + screenshots + submit for review
+// App Store Connect listing preparation: metadata + screenshots.
+// Does not submit for review unless ASC_SUBMIT_FOR_REVIEW=1 is explicitly set.
 import { readFileSync, statSync } from "fs";
 import { createSign } from "crypto";
-import { createReadStream } from "fs";
 
 const KEY_ID    = "7N7T2FPQN2";
 const ISSUER_ID = "b79da7bd-6f34-47ab-abd1-2a65ae9774a1";
@@ -10,11 +10,24 @@ const APP_ID    = "6782063727";
 const KEY_PATH  = "/home/ubuntu/yafoot/asc-key.p8";
 const SHOTS_DIR = "/tmp/screenshots";
 const BASE      = "https://api.appstoreconnect.apple.com/v1";
+const TARGET_VERSION = "1.0.1";
+const TARGET_BUILD = "6";
 const SUPPORT_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
 const MARKETING_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
+const PRIVACY_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy";
+const SAFE_NAME = "YaFoot";
+const SAFE_SUBTITLE = "Friend Score Predictions";
 const SAFE_DESCRIPTION = "Create private football prediction competitions with friends. Add your own matches with country pickers, flags, and guided start-time controls, invite friends with a code, submit exact-score predictions inside each competition, and follow standings, chat, previous picks, and results history. YaFoot keeps setup fast with username-only play, shareable competition codes, friend invites, chat, and direct messages. Free to play. No email required.";
 const SAFE_KEYWORDS = "football,soccer,predictions,friends,competition,leaderboard,scores,challenge,chat";
-const SAFE_SUBTITLE = "Friend Score Predictions";
+const SAFE_PROMOTIONAL_TEXT = "Create private prediction competitions, add your own country matchups, invite friends, and settle the leaderboard when final scores are entered.";
+const SAFE_WHATS_NEW = "App Store-safe review build focused on private football prediction competitions: create competitions, add custom country-vs-country matches, invite friends, submit predictions, enter final scores as host, and follow standings.";
+const REVIEW_NOTES = "YaFoot is a generic friend-created football prediction competition app. The review build is limited to private competitions with user-created country-vs-country matches and does not include branded competition content, preset schedules, logos, crests, award imagery, or third-party marks. Reviewers can create a competition from the Competitions tab, add custom matches with country pickers and guided start-time controls, invite friends by code, submit predictions inside the competition detail, set final scores as host, and use friends/chat. There is no standalone match feed or live group round mode in the review path. Support and privacy/delete-account information are available at /support and /privacy.";
+const REVIEW_CONTACT = {
+  firstName: "Axel",
+  lastName: "Cassou",
+  phone: "+33600000000",
+  email: "support@yafoot.app",
+};
 
 // ── JWT generation ────────────────────────────────────────────────────────────
 function makeJwt() {
@@ -73,7 +86,7 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
-  console.log("── Step a: find in-flight version ──");
+  console.log("── Step a: find target App Store version ──");
   const states = [
     "PREPARE_FOR_SUBMISSION",
     "REJECTED",
@@ -89,23 +102,21 @@ async function main() {
   );
   console.log("Versions found:", versionsResp.data?.length);
 
-  let versionId;
-  if (versionsResp.data && versionsResp.data.length > 0) {
-    versionId = versionsResp.data[0].id;
-    console.log("Using version ID:", versionId, "state:", versionsResp.data[0].attributes?.appStoreState);
+  let version = versionsResp.data?.find(v => v.attributes?.versionString === TARGET_VERSION);
+  if (version) {
+    console.log("Using target version ID:", version.id, "version:", version.attributes?.versionString, "state:", version.attributes?.appStoreState);
   } else {
-    // Try getting any version
-    console.log("No in-flight version found with those states — fetching all versions");
-    const allVersions = await api("GET", `/apps/${APP_ID}/appStoreVersions?limit=5`);
+    console.log("Target version not in editable states — fetching all versions");
+    const allVersions = await api("GET", `/apps/${APP_ID}/appStoreVersions?limit=10`);
     console.log("All versions:", JSON.stringify(allVersions.data?.map(v => ({ id: v.id, state: v.attributes?.appStoreState, ver: v.attributes?.versionString })), null, 2));
-    if (!allVersions.data?.length) throw new Error("No versions found for app");
-    // pick first editable one
-    const editable = allVersions.data.find(v =>
-      ["PREPARE_FOR_SUBMISSION","REJECTED","DEVELOPER_REJECTED","READY_FOR_REVIEW"].includes(v.attributes?.appStoreState)
-    ) || allVersions.data[0];
-    versionId = editable.id;
-    console.log("Using version ID:", versionId, "state:", editable.attributes?.appStoreState);
+    version = allVersions.data?.find(v => v.attributes?.versionString === TARGET_VERSION);
+    if (!version) throw new Error(`Target version ${TARGET_VERSION} not found in App Store Connect`);
+    if (!["PREPARE_FOR_SUBMISSION","REJECTED","DEVELOPER_REJECTED","READY_FOR_REVIEW"].includes(version.attributes?.appStoreState)) {
+      throw new Error(`Target version ${TARGET_VERSION} is not safely editable: ${version.attributes?.appStoreState}`);
+    }
+    console.log("Using target version ID:", version.id, "state:", version.attributes?.appStoreState);
   }
+  const versionId = version.id;
 
   console.log("\n── Step b: set copyright ──");
   await api("PATCH", `/appStoreVersions/${versionId}`, {
@@ -140,18 +151,34 @@ async function main() {
   }
   console.log("Localization ID:", locId);
 
-  await api("PATCH", `/appStoreVersionLocalizations/${locId}`, {
-    data: {
-      type: "appStoreVersionLocalizations",
-      id: locId,
-      attributes: {
-        description: SAFE_DESCRIPTION,
-        keywords: SAFE_KEYWORDS,
-        supportUrl: SUPPORT_URL,
-        marketingUrl: MARKETING_URL,
+  const localizationAttributes = {
+    description: SAFE_DESCRIPTION,
+    keywords: SAFE_KEYWORDS,
+    promotionalText: SAFE_PROMOTIONAL_TEXT,
+    whatsNew: SAFE_WHATS_NEW,
+    supportUrl: SUPPORT_URL,
+    marketingUrl: MARKETING_URL,
+  };
+  try {
+    await api("PATCH", `/appStoreVersionLocalizations/${locId}`, {
+      data: {
+        type: "appStoreVersionLocalizations",
+        id: locId,
+        attributes: localizationAttributes,
       },
-    },
-  });
+    });
+  } catch (e) {
+    if (!String(e.message).includes("whatsNew")) throw e;
+    console.warn("ASC would not accept whatsNew in the current version state; retrying localization without whatsNew.");
+    const { whatsNew, ...editableLocalizationAttributes } = localizationAttributes;
+    await api("PATCH", `/appStoreVersionLocalizations/${locId}`, {
+      data: {
+        type: "appStoreVersionLocalizations",
+        id: locId,
+        attributes: editableLocalizationAttributes,
+      },
+    });
+  }
   console.log("Localization patched.");
 
   console.log("\n── Step d: set app categories ──");
@@ -184,8 +211,9 @@ async function main() {
               type: "appInfoLocalizations",
               id: aiLocId,
               attributes: {
-                name: "YaFoot",
+                name: SAFE_NAME,
                 subtitle: SAFE_SUBTITLE,
+                privacyPolicyUrl: PRIVACY_URL,
               },
             },
           });
@@ -206,8 +234,9 @@ async function main() {
             type: "appInfoLocalizations",
             id: aiLocId,
             attributes: {
-              name: "YaFoot",
+              name: SAFE_NAME,
               subtitle: SAFE_SUBTITLE,
+              privacyPolicyUrl: PRIVACY_URL,
             },
           },
         });
@@ -216,6 +245,58 @@ async function main() {
     } catch (e) {
       console.warn("Name/subtitle set failed:", e.message);
     }
+  }
+
+  console.log("\n── Step e: set review notes/contact ──");
+  try {
+    const existingReviewDetail = await api("GET", `/appStoreVersions/${versionId}/appStoreReviewDetail`).catch(() => null);
+    const reviewDetailId = existingReviewDetail?.data?.id;
+    const reviewAttributes = {
+      contactFirstName: REVIEW_CONTACT.firstName,
+      contactLastName: REVIEW_CONTACT.lastName,
+      contactPhone: REVIEW_CONTACT.phone,
+      contactEmail: REVIEW_CONTACT.email,
+      demoAccountRequired: false,
+      demoAccountName: "",
+      demoAccountPassword: "",
+      notes: REVIEW_NOTES,
+    };
+    if (reviewDetailId) {
+      await api("PATCH", `/appStoreReviewDetails/${reviewDetailId}`, {
+        data: {
+          type: "appStoreReviewDetails",
+          id: reviewDetailId,
+          attributes: reviewAttributes,
+        },
+      });
+      console.log("Review detail patched:", reviewDetailId);
+    } else {
+      const created = await api("POST", "/appStoreReviewDetails", {
+        data: {
+          type: "appStoreReviewDetails",
+          attributes: reviewAttributes,
+          relationships: {
+            appStoreVersion: { data: { type: "appStoreVersions", id: versionId } },
+          },
+        },
+      });
+      console.log("Review detail created:", created.data?.id);
+    }
+  } catch (e) {
+    console.warn("Review notes/contact update failed:", e.message);
+  }
+
+  console.log("\n── Step f: verify attached build if present ──");
+  try {
+    const buildResp = await api("GET", `/appStoreVersions/${versionId}/build`);
+    const build = buildResp?.data;
+    const uploadedBuild = build?.attributes?.version;
+    console.log("Attached build:", uploadedBuild || "(none)", "id:", build?.id || "(none)");
+    if (uploadedBuild && uploadedBuild !== TARGET_BUILD) {
+      console.warn(`Attached build is ${uploadedBuild}; expected ${TARGET_BUILD}. Update binary/build manually before review.`);
+    }
+  } catch (e) {
+    console.warn("Could not read attached build:", e.message);
   }
 
   // ── Screenshot upload helper ──
@@ -311,7 +392,7 @@ async function main() {
         const check = await api("GET", `/appScreenshots/${screenshotId}`);
         const state = check.data?.attributes?.assetDeliveryState?.state;
         console.log(`  state: ${state}`);
-        if (state === "UPLOAD_COMPLETE") break;
+        if (state === "UPLOAD_COMPLETE" || state === "COMPLETE") break;
         if (state === "FAILED") { console.error("Screenshot upload FAILED"); break; }
         attempts++;
       }
@@ -321,6 +402,12 @@ async function main() {
 
   await uploadScreenshots("APP_IPHONE_67", "iphone");
   await uploadScreenshots("APP_IPAD_PRO_3GEN_129", "ipad");
+
+  if (process.env.ASC_SUBMIT_FOR_REVIEW !== "1") {
+    console.log("\nSubmission skipped. Set ASC_SUBMIT_FOR_REVIEW=1 to submit after confirming binary, metadata, screenshots, age-rating answers, and privacy answers in App Store Connect.");
+    console.log("\nDONE.");
+    return;
+  }
 
   console.log("\n── Step g: submit for review ──");
   try {
