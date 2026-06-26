@@ -1,0 +1,36 @@
+Done. Built and shipped the Apple-safe YaFoot v1 pivot.
+
+Changed behavior:
+- Default build is App Store-safe (`appStoreSafe: true`, `EXPO_PUBLIC_APP_STORE_SAFE` override supported).
+- Challenges tab now shows only friend-created `YaFoot Challenge` matches, not provider fixture rows.
+- Added Create Challenge flow for manual team/country A, team/country B, start time, and optional challenge name.
+- Predictions, leagues, friends/chat, leaderboards, and Party Mode remain usable with created challenges.
+- Tournament standings and match insights are hidden from the default review path; hidden stats copy was made generic.
+- Added `/support` page with support email, help, privacy link, and delete-account instructions.
+- Settings now links support and exposes account deletion.
+
+Backend/App Store:
+- Applied live Supabase RPCs: `create_challenge_match` and `delete_my_account`.
+- Version prepared: app `1.0.1`, iOS build `6`.
+- App Store Connect editable rejected version was patched to `1.0.1` with safe description, keywords, support URL, subtitle, and review notes.
+- Updated `scripts/asc-upload.mjs` safe listing copy.
+- Documented mode switch and exact listing fields in `APP_STORE_SAFE.md`.
+
+Verification:
+- `npx tsc --noEmit` passed.
+- Live Supabase smoke test created and deleted a temporary `YaFoot Challenge`.
+- `bash scripts/deploy.sh` passed typecheck, web export, native iOS export, Vercel deploy, EAS OTA, git commit/push.
+- Review-surface forbidden-term grep passed for `app components lib app.json APP_STORE_SAFE.md scripts/asc-upload.mjs`.
+- Built deployed bundle phrase grep passed for `FIFA`, `World Cup`, `Coupe du Monde`, `Mundial`, and official fixture/tournament phrases.
+- Live URLs returned HTTP 200.
+
+Live:
+- Web: https://dist-five-zeta-92i4a6g3xx.vercel.app
+- Support: https://dist-five-zeta-92i4a6g3xx.vercel.app/support
+- EAS update: https://expo.dev/accounts/axelttas-team/projects/yafoot/updates/d6dff1d8-5251-40f3-bc0e-25ec1f111cae
+- Git commit: 5537c40
+
+Remaining for App Store resubmission:
+- Upload a new iOS binary for version 1.0.1 build 6.
+- Capture/upload fresh App Store-safe screenshots; I did not run the old screenshot uploader because it can reuse stale tournament screenshots from `/tmp/screenshots`.
+- Submit the patched version for review after the build and safe screenshots are attached.
