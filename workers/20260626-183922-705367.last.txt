@@ -1,0 +1,6 @@
+[worker 20260626-183922-705367] 🟢 PASS
+- Changed/tested: Updated persistent army-run behavior in HANDOFF.md; verified HEAD includes CLAUDE.md, scripts/delegate.sh, and yafoot_bridge.py army loop prompts.
+- Blocker: none
+- Metrics: bash -n scripts/delegate.sh; python3 -m py_compile yafoot_bridge.py; prompt grep confirmed delegate army loop rule.
+- Link/artifacts: staging branch; deployed prompt commit 4b0276a
+- Next: none

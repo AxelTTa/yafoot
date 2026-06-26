@@ -152,6 +152,14 @@ caught mid-save, not a real regression.
 ---
 
 ## 9. Suggested first actions for the server managers
+Current manager/worker rule: use Codex (`codx`) for manager and worker agents. When Axel asks to
+run an "army", workers should treat it as an iterative fix loop, not a report-only audit: run
+simulated users/tests, record issues, classify high/medium/low, fix safe scoped high/medium issues,
+deploy with `bash scripts/deploy.sh`, rerun the army/test loop, and repeat until no high/medium
+issues remain or a clear time/budget cap/blocker is hit. Do not make risky/product-changing fixes
+without explicit task context. Explicit read-only/audit-only tasks stay read-only: no edits, deploys,
+or fixes.
+
 1. Get YaFoot onto the server (GitHub repo from this codebase, then `git pull` / clone here).
 2. Recreate `.env` / secrets on the server: Supabase **service role** key (for `npm run sync`),
    football-data key (lives in DB `app_config`), Vercel token. None are in git.
