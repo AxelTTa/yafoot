@@ -26,14 +26,14 @@ type Row = { user_id: string; points: number; role: string; profiles: any };
 type Msg = { id: number; sender_id: string; body: string; created_at: string };
 type LeagueMatchRow = { ordinal: number; match: Match };
 
-function ScoreStepper({ value, onChange }: { value: number; onChange: (value: number) => void }) {
+function ScoreStepper({ value, label, onChange }: { value: number; label: string; onChange: (value: number) => void }) {
   return (
     <View style={styles.resultStepper}>
-      <Pressable onPress={() => onChange(Math.max(0, value - 1))} style={styles.resultStepBtn}>
+      <Pressable accessibilityLabel={`Decrease ${label} final score`} onPress={() => onChange(Math.max(0, value - 1))} style={styles.resultStepBtn}>
         <Icon name="remove" size={18} color={colors.ink} />
       </Pressable>
       <Text style={styles.resultStepVal}>{value}</Text>
-      <Pressable onPress={() => onChange(Math.min(20, value + 1))} style={styles.resultStepBtn}>
+      <Pressable accessibilityLabel={`Increase ${label} final score`} onPress={() => onChange(Math.min(20, value + 1))} style={styles.resultStepBtn}>
         <Icon name="add" size={18} color={colors.ink} />
       </Pressable>
     </View>
@@ -67,9 +67,9 @@ function FinalScoreControls({ leagueId, match, onFinalized }: { leagueId: number
         <Text style={styles.resultSub}>Set the real final score when this match is done.</Text>
       </View>
       <View style={styles.resultScores}>
-        <ScoreStepper value={home} onChange={setHome} />
+        <ScoreStepper value={home} label="home" onChange={setHome} />
         <Text style={styles.resultDash}>-</Text>
-        <ScoreStepper value={away} onChange={setAway} />
+        <ScoreStepper value={away} label="away" onChange={setAway} />
       </View>
       <Pressable disabled={busy} onPress={finalize} style={[styles.finalizeBtn, busy && { opacity: 0.6 }]}>
         <Icon name="checkmark-done" size={15} color={colors.blanc} />

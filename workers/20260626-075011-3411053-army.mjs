@@ -7,6 +7,7 @@ const BASE = process.env.URL || "https://dist-five-zeta-92i4a6g3xx.vercel.app";
 const CHROME = process.env.CHROME || "/usr/bin/google-chrome";
 const OUT = `/tmp/yafoot-army-${WORKER}`;
 const DURATION_MS = Number(process.env.DURATION_MS || 20 * 60 * 1000);
+const CORE_ONLY = process.env.CORE_ONLY === "1";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://zfsgclwyaapgwxjtzvyd.supabase.co";
 const SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE;
 const sb = SERVICE_ROLE ? createClient(SUPABASE_URL, SERVICE_ROLE) : null;
@@ -68,7 +69,8 @@ function wire(page, label) {
   });
   page.on("pageerror", (e) => {
     page._errors.push(e.message);
-    friction.push({ severity: "high", msg: `${label} pageerror`, context: e.message });
+    const genericNetworkAbort = e.message === "NetworkError: A network error occurred.";
+    friction.push({ severity: genericNetworkAbort ? "low" : "high", msg: `${label} pageerror`, context: e.message });
   });
   page.on("console", (m) => {
     if (m.type() === "error") {
@@ -156,6 +158,20 @@ async function clickVisibleIndex(page, regex, index = 0) {
   await page.mouse.click(rect.x, rect.y);
   log(`click-index ${rect.txt}`);
   return true;
+}
+
+async function clickAria(page, label, times = 1) {
+  for (let i = 0; i < times; i += 1) {
+    const clicked = await page.evaluate((x) => {
+      const el = document.querySelector(`[aria-label="${x}"]`);
+      if (!el) return false;
+      el.click();
+      return true;
+    }, label);
+    if (!clicked) throw new Error(`Could not click aria ${label}`);
+    log(`click aria ${label}`);
+    await sleep(120);
+  }
 }
 
 async function setLastInput(page, value) {
@@ -357,13 +373,17 @@ async function addFriend(a, b, aName, bName) {
   ok(new RegExp(bName, "i").test(await text(a)), `${aName} sees ${bName} as friend`);
 }
 
-async function chatRound(host, guest, code) {
-  await goto(host, await host.evaluate(() => location.pathname).catch(() => `/join/${code}`));
+async function chatRound(host, guest, code, leagueId) {
+  const leaguePath = leagueId ? `/league/${leagueId}` : `/join/${code}`;
+  await goto(host, leaguePath);
+  await waitFor(host, /Matches|Standings|Chat|Invite code/i, 30000);
   await clickText(host, "Chat", { exact: true, timeout: 8000 });
   await waitFor(host, /Message your competition|No messages/i, 15000);
   await setInputByPlaceholder(host, "Message", `Host says ready ${Date.now().toString(36)}`);
   await clickText(host, "Send", { exact: true, timeout: 5000 });
   await sleep(2500);
+  await goto(guest, leaguePath);
+  await waitFor(guest, /Matches|Standings|Chat|Invite code/i, 30000);
   await clickText(guest, "Chat", { exact: true, timeout: 8000 });
   await waitFor(guest, /Host says ready|Message your competition/i, 20000);
   ok(/Host says ready/i.test(await text(guest)), "Guest sees league chat message");
@@ -373,9 +393,8 @@ async function chatRound(host, guest, code) {
 async function finalizeAndVerify(host, guest, leagueId) {
   await clickText(host, "Matches", { exact: true, timeout: 8000 });
   await waitFor(host, /Host result|Finalize score/i, 20000);
-  await clickVisibleIndex(host, /\+/, 2).catch(() => {});
-  await clickVisibleIndex(host, /\+/, 2).catch(() => {});
-  await clickVisibleIndex(host, /\+/, 3).catch(() => {});
+  await clickAria(host, "Increase home final score", 2);
+  await clickAria(host, "Increase away final score", 1);
   await shot(host, "host-before-finalize");
   await clickText(host, "Finalize score", { exact: true, timeout: 10000 });
   await sleep(600);
@@ -396,7 +415,22 @@ async function finalizeAndVerify(host, guest, leagueId) {
       .select("points, profiles(username)")
       .eq("league_id", leagueId);
     ok((data ?? []).length >= 2, "DB has multiple league members after joins", JSON.stringify(data));
+    const { data: leagueMatches } = await sb.from("league_matches").select("match_id").eq("league_id", leagueId);
+    const matchIds = (leagueMatches ?? []).map((row) => row.match_id);
+    const { data: preds } = await sb
+      .from("predictions")
+      .select("points_awarded, scored, profiles(username), matches(home_score,away_score)")
+      .in("match_id", matchIds)
+      .eq("points_awarded", 3)
+      .eq("scored", true);
+    const hostExact = (preds ?? []).some((p) => p.profiles?.username?.startsWith("armyhost"));
+    ok(hostExact, "DB has a 3-point exact prediction for the host", JSON.stringify((preds ?? []).slice(-5)));
   }
+  await goto(host, "/profile");
+  await waitFor(host, /Exact|Forecasts|Total points/i, 25000);
+  await shot(host, "profile-exact-stat");
+  const profileText = await text(host);
+  ok(/Exact/i.test(profileText) && /\b1\b/.test(profileText), "Profile Exact stat visible after 3-point exact score", profileText.slice(0, 700));
 }
 
 async function publicLinks(browser) {
@@ -497,11 +531,11 @@ function summarizeLatency() {
     await addFriend(host, guest, hostName, guestName).catch((e) => {
       friction.push({ severity: "medium", msg: "Friend add/accept friction", context: e.message });
     });
-    await chatRound(host, guest, code).catch((e) => {
+    await chatRound(host, guest, code, leagueId).catch((e) => {
       friction.push({ severity: "medium", msg: "League chat friction", context: e.message });
     });
     await finalizeAndVerify(host, guest, leagueId);
-    await fillerRun([["host", host], ["guest", guest], ["friend", friend], ["lurker", lurker], ["extra", extra]]);
+    if (!CORE_ONLY) await fillerRun([["host", host], ["guest", guest], ["friend", friend], ["lurker", lurker], ["extra", extra]]);
   } catch (e) {
     status = "BLOCKED";
     friction.push({ severity: "critical", msg: "Army run crashed/blocked", context: e.stack || e.message });

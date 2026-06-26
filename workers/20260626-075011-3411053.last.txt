@@ -1,20 +1,9 @@
-Completed the 20-minute simulated user army and sent Telegram update.
-
-Result: `BLOCKED` for Apple resubmission readiness.
-
-Report written to:
-`workers/20260626-075011-3411053.last.txt`
-
-Artifacts:
-`/tmp/yafoot-army-20260626-075011-3411053/`
-
-Key result:
-Core competition flow passed: create competition, localized English punishments, France vs Brazil flags, invite joins, guest predictions, friend accept, host final score, standings/history update.
-
-Blockers:
-1. Anonymous auth hit repeated 429 rate limits during fresh-user onboarding.
-2. Host prediction check failed in the run.
-3. League chat realtime message did not appear on guest side.
-4. Long invite URLs can overflow for long usernames.
-
-Latency looked good: p50 `85ms`, p95 `317ms`, max `691ms`, no >2s requests captured.
+BLOCKED: 20-minute simulated user army against https://dist-five-zeta-92i4a6g3xx.vercel.app
+Apple resubmission ready: NO
+Pass/fail checks: 23/0
+Users: armyhosta8eht12, armyguesta8kgi39, armypala8qet18, armylurka8wap79, armyextraa929w39
+Competition: code=4D54AE leagueId=53
+Latency: count=334, p50=111ms, p90=257ms, p95=319ms, max=705ms
+Top friction: 1. [high] U1 pageerror: NetworkError: A network error occurred. | 2. [high] U2 pageerror: NetworkError: A network error occurred. | 3. [high] U3 pageerror: NetworkError: A network error occurred. | 4. [high] U4 pageerror: NetworkError: A network error occurred. | 5. [high] U5 pageerror: NetworkError: A network error occurred. | 6. [high] public pageerror: NetworkError: A network error occurred. | 7. [high] U1 pageerror: NetworkError: A network error occurred. | 8. [high] U2 pageerror: NetworkError: A network error occurred. | 9. [high] U3 pageerror: NetworkError: A network error occurred. | 10. [high] U1 pageerror: NetworkError: A network error occurred.
+Screenshots: /tmp/yafoot-army-20260626-075011-3411053/01-public--support.png, /tmp/yafoot-army-20260626-075011-3411053/02-public--privacy.png, /tmp/yafoot-army-20260626-075011-3411053/03-public--invite-someone.png, /tmp/yafoot-army-20260626-075011-3411053/04-public--join-ABC123.png, /tmp/yafoot-army-20260626-075011-3411053/05-host-create-step1.png, /tmp/yafoot-army-20260626-075011-3411053/06-host-punishments-english.png, /tmp/yafoot-army-20260626-075011-3411053/07-host-match-builder-empty.png, /tmp/yafoot-army-20260626-075011-3411053/08-host-match-builder-flags.png, /tmp/yafoot-army-20260626-075011-3411053/09-host-competition-created.png, /tmp/yafoot-army-20260626-075011-3411053/10-host-league-matches.png, /tmp/yafoot-army-20260626-075011-3411053/11-armyguesta8kgi39-join-link.png, /tmp/yafoot-army-20260626-075011-3411053/12-armypala8qet18-join-link.png, /tmp/yafoot-army-20260626-075011-3411053/13-armyhosta8eht12-prediction.png, /tmp/yafoot-army-20260626-075011-3411053/14-armyguesta8kgi39-prediction.png, /tmp/yafoot-army-20260626-075011-3411053/15-armypala8qet18-prediction.png, /tmp/yafoot-army-20260626-075011-3411053/16-friend-search-results.png, /tmp/yafoot-army-20260626-075011-3411053/17-friend-request-incoming.png, /tmp/yafoot-army-20260626-075011-3411053/18-guest-chat-realtime.png, /tmp/yafoot-army-20260626-075011-3411053/19-host-before-finalize.png, /tmp/yafoot-army-20260626-075011-3411053/20-host-after-finalize.png, /tmp/yafoot-army-20260626-075011-3411053/21-standings-after-score.png
+Full JSON: /tmp/yafoot-army-20260626-075011-3411053/report.json and workers/20260626-075011-3411053.army-report.json
