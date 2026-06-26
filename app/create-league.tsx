@@ -319,7 +319,7 @@ export default function CreateLeagueWizard() {
       {step === 4 && doneLeague && (
         <ScrollView contentContainerStyle={[styles.doneScroll, { paddingBottom: bottomPad + spacing.xl }]} showsVerticalScrollIndicator={false}>
           <View style={styles.doneIcon}>
-            <Icon name="trophy" size={52} color={colors.yellow} />
+            <Icon name="medal" size={52} color={colors.yellow} />
           </View>
           <Text style={[styles.stepTitle, { textAlign: "center" }]}>{t("league_created")}</Text>
           <Text style={[styles.stepSub, { textAlign: "center" }]}>{doneLeague.name}</Text>

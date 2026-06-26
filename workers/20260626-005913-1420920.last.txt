@@ -1,0 +1,11 @@
+PASS.
+
+Completed mobile smoke QA on `https://dist-five-zeta-92i4a6g3xx.vercel.app` after rebuild deploy `5537c40`.
+
+Screenshots:
+`/tmp/yafoot-qa-mobile-01-home.png` through `/tmp/yafoot-qa-mobile-08-support.png`
+
+Summary written:
+`workers/20260626-005913-1420920.last.txt`
+
+Telegram self-report sent successfully. No blocking issues found. Non-blocking note: headless Chrome stayed on the detail view immediately after save, but Profile confirmed the `QA Reds v QA Blues` `1-0` forecast persisted.

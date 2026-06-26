@@ -24,4 +24,4 @@ App Store listing fields for resubmission:
 - Marketing URL: `https://dist-five-zeta-92i4a6g3xx.vercel.app`
 
 Reviewer note:
-`YaFoot is a generic friend-created football prediction challenge app. The review build does not show licensed event names, preset event fixture lists, event logos, crests, trophies, or marks. Reviewers can create a challenge from the Challenges tab by entering two teams/countries and a start time, then save predictions, create/join private leagues, use friends/chat, and try Party Mode. Support and privacy/delete-account information are available at /support and /privacy.`
+`YaFoot is a generic friend-created football prediction challenge app. The review build does not show licensed event names, preset event fixture lists, event logos, crests, award imagery, or marks. Reviewers can create a challenge from the Challenges tab by entering two teams/countries and a start time, then save predictions, create/join private leagues, use friends/chat, and try Party Mode. Support and privacy/delete-account information are available at /support and /privacy.`

@@ -394,7 +394,7 @@ function RoundResolvedView({ round, bets, getMemberName, isHost, onNextRound }: 
   return (
     <View style={S.roundCard}>
       <View style={S.celebrationBox}>
-        <IconTile name="trophy" color={colors.yellow} size={60} />
+        <IconTile name="star" color={colors.yellow} size={60} />
         <Text style={S.correctAnswerTxt}>{t("soiree_correct_prefix")}<Text style={{ color: colors.green }}>{round.correct_answer}</Text></Text>
         {winners.length === 0 ? <Text style={S.celebNoWinner}>{t("soiree_nobody_right")}</Text> : winners.map((b) => (
           <View key={b.id} style={S.winnerRow}><Icon name="star" size={18} color={colors.yellow} /><Text style={S.winnerTxt}>{getMemberName(b.user_id)}{t("soiree_got_it_suffix")}</Text></View>

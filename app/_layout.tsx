@@ -24,9 +24,10 @@ function RootNav() {
     const inAuth = segments[0] === "(auth)";
     const inInvite = segments[0] === "invite";
     const inJoin = segments[0] === "join";
+    const inPublicInfo = segments[0] === "support" || segments[0] === "privacy";
     const inOnboarding = segments[0] === "onboarding";
 
-    if (!session && !inAuth && !inInvite && !inJoin) {
+    if (!session && !inAuth && !inInvite && !inJoin && !inPublicInfo) {
       // First time: check if language is already chosen
       getSavedLang().then((lang) => {
         if (lang) router.replace("/(auth)/welcome");
@@ -55,6 +56,7 @@ function RootNav() {
       <Stack.Screen name="soiree/[id]" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
+      <Stack.Screen name="support" />
       <Stack.Screen name="privacy" />
     </Stack>
   );

@@ -134,7 +134,7 @@ export default function SoireeIndex() {
         <View style={S.howCard}>
           <Text style={S.howTitle}>{t("soiree_how_title")}</Text>
           {([
-            { icon: "trophy", key: "soiree_how_1" },
+            { icon: "star", key: "soiree_how_1" },
             { icon: "timer-outline", key: "soiree_how_2" },
             { icon: "flame", key: "soiree_how_3" },
             { icon: "flash", key: "soiree_how_4" },

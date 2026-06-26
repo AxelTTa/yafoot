@@ -38,7 +38,7 @@ export default function JoinLeague() {
       <Screen>
         <View style={styles.center}>
           <View style={styles.iconWrap}>
-            <Icon name="trophy" size={40} color={colors.yellow} />
+            <Icon name="medal" size={40} color={colors.yellow} />
           </View>
           <Text style={styles.code}>{code?.toUpperCase()}</Text>
           <Text style={styles.h}>{t("join_need_account")}</Text>
@@ -58,7 +58,7 @@ export default function JoinLeague() {
     <Screen>
       <View style={styles.center}>
         <View style={styles.iconWrap}>
-          <Icon name="trophy" size={40} color={colors.yellow} />
+          <Icon name="medal" size={40} color={colors.yellow} />
         </View>
         <Text style={styles.h}>{t("join_title")}</Text>
         <Text style={styles.code}>{code?.toUpperCase()}</Text>

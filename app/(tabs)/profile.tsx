@@ -101,7 +101,7 @@ export default function Profile() {
 
       <View style={{ paddingHorizontal: spacing.lg, gap: spacing.md }}>
         <View style={styles.hero}>
-          <View style={styles.heroIcon}><Icon name="trophy" size={26} color={colors.yellow} /></View>
+          <View style={styles.heroIcon}><Icon name="star" size={26} color={colors.yellow} /></View>
           <View>
             <Text style={styles.heroLabel}>{t("total_points")}</Text>
             <Text style={styles.heroPoints}>{profile?.total_points ?? 0}</Text>

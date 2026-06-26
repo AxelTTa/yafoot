@@ -1,0 +1,10 @@
+Audit complete: **FAIL for resubmission**.
+
+Wrote the full report to [workers/20260626-005913-1420925.last.txt](/home/ubuntu/yafoot/workers/20260626-005913-1420925.last.txt) and sent Axel the Telegram update.
+
+Main blockers:
+- `/support` and `/privacy` are auth/language-gated in a clean browser instead of showing public support/privacy info.
+- ASC screenshots still match old Jun 19 images showing `World Cup 2026`.
+- Review notes say no trophies, but generic trophy icons remain in app UI/bundle.
+
+Good news: ASC metadata and the live JS bundle are clean for FIFA/World Cup/provider/fixture terms.

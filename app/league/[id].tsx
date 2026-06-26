@@ -214,7 +214,7 @@ export default function LeagueDetail() {
               <Text style={styles.pts}>{item.points} pts</Text>
             </View>
           )}
-          ListEmptyComponent={<Empty icon="trophy-outline" title="No members yet" />}
+          ListEmptyComponent={<Empty icon="podium-outline" title="No members yet" />}
         />
       ) : (
         <KeyboardAvoidingView

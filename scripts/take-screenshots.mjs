@@ -81,6 +81,30 @@ async function clickTabByText(page, label) {
   }
 }
 
+async function setInputValue(page, index, value) {
+  await page.evaluate((idx, val) => {
+    const el = document.querySelectorAll('input')[idx];
+    if (!el) throw new Error(`input ${idx} not found`);
+    Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set.call(el, val);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  }, index, value);
+}
+
+async function createSafeChallenge(page) {
+  await page.goto(`${BASE_URL}/create-challenge`, { waitUntil: "networkidle2", timeout: 20000 });
+  await delay(1500);
+  await setInputValue(page, 0, "Riverside");
+  await setInputValue(page, 1, "Hilltown");
+  const d = new Date(Date.now() + 3 * 60 * 60 * 1000);
+  const start = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  await setInputValue(page, 2, start);
+  await setInputValue(page, 3, "Friends Friday");
+  await delay(300);
+  const created = await clickTabIndex(page, "Create challenge");
+  console.log("  Safe challenge:", created);
+  await delay(3500);
+}
+
 async function shoot(browser, viewport, outFile, tabUrl) {
   const ctx = await browser.createBrowserContext();
   const page = await ctx.newPage();
@@ -88,6 +112,7 @@ async function shoot(browser, viewport, outFile, tabUrl) {
   console.log("  Loading...");
   await page.goto(BASE_URL, { waitUntil: "networkidle2", timeout: 30000 });
   await doOnboarding(page);
+  await createSafeChallenge(page);
 
   if (tabUrl) {
     // Navigate to the specific tab URL directly

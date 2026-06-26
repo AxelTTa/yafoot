@@ -82,7 +82,7 @@ export default function Leagues() {
         }
         renderItem={({ item, index }) => (
           <Card style={{ flexDirection: "row", alignItems: "center", gap: spacing.md }} onPress={() => router.push(`/league/${item.id}`)}>
-            <IconTile name="trophy" color={accentFor(index)} size={46} />
+            <IconTile name="podium" color={accentFor(index)} size={46} />
             <View style={{ flex: 1 }}>
               <Text style={styles.lgName}>{item.name}</Text>
               <View style={{ flexDirection: "row", gap: 8, marginTop: 3, alignItems: "center" }}>
@@ -104,7 +104,7 @@ export default function Leagues() {
             <Icon name="chevron-forward" size={22} color={colors.textFaint} />
           </Card>
         )}
-        ListEmptyComponent={<Empty icon="trophy-outline" title={t("no_leagues")} sub={t("no_leagues_sub")} />}
+        ListEmptyComponent={<Empty icon="podium-outline" title={t("no_leagues")} sub={t("no_leagues_sub")} />}
       />
 
       {/* ── Join modal ── */}
