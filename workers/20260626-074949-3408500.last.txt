@@ -1,7 +1,8 @@
 Done and shipped.
 
 Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
-Commit after deploy: 93fcff2
+Deploy commit: 93fcff2
+Summary commit: dac9a10
 
 Changed:
 - Punishments now come from language-specific catalogs, so English UI shows English punishment names/descriptions/options and French UI shows French equivalents.
