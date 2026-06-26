@@ -1,0 +1,34 @@
+Done and shipped.
+
+Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Commit after deploy: 93fcff2
+
+Changed:
+- Punishments now come from language-specific catalogs, so English UI shows English punishment names/descriptions/options and French UI shows French equivalents.
+- Localized the competition creation flow around punishment, country picking, date/time labels, validation messages, and severity chips.
+- Removed stale hidden "Party Mode" copy from the exported translation payload; safe mode still redirects /soiree to Competitions and hides global Matches.
+- Polished bottom-tab spacing so labels are no longer clipped in mobile screenshots.
+- Updated App Store-safe metadata/tooling: marketing URL now points to public /support, screenshot tool captures safe Competition/Friends/Profile surfaces and accepts URL=...
+
+Fresh screenshots:
+- /tmp/screenshots/iphone_01.png
+- /tmp/screenshots/iphone_02.png
+- /tmp/screenshots/iphone_03.png
+- /tmp/screenshots/iphone_04.png
+- /tmp/screenshots/ipad_01.png
+- /tmp/screenshots/ipad_02.png
+- /tmp/screenshots/ipad_03.png
+- /tmp/screenshots/ipad_04.png
+
+Verified:
+- npx tsc --noEmit
+- npx expo export --platform web
+- npx expo export --platform ios
+- Built-bundle safe-term scan for Party Mode / World Cup 2026 / FIFA World Cup / Coupe du Monde / Mondial
+- Browser visual/localization checks for public /support and /privacy, English and French punishment flows, /soiree safe redirect, /create-challenge safe redirect
+- Screenshot dimensions: iPhone 1290x2796, iPad 2048x2732
+- bash scripts/deploy.sh passed: Vercel deploy, Expo Go OTA, git push
+- Live production smoke passed after deploy
+
+Known limitations:
+- Screenshots were generated locally from the deployed-equivalent static bundle after the final spacing fix; production smoke verified the same live URL and routes after deploy.
