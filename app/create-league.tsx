@@ -39,6 +39,12 @@ function fixturePayload(match: Match) {
   };
 }
 
+function isPredictionReadyFixture(match: Match) {
+  const home = prettyTeam(match.home_team);
+  const away = prettyTeam(match.away_team);
+  return home !== "TBD" && away !== "TBD" && home !== away;
+}
+
 export default function CreateCompetitionWizard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -63,6 +69,7 @@ export default function CreateCompetitionWizard() {
       const remaining = all
         .filter((m) => isUpcoming(m.status))
         .filter((m) => !/GROUP/i.test(String(m.stage ?? "")))
+        .filter(isPredictionReadyFixture)
         .sort((a, b) => {
           const ta = a.utc_kickoff ?? "";
           const tb = b.utc_kickoff ?? "";
