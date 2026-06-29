@@ -61,7 +61,12 @@ async function clickText(page, label, { exact = false, timeout = 8000 } = {}) {
       });
       const node = nodes[0];
       if (!node) return null;
-      const r = node.getBoundingClientRect();
+      let target = node.closest('[role="button"],button,a') || node;
+      for (let p = node.parentElement; p && p !== document.body; p = p.parentElement) {
+        const box = p.getBoundingClientRect();
+        if (box.width >= 120 && box.height >= 36) { target = p; break; }
+      }
+      const r = target.getBoundingClientRect();
       return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     }, label, exact);
     if (rect) {
@@ -82,12 +87,16 @@ async function setLastInput(page, value) {
     const proto = input.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
     const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
     if (!setter) return false;
-    setter.call(input, next);
+    setter.call(input, "");
     input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
     return true;
   }, value);
   if (!ok) throw new Error(`Could not set input to ${value}`);
+  await page.keyboard.type(value, { delay: 15 });
+  await page.evaluate(() => {
+    const input = [...document.querySelectorAll("input,textarea")].filter((el) => el.offsetParent !== null).at(-1);
+    if (input) input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 }
 
 async function clickVisibleExact(page, text, occurrence = 0) {
@@ -193,17 +202,16 @@ async function onboard(page, prefix) {
 async function createCompetition(host) {
   const name = `Smoke ${stamp()}`;
   await host.goto(`${BASE_URL}/create-league`, { waitUntil: "domcontentloaded", timeout: 60000 });
-  await waitFor(host, /Name your competition|Competition name/i, 30000);
-  await screenshot(host, "host-name");
-  await setLastInput(host, name);
+  await waitFor(host, /How long|Rest of tournament|Next knockout|Sur combien/i, 30000);
+  await screenshot(host, "host-length");
   await clickText(host, "Next", { exact: true });
   await waitFor(host, /Mild|Daring|Savage|punishment/i, 30000);
+  await screenshot(host, "host-punishment");
   await clickText(host, "Next", { exact: true });
-  await waitFor(host, /Pick country|Country A|Start time/i, 30000);
-  await selectCountry(host, "France", 0);
-  await selectCountry(host, "Brazil", 0);
-  await screenshot(host, "host-match-ready");
-  await clickText(host, "Create", { timeout: 10000 });
+  await waitFor(host, /Name your league|Competition name|COMPETITION NAME/i, 30000);
+  await screenshot(host, "host-name");
+  await setLastInput(host, name);
+  await clickText(host, "Create competition", { timeout: 10000 }).catch(() => clickText(host, "Create", { timeout: 10000 }));
   let created = await waitFor(host, /INVITE CODE|Submit prediction|Host result|Could not create competition/i, 60000);
   await screenshot(host, "host-created");
   assert(!/Could not create competition/i.test(created), "create competition did not show failure alert", created.slice(0, 500));

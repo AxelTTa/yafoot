@@ -22,38 +22,66 @@ async function shot(page, name) {
 
 // Find and click element by exact text
 async function tapText(page, text) {
-  return page.evaluate((t) => {
+  const rect = await page.evaluate((t) => {
     const el = [...document.querySelectorAll("*")].find(
-      (n) => n.children.length === 0 && (n.textContent || "").trim() === t
+      (n) => n.offsetParent !== null && n.children.length === 0 && (n.textContent || "").trim() === t
     );
-    if (el) { el.click(); return true; }
-    return false;
+    if (!el) return null;
+    let target = el.closest('[role="button"],button,a') || el;
+    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+      const r = p.getBoundingClientRect();
+      if (r.width >= 120 && r.height >= 36) { target = p; break; }
+    }
+    const r = target.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }, text);
+  if (!rect) return false;
+  await page.mouse.click(rect.x, rect.y);
+  return true;
 }
 
 // Find and click element matching regex
 async function tapRegex(page, pattern) {
-  return page.evaluate((r) => {
+  const rect = await page.evaluate((r) => {
     const rx = new RegExp(r);
     const el = [...document.querySelectorAll("*")].find(
-      (n) => n.children.length === 0 && rx.test((n.textContent || "").trim())
+      (n) => n.offsetParent !== null && n.children.length === 0 && rx.test((n.textContent || "").trim())
     );
-    if (el) { el.click(); return true; }
-    return false;
+    if (!el) return null;
+    let target = el.closest('[role="button"],button,a') || el;
+    for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+      const r = p.getBoundingClientRect();
+      if (r.width >= 120 && r.height >= 36) { target = p; break; }
+    }
+    const box = target.getBoundingClientRect();
+    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
   }, pattern.source);
+  if (!rect) return false;
+  await page.mouse.click(rect.x, rect.y);
+  return true;
 }
 
 // Fill the last visible input on the page
 async function fillInput(page, value) {
-  return page.evaluate((val) => {
-    const inputs = [...document.querySelectorAll("input")];
+  const focused = await page.evaluate(() => {
+    const inputs = [...document.querySelectorAll("input,textarea")].filter((el) => el.offsetParent !== null);
     const i = inputs[inputs.length - 1];
     if (!i) return false;
-    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-    setter.call(i, val);
+    i.focus();
+    const proto = i.tagName === "TEXTAREA" ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+    const setter = Object.getOwnPropertyDescriptor(proto, "value").set;
+    setter.call(i, "");
     i.dispatchEvent(new Event("input", { bubbles: true }));
     return true;
-  }, value);
+  });
+  if (!focused) return false;
+  await page.keyboard.type(value, { delay: 15 });
+  await page.evaluate(() => {
+    const inputs = [...document.querySelectorAll("input,textarea")].filter((el) => el.offsetParent !== null);
+    const i = inputs[inputs.length - 1];
+    if (i) i.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  return true;
 }
 
 // Get full body text
@@ -288,7 +316,7 @@ function fail(name, detail = "") {
   // ──────────────────────────────────────────────
   console.log("\n[5] Leagues");
   try {
-    await tapText(page, "Leagues");
+    await page.goto(BASE + "/leagues", { waitUntil: "domcontentloaded", timeout: 60000 });
     await sleep(3000);
     const txt = await bodyText(page);
     const hasLeagues = /League|Create|Join|No leagues/i.test(txt);
@@ -304,14 +332,14 @@ function fail(name, detail = "") {
     if (!clickedCreate) clickedCreate = await tapRegex(page, /Create|New League/i);
     await sleep(3000);
     const txt2 = await bodyText(page);
-    // Step 1: "How long?" — pick Full tournament then Next
-    const hasStep1 = /How long|Full tournament|Group stage|Weekend/i.test(txt2);
+    // Step 1: "How long?" — pick remaining knockout matches then Next
+    const hasStep1 = /How long|Rest of tournament|Next knockout|Final stretch|Sur combien/i.test(txt2);
     if (hasStep1) {
       pass("Create league wizard step 1 (match count) opens");
       await shot(page, "11-create-league-step1");
 
-      // Pick "Full tournament" (104 matches)
-      await tapText(page, "Full tournament");
+      // Group-stage options are gone; use the remaining knockout slate.
+      await tapText(page, "Rest of tournament");
       await sleep(500);
       await tapText(page, "Next");
       await sleep(2000);
@@ -329,7 +357,8 @@ function fail(name, detail = "") {
         pass("Create league step 3 (name) reaches");
         await fillInput(page, "TestLeague" + Date.now().toString(36).slice(-4));
         await sleep(400);
-        await tapText(page, "Create League");
+        let clickedSubmit = await tapText(page, "Create competition");
+        if (!clickedSubmit) clickedSubmit = await tapRegex(page, /Create League|Créer la ligue|Créer la compet/i);
         await sleep(5000);
       }
 
@@ -356,7 +385,7 @@ function fail(name, detail = "") {
   // ──────────────────────────────────────────────
   console.log("\n[6] Friends");
   try {
-    await tapText(page, "Friends");
+    await page.goto(BASE + "/social", { waitUntil: "domcontentloaded", timeout: 60000 });
     await sleep(3000);
     const txt = await bodyText(page);
     const hasFriends = /Friend|Search|Add|No friends|Potes/i.test(txt);
@@ -406,7 +435,7 @@ function fail(name, detail = "") {
   // ──────────────────────────────────────────────
   console.log("\n[7] Profile");
   try {
-    await tapText(page, "Profile");
+    await page.goto(BASE + "/profile", { waitUntil: "domcontentloaded", timeout: 60000 });
     await sleep(3500);
     const txt = await bodyText(page);
     const hasProfile = /points|pts|Prediction|Forecast|Profile|Profil|tester/i.test(txt);

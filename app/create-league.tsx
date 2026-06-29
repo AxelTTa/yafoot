@@ -9,7 +9,7 @@ import { PunishmentSeverity, useI18n } from "../lib/i18n";
 import { notify } from "../lib/notify";
 import { prettyTeam, teamFlag } from "../lib/teams";
 import { colors, radius, shadow, spacing } from "../lib/theme";
-import { Match, isLive, isUpcoming } from "../lib/types";
+import { Match, isUpcoming } from "../lib/types";
 
 type Step = 1 | 2 | 3 | 4;
 type LengthKey = "rest" | "wave" | "finals" | "custom";
@@ -61,7 +61,7 @@ export default function CreateCompetitionWizard() {
     try {
       const all = await fetchMatches();
       const remaining = all
-        .filter((m) => isUpcoming(m.status) || isLive(m.status))
+        .filter((m) => isUpcoming(m.status))
         .filter((m) => !/GROUP/i.test(String(m.stage ?? "")))
         .sort((a, b) => {
           const ta = a.utc_kickoff ?? "";

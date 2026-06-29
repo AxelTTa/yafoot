@@ -1,14 +1,13 @@
 import { Redirect, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import MatchCard from "../../components/MatchCard";
-import GroupStandings from "../../components/GroupStandings";
+import WorldCupBracket from "../../components/WorldCupBracket";
 import { Empty, Icon, Loading } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { fetchMatches, fetchMyPredictions } from "../../lib/api";
 import { APP_STORE_SAFE } from "../../lib/mode";
-import { computeGroups } from "../../lib/standings";
 import { supabase } from "../../lib/supabase";
 import { colors, radius, spacing } from "../../lib/theme";
 import { Match, Prediction, isFinished, isLive, isUpcoming } from "../../lib/types";
@@ -41,7 +40,6 @@ export default function Matches() {
   }, [load]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
-  const groups = useMemo(() => (APP_STORE_SAFE ? [] : computeGroups(matches)), [matches]);
   const filtered = useMemo(() => {
     if (filter === "results") return matches.filter((m) => isFinished(m.status)).reverse();
     if (filter === "upcoming") {
@@ -102,16 +100,14 @@ export default function Matches() {
       </View>
 
       {filter === "groups" ? (
-        <FlatList
-          data={groups}
-          keyExtractor={(g) => g.group}
-          ListHeaderComponent={Filters}
+        <ScrollView
           contentContainerStyle={styles.list}
           refreshControl={refresh}
-          renderItem={({ item }) => <GroupStandings group={item.group} rows={item.rows} />}
-          ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-          ListEmptyComponent={<Empty icon="podium" title={t("empty_groups")} />}
-        />
+          showsVerticalScrollIndicator={false}
+        >
+          {Filters}
+          <WorldCupBracket matches={matches} />
+        </ScrollView>
       ) : (
         <FlatList
           data={filtered}
