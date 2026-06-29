@@ -1,0 +1,52 @@
+Worker 20260629-202432-1758777 final live army report
+
+Status: PARTIAL, with no remaining high/medium app failures found in the shipped flows.
+Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Final deploy commit observed: 75e5934 deploy 2026-06-29T20:47:19Z
+
+Fixes shipped:
+- Restored competition prediction reachability after inline card prediction removal by making league match cards open match detail.
+- Removed automatic App Store redirects from /join and /invite so QR/share links preserve web join/invite semantics.
+- Added match-detail prediction stepper accessibility labels.
+- Preserved hidden Predict tab and hidden/redirected Soiree routes.
+
+Deploys run:
+- bash scripts/deploy.sh completed multiple fix-loop deploys, including typecheck, web export, native Expo-Go compile, Vercel production alias, Expo Go OTA, git push.
+- Final live alias: https://dist-five-zeta-92i4a6g3xx.vercel.app
+
+Passing live tests:
+- Required production competition gate passed:
+  URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/live-competition-smoke.mjs
+  Result: PASS 8/8
+  Covered: host onboard, guest onboard, create competition through live UI, extract invite code, guest join through /join, host prediction from match detail, guest prediction from match detail, host final score, scoring/previous-history signal.
+  Report: /tmp/yafoot-live-competition-smoke-mqzomy6i/report.json
+  Artifacts: /tmp/yafoot-live-competition-smoke-mqzomy6i/01-host-name.png through 09-host-finalized.png
+
+- Focused link/hidden-entrypoint pass:
+  PASS Predict tab removed.
+  PASS Soiree hidden from tabs/cards.
+  PASS /soiree redirects to /leagues.
+  PASS /join stays in web flow and does not force App Store.
+  PASS /invite does not force App Store.
+  Partial report with early accessibility-label crash before final fix: /tmp/yafoot-focused-mqzokl2s/report.json
+
+- Focused match-detail pass:
+  PASS match detail has prediction plus stats/history.
+  PASS submit hidden before non-default input.
+  PASS submit appears after real input.
+  Report: /tmp/yafoot-focused-match-mqzor62e/report.json
+  Artifacts: /tmp/yafoot-focused-match-mqzor62e/1-matches.png, /tmp/yafoot-focused-match-mqzor62e/2-detail.png
+
+Issues found and classification:
+- HIGH fixed: Competition match cards said Tap to predict but had no onPress, making competition predictions unreachable after inline prediction removal.
+- HIGH fixed: /join and /invite web routes auto-opened App Store fallback, breaking live web QR/share join semantics.
+- MEDIUM fixed: Match-detail prediction steppers lacked accessibility labels, making automated and accessible interaction brittle.
+- LOW/test gap: Direct friend-search automation did not complete because RN-web input targeting was unreliable in the headless script. Invite-link routing was verified, and competition invite/join was verified end-to-end.
+
+App Store/native update path:
+- Expo OTA published by deploy script; App Store-installed app should receive JS changes if running the same runtimeVersion/appVersion.
+- True universal links still require native Associated Domains / apple-app-site-association / App Store Connect-domain setup in a new binary. Current web fallback is safe and no longer breaks web join/invite.
+
+Residual notes:
+- Soiree strings still exist in bundled i18n data but entrypoints/routes are hidden or redirected; not a user-visible issue.
+- No remaining high/medium live app failures observed after final deploy.
