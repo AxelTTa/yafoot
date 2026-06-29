@@ -12,13 +12,19 @@ type AnalyticsClient = {
   screen?: (name: string, properties?: AnalyticsProps) => void | Promise<void>;
 };
 
+type PendingAnalyticsCall =
+  | { type: "capture"; event: string; properties?: AnalyticsProps }
+  | { type: "screen"; name: string; properties?: AnalyticsProps }
+  | { type: "identify"; distinctId: string; properties?: AnalyticsProps }
+  | { type: "reset" };
+
 const extra = (Constants.expoConfig?.extra ?? {}) as {
   posthogApiKey?: string;
   posthogHost?: string;
 };
 
 const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY || extra.posthogApiKey || "";
-const POSTHOG_HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST || extra.posthogHost || "";
+const POSTHOG_HOST = process.env.EXPO_PUBLIC_POSTHOG_HOST || extra.posthogHost || "https://us.i.posthog.com";
 const NATIVE_REPLAY_ENABLED =
   process.env.EXPO_PUBLIC_POSTHOG_NATIVE_SESSION_REPLAY === "1" && Constants.appOwnership !== "expo";
 
@@ -26,9 +32,10 @@ let client: AnalyticsClient | null = null;
 let initStarted = false;
 let identifiedId: string | null = null;
 let lastScreen: string | null = null;
+const pendingCalls: PendingAnalyticsCall[] = [];
 
 export const analyticsEnabled = Boolean(POSTHOG_API_KEY && POSTHOG_HOST);
-export const posthogMissingEnv = analyticsEnabled ? [] : ["EXPO_PUBLIC_POSTHOG_API_KEY", "EXPO_PUBLIC_POSTHOG_HOST"];
+export const posthogMissingEnv = analyticsEnabled ? [] : ["EXPO_PUBLIC_POSTHOG_API_KEY"];
 
 function cleanProps(properties?: AnalyticsProps) {
   if (!properties) return undefined;
@@ -45,6 +52,31 @@ function normalizePath(pathname: string) {
 function screenNameFromSegments(segments: string[]) {
   const visible = segments.filter((segment) => !segment.startsWith("("));
   return visible.length ? visible.join("/") : "home";
+}
+
+function captureWithClient(target: AnalyticsClient, event: string, properties?: AnalyticsProps) {
+  void target.capture(event, cleanProps(properties));
+}
+
+function screenWithClient(target: AnalyticsClient, name: string, properties?: AnalyticsProps) {
+  if (target.screen) void target.screen(name, cleanProps(properties));
+  else captureWithClient(target, "$pageview", { ...properties, $current_url: properties?.path });
+}
+
+function flushPendingCalls() {
+  if (!client) return;
+  const calls = pendingCalls.splice(0, pendingCalls.length);
+  for (const call of calls) {
+    if (call.type === "capture") captureWithClient(client, call.event, call.properties);
+    else if (call.type === "screen") screenWithClient(client, call.name, call.properties);
+    else if (call.type === "identify") void client.identify?.(call.distinctId, cleanProps(call.properties));
+    else void client.reset?.();
+  }
+}
+
+function setAnalyticsClient(nextClient: AnalyticsClient) {
+  client = nextClient;
+  flushPendingCalls();
 }
 
 export async function initAnalytics() {
@@ -69,16 +101,16 @@ export async function initAnalytics() {
         networkPayloadCapture: { recordBody: false, recordHeaders: false },
       },
       loaded: (loadedClient: AnalyticsClient) => {
-        client = loadedClient;
+        setAnalyticsClient(loadedClient);
       },
     } as any);
-    client = posthog as unknown as AnalyticsClient;
+    setAnalyticsClient(posthog as unknown as AnalyticsClient);
     return;
   }
 
   const mod = await import("posthog-react-native");
   const PostHog = mod.default;
-  client = new PostHog(POSTHOG_API_KEY, {
+  setAnalyticsClient(new PostHog(POSTHOG_API_KEY, {
     host: POSTHOG_HOST,
     captureAppLifecycleEvents: true,
     enableSessionReplay: NATIVE_REPLAY_ENABLED,
@@ -93,30 +125,46 @@ export async function initAnalytics() {
     errorTracking: {
       autocapture: { uncaughtExceptions: true, unhandledRejections: true },
     },
-  }) as unknown as AnalyticsClient;
+  }) as unknown as AnalyticsClient);
 }
 
 export function track(event: string, properties?: AnalyticsProps) {
-  if (!client) return;
-  void client.capture(event, cleanProps(properties));
+  if (!analyticsEnabled) return;
+  if (!client) {
+    pendingCalls.push({ type: "capture", event, properties: cleanProps(properties) });
+    return;
+  }
+  captureWithClient(client, event, properties);
 }
 
 export function trackScreen(name: string, properties?: AnalyticsProps) {
-  if (!client || lastScreen === name) return;
+  if (!analyticsEnabled || lastScreen === name) return;
   lastScreen = name;
-  if (client.screen) void client.screen(name, cleanProps(properties));
-  else void client.capture("$pageview", cleanProps({ ...properties, $current_url: properties?.path }));
+  if (!client) {
+    pendingCalls.push({ type: "screen", name, properties: cleanProps(properties) });
+    return;
+  }
+  screenWithClient(client, name, properties);
 }
 
 export function identifyAnalyticsUser(userId: string, properties?: AnalyticsProps) {
-  if (!client || identifiedId === userId) return;
+  if (!analyticsEnabled || identifiedId === userId) return;
   identifiedId = userId;
+  if (!client) {
+    pendingCalls.push({ type: "identify", distinctId: userId, properties: cleanProps(properties) });
+    return;
+  }
   void client.identify?.(userId, cleanProps(properties));
 }
 
 export function resetAnalyticsUser() {
+  if (!analyticsEnabled) return;
   identifiedId = null;
-  void client?.reset?.();
+  if (!client) {
+    pendingCalls.push({ type: "reset" });
+    return;
+  }
+  void client.reset?.();
 }
 
 export function captureError(error: unknown, context: string, properties?: AnalyticsProps) {
