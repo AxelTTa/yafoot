@@ -1,12 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Icon, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { joinLeague } from "../../lib/api";
-import { openInstalledAppOrStore } from "../../lib/invite";
 import { notify } from "../../lib/notify";
 import { colors, spacing } from "../../lib/theme";
 
@@ -16,12 +15,6 @@ export default function JoinLeague() {
   const { session } = useAuth();
   const { t } = useI18n();
   const [joining, setJoining] = useState(false);
-
-  useEffect(() => {
-    if (!code || typeof window === "undefined") return;
-    AsyncStorage.setItem("yafoot.pending_join", code.toUpperCase()).catch(() => {});
-    openInstalledAppOrStore(`/join/${encodeURIComponent(String(code).toUpperCase())}`);
-  }, [code]);
 
   async function doJoin() {
     if (!code) return;

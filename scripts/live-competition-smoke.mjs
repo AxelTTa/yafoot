@@ -234,7 +234,13 @@ async function joinCompetition(guest, code) {
 }
 
 async function submitPrediction(page, label, homeClicks, awayClicks) {
-  await waitFor(page, /Submit prediction|Prediction submitted|vs/i, 30000);
+  const startedUrl = page.url();
+  await waitFor(page, /Tap to predict|Submit prediction|Prediction submitted|vs/i, 30000);
+  const before = await bodyText(page);
+  if (/Tap to predict/i.test(before) && !/Submit prediction/i.test(before)) {
+    await clickText(page, "Tap to predict", { exact: true, timeout: 10000 });
+    await waitFor(page, /Make your prediction|Submit prediction|No prediction yet/i, 30000);
+  }
   await clickAria(page, "Increase home prediction", homeClicks).catch(async () => {
     for (let i = 0; i < homeClicks; i += 1) await clickText(page, "+", { exact: true, timeout: 2000 });
   });
@@ -242,9 +248,13 @@ async function submitPrediction(page, label, homeClicks, awayClicks) {
     for (let i = 0; i < awayClicks; i += 1) await clickText(page, "+", { exact: true, timeout: 2000 });
   });
   await clickText(page, "Submit prediction", { exact: true, timeout: 10000 });
-  const text = await waitFor(page, /Submitted|Prediction submitted/i, 20000);
-  assert(/Submitted|Prediction submitted/i.test(text), `${label} prediction submitted`, text.slice(0, 400));
+  const text = await waitFor(page, /Prediction saved|Prediction submitted|Change the score to update/i, 20000);
+  assert(/Prediction saved|Prediction submitted|Change the score to update/i.test(text), `${label} prediction submitted`, text.slice(0, 400));
   await screenshot(page, `${label}-prediction`);
+  if (/\/match\/\d+/.test(page.url()) && /\/league\/\d+/.test(startedUrl)) {
+    await page.goBack({ waitUntil: "domcontentloaded", timeout: 30000 }).catch(() => {});
+    await waitFor(page, /Host result|Standings|Invite code|Matches/i, 30000);
+  }
 }
 
 async function finalize(host) {

@@ -79,9 +79,9 @@ export default function MatchCard({
         <View style={{ flex: 1 }}>
           {!live && !finished ? (
             prediction ? (
-              <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
+              <Text onPress={onPress} style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
             ) : (
-              <Text style={styles.locked}>Tap to predict</Text>
+              <Text onPress={onPress} style={styles.locked}>Tap to predict</Text>
             )
           ) : prediction ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>

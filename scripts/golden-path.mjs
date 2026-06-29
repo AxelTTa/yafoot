@@ -244,7 +244,7 @@ function fail(name, detail = "") {
   }
 
   // ──────────────────────────────────────────────
-  // TEST 4: Stats screen (/stats/[id])
+  // TEST 4: Stats content on combined match detail
   // ──────────────────────────────────────────────
   console.log("\n[4] Stats (Elo model)");
   try {
@@ -252,18 +252,27 @@ function fail(name, detail = "") {
     await sleep(3000);
     await tapText(page, "Upcoming");
     await sleep(2000);
-    const clickedStats = await tapRegex(page, /Stats/i);
+    const clickedStats = await page.evaluate(() => {
+      const all = [...document.querySelectorAll("div, button, [role='button']")];
+      const card = all.find(
+        (n) => n.textContent && /VS|Tap to predict|Pick \d+/i.test(n.textContent)
+          && n.children.length > 0 && n.children.length < 20
+          && n.offsetParent !== null
+      );
+      if (card) { card.click(); return true; }
+      return false;
+    });
     await sleep(4000);
     const txt = await bodyText(page);
-    const hasStats = /probability|Win|Elo|%|forecast|chance/i.test(txt);
+    const hasStats = /Match stats|Win Probability|Head-to-head World Cup history|World Cup history|%/i.test(txt);
     if (clickedStats && hasStats) {
-      pass("Stats/Elo screen loads with probability content");
+      pass("Combined match detail shows stats/history content");
       await shot(page, "09-stats");
     } else if (!clickedStats) {
-      fail("Stats button not found on match cards");
+      fail("Match card not found for combined stats check");
       await shot(page, "09-stats-FAIL");
     } else {
-      fail("Stats content missing", "body: " + txt.slice(0, 200));
+      fail("Combined stats content missing", "body: " + txt.slice(0, 200));
       await shot(page, "09-stats-FAIL");
     }
     await tapRegex(page, /‹|Back/i);
