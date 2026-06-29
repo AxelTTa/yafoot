@@ -252,7 +252,8 @@ function fail(name, detail = "") {
     await sleep(3000);
     await tapText(page, "Upcoming");
     await sleep(2000);
-    const clickedStats = await page.evaluate(() => {
+    let clickedStats = await tapText(page, "Tap to predict");
+    if (!clickedStats) clickedStats = await page.evaluate(() => {
       const all = [...document.querySelectorAll("div, button, [role='button']")];
       const card = all.find(
         (n) => n.textContent && /VS|Tap to predict|Pick \d+/i.test(n.textContent)

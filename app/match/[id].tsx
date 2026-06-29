@@ -25,14 +25,14 @@ type H2HData = {
   h2h_summary: { home_wins: number; away_wins: number; draws: number; total: number } | null;
 };
 
-function Stepper({ value, set, color }: { value: number; set: (n: number) => void; color: string }) {
+function Stepper({ value, set, color, side }: { value: number; set: (n: number) => void; color: string; side: "home" | "away" }) {
   return (
     <View style={styles.stepper}>
-      <Pressable onPress={() => set(Math.max(0, value - 1))} style={styles.stepBtn}>
+      <Pressable accessibilityLabel={`Decrease ${side} prediction`} onPress={() => set(Math.max(0, value - 1))} style={styles.stepBtn}>
         <Text style={styles.stepSign}>−</Text>
       </Pressable>
       <Text style={[styles.stepVal, { color }]}>{value}</Text>
-      <Pressable onPress={() => set(Math.min(20, value + 1))} style={styles.stepBtn}>
+      <Pressable accessibilityLabel={`Increase ${side} prediction`} onPress={() => set(Math.min(20, value + 1))} style={styles.stepBtn}>
         <Text style={styles.stepSign}>+</Text>
       </Pressable>
     </View>
@@ -169,11 +169,11 @@ export default function MatchDetail() {
             <View style={styles.steppers}>
               <View style={{ alignItems: "center", flex: 1, gap: 8 }}>
                 <Text style={styles.stepFlag}>{teamFlag(match.home_team, match.home_flag)}</Text>
-                <Stepper value={home} set={updateHome} color={colors.bleu} />
+                <Stepper value={home} set={updateHome} color={colors.bleu} side="home" />
               </View>
               <View style={{ alignItems: "center", flex: 1, gap: 8 }}>
                 <Text style={styles.stepFlag}>{teamFlag(match.away_team, match.away_flag)}</Text>
-                <Stepper value={away} set={updateAway} color={colors.rouge} />
+                <Stepper value={away} set={updateAway} color={colors.rouge} side="away" />
               </View>
             </View>
             {canSubmit ? (
