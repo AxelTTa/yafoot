@@ -1,0 +1,48 @@
+[worker 20260629-054941-1426338] PASS
+
+Live URL tested: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Restored app baseline: worker 20260629-054930-1425681 shipped full mode at commits dd44fc6, 6a6b95a, 5888801. I waited for that deploy before testing.
+
+Summary:
+- No high/medium product issues remain from this army pass.
+- No app changes were made by this worker, so no deploy was run by this worker.
+- App Store policy risk remains known and intentional: live/OTA now exposes World Cup/official fixture content that Apple previously rejected in review context.
+
+Passed gates:
+- `URL=https://dist-five-zeta-92i4a6g3xx.vercel.app OUT=/tmp/yafoot-live-competition-smoke-20260629-054941 node scripts/live-competition-smoke.mjs`
+  - Create custom competition through real UI, extract invite code, guest join, both predict, host finalize/scoring.
+  - Report: `/tmp/yafoot-live-competition-smoke-20260629-054941/report.json`
+- `URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/party-test.mjs`
+  - 23/23 passed: host soirée, two guests join, challenge opens/locks/resolves, points and punishments show.
+  - Screenshots: `/tmp/party-test/`
+- `npx tsc --noEmit`
+  - Passed.
+
+Targeted browser checks passed:
+- Onboarding: language -> username-only signup -> invite screen -> main app.
+- Main app: World Cup 2026 home/feed renders, build-your-own creation is not dominant, mobile horizontal overflow was 0.
+- Matches: Upcoming, Groups, Results render. Group standings show P/W/D/L/GD/Pts and seeded group data.
+- Prediction flow: score stepper + Submit prediction on official fixture shows `Prediction submitted`.
+- Match stats: `/stats/282` renders Match Insights, win probability, head-to-head, recent form and match stats.
+- Party mode: `/soiree` visible in full mode; full scripted party test passed.
+- Leagues/competitions: `/create-official-league` loads official World Cup create path. Retained secondary custom competition flow passed via live smoke.
+- Friends/social: direct `/social` flow passed with two fresh users: search, Add, incoming request, Accept, open DM, send message, recipient sees message.
+- Profile/support/privacy: profile/stat surface rendered in flow; `/support` and `/privacy` loaded with expected delete/privacy/contact content.
+- Data refresh/sync sanity: service-role DB check found `FIFA World Cup: 104` and `YaFoot Challenge: 40` matches; official fixture sample includes scores/statuses.
+- Installed-app-ish web behavior: live Vercel alias returns 200; `/metadata.json` reachable. Restore deploy already verified native Expo Go bundle and published EAS OTA.
+
+Artifacts:
+- `/tmp/yafoot-live-competition-smoke-20260629-054941/report.json`
+- `/tmp/party-test/`
+- `/tmp/targeted-main.png`
+- `/tmp/pred-submit.png`
+- `/tmp/stats-page.png`
+- Harness attempt reports, kept for trace only because the failures were stale selectors/generic click drift rather than product failures:
+  - `/tmp/yafoot-main-army-20260629-054941/report.json`
+  - `/tmp/yafoot-main-army-20260629-054941-r2/report.json`
+
+Low-only notes:
+- Support/privacy copy still emphasizes private friend-created competitions/App Store-safe positioning. This is not blocking full-mode functionality but may be worth revising later if Axel wants all public pages to match the restored World Cup-first product.
+- Older scripts `onboarding-test.mjs` and `friends-predict-test.mjs` have stale selectors/copy assumptions after the restore; targeted reruns confirmed the product behavior.
+
+Next: none.
