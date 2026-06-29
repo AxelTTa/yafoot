@@ -95,8 +95,8 @@ export default function Profile() {
 
       <View style={{ alignItems: "center", gap: 6, paddingBottom: spacing.lg }}>
         <Avatar name={profile?.display_name || profile?.username} url={profile?.avatar_url} size={104} ring color={colors.purple} />
-        <Text style={styles.name}>{profile?.display_name || profile?.username || "Player"}</Text>
-        <Text style={styles.handle}>@{profile?.username}</Text>
+        <Text style={styles.name} numberOfLines={1}>{profile?.display_name || profile?.username || "Player"}</Text>
+        <Text style={styles.handle} numberOfLines={1}>@{profile?.username}</Text>
       </View>
 
       <View style={{ paddingHorizontal: spacing.lg, gap: spacing.md }}>
@@ -266,16 +266,16 @@ export default function Profile() {
 
 const styles = StyleSheet.create({
   gear: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: "center", justifyContent: "center", ...shadow },
-  name: { color: colors.ink, fontSize: 24, fontWeight: "900", marginTop: spacing.sm },
-  handle: { color: colors.textDim, fontSize: 14, fontWeight: "700" },
+  name: { maxWidth: "88%", color: colors.ink, fontSize: 24, fontWeight: "900", marginTop: spacing.sm, textAlign: "center" },
+  handle: { maxWidth: "88%", color: colors.textDim, fontSize: 14, fontWeight: "700", textAlign: "center" },
   hero: { flexDirection: "row", alignItems: "center", gap: spacing.lg, backgroundColor: colors.purple, borderRadius: radius.xl, padding: spacing.xl, ...shadow },
   heroIcon: { width: 56, height: 56, borderRadius: 28, backgroundColor: "rgba(255,255,255,0.2)", alignItems: "center", justifyContent: "center" },
   heroLabel: { color: "rgba(255,255,255,0.85)", fontSize: 12, fontWeight: "900", letterSpacing: 1 },
   heroPoints: { color: colors.blanc, fontSize: 44, fontWeight: "900", letterSpacing: -1, marginTop: -2 },
-  statsRow: { flexDirection: "row", gap: spacing.sm },
-  stat: { flex: 1, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, alignItems: "center", ...shadow },
+  statsRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
+  stat: { width: "48%", minHeight: 82, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, alignItems: "center", justifyContent: "center", ...shadow },
   statVal: { fontSize: 22, fontWeight: "900" },
-  statLabel: { color: colors.textDim, fontSize: 10, fontWeight: "800", marginTop: 2 },
+  statLabel: { color: colors.textDim, fontSize: 10, fontWeight: "800", marginTop: 2, textAlign: "center", lineHeight: 13 },
   section: { color: colors.textDim, fontSize: 12, fontWeight: "900", letterSpacing: 1, marginTop: spacing.sm },
   tabRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.sm },
   tabPill: { paddingHorizontal: spacing.lg, paddingVertical: 7, borderRadius: radius.pill, backgroundColor: colors.surface, ...shadow },
@@ -285,9 +285,9 @@ const styles = StyleSheet.create({
   fcKickoff: { color: colors.textFaint, fontSize: 11, fontWeight: "700", marginTop: 2 },
   emptyFc: { flexDirection: "row", alignItems: "center", gap: spacing.sm, backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.lg },
   emptyTxt: { color: colors.textDim, fontSize: 13, fontWeight: "600", flex: 1 },
-  fc: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, ...shadow },
-  fcTeams: { flex: 1, color: colors.ink, fontSize: 14, fontWeight: "800", marginRight: spacing.md },
-  fcRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  fc: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, gap: spacing.sm, ...shadow },
+  fcTeams: { flex: 1, minWidth: 0, color: colors.ink, fontSize: 14, fontWeight: "800", marginRight: spacing.md },
+  fcRight: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 0 },
   fcPick: { color: colors.ink, fontSize: 15, fontWeight: "900" },
   fcBadge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2, minWidth: 28, alignItems: "center" },
   fcBadgeTxt: { fontSize: 12, fontWeight: "900" },

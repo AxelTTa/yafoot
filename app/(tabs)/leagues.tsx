@@ -68,7 +68,7 @@ export default function Leagues() {
         ListHeaderComponent={
           <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
             <View style={{ flexDirection: "row", gap: spacing.sm }}>
-              <Button title={t("btn_create")} icon="add" variant="green" onPress={() => router.push(APP_STORE_SAFE ? "/create-league" : "/create-official-league")} style={{ flex: 1, height: 48 }} />
+              <Button title={t("btn_create")} icon="add" variant="green" onPress={() => router.push("/create-league")} style={{ flex: 1, height: 48 }} />
               <Button title={t("btn_join")} icon="enter-outline" variant="purple" onPress={() => setJoinModal(true)} style={{ flex: 1, height: 48 }} />
             </View>
           </View>
