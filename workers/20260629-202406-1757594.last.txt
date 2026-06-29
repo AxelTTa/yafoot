@@ -1,0 +1,4 @@
+[worker 20260629-202406-1757594] 🟢 PASS | running: 14
+- Done: Full-live update shipped. Predict/Soiree hidden, match detail now prediction+stats, WC history copy, App Store fallback links live.
+- Tests: deploy OK, native export OK, OTA OK, live competition smoke PASS, golden path 18/18.
+- Next: true iOS universal links need Associated Domains + AASA + new App Store binary.
