@@ -26,7 +26,7 @@ export async function fetchMatches(): Promise<Match[]> {
     .from("matches")
     .select("*")
     .order("utc_kickoff", { ascending: true });
-  if (APP_STORE_SAFE) query = query.eq("competition", SAFE_COMPETITION);
+  query = APP_STORE_SAFE ? query.eq("competition", SAFE_COMPETITION) : query.eq("competition", "FIFA World Cup");
   const { data, error } = await query;
   if (error) throw error;
   return (data as Match[]) ?? [];
