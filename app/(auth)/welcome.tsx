@@ -5,6 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput
 import { Button, Screen, Tricolor } from "../../components/ui";
 import { Logo } from "../../components/Brand";
 import { useAuth } from "../../lib/auth";
+import { captureError, track } from "../../lib/analytics";
 import { supabase } from "../../lib/supabase";
 import { consumePendingInvite, getPendingInvite } from "../../lib/invite";
 import { useI18n } from "../../lib/i18n";
@@ -46,6 +47,7 @@ export default function Welcome() {
     setError(null);
     if (displayName.length < 2) return setError(t("err_short"));
     if (handle.length < 2) return setError(t("err_short"));
+    track("onboarding_started", { invited, username_length: handle.length });
     inFlight.current = true;
     setLoading(true);
     const delays = [0, 2500, 7000, 15000];
@@ -69,6 +71,7 @@ export default function Welcome() {
       setLoading(false);
       inFlight.current = false;
       setError(isRateLimit(authError) ? "Signup is busy right now. Wait a moment, then try again." : authError.message);
+      captureError(authError, "onboarding_signup", { invited });
       return;
     }
     const { data: who } = await supabase.auth.getUser();
@@ -79,6 +82,7 @@ export default function Welcome() {
         setLoading(false);
         inFlight.current = false;
         setError(t("err_chars"));
+        captureError(ue, "onboarding_profile_update", { reason: "username_conflict" });
         return;
       }
       await refreshProfile();
@@ -89,12 +93,14 @@ export default function Welcome() {
       await AsyncStorage.removeItem("yafoot.pending_join");
       setLoading(false);
       inFlight.current = false;
+      track("onboarding_completed", { destination: "join", invited });
       router.replace(`/join/${pendingJoin}`);
       return;
     }
     const friended = await consumePendingInvite();
     setLoading(false);
     inFlight.current = false;
+    track("onboarding_completed", { destination: friended === "ok" ? "social" : "invite", invited, friended: friended === "ok" });
     if (friended === "ok") router.replace("/(tabs)/social");
     else router.replace("/onboarding/invite");
   }

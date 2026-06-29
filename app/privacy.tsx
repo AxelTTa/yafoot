@@ -19,6 +19,7 @@ export default function PrivacyPolicy() {
           <Bullet>Your match predictions and competition activity</Bullet>
           <Bullet>An optional profile photo you upload</Bullet>
           <Bullet>Anonymous device authentication tokens (no personal identifiers)</Bullet>
+          <Bullet>Product analytics events, page/screen views, device/app metadata, and web session replay when enabled</Bullet>
         </Section>
 
         <Section title="2. How We Use It">
@@ -28,6 +29,7 @@ export default function PrivacyPolicy() {
           <Bullet>Display your username and predictions to competition members you invite</Bullet>
           <Bullet>Calculate scores and leaderboard rankings</Bullet>
           <Bullet>Enable real-time competition chat and direct messages with friends you add</Bullet>
+          <Bullet>Understand crashes, errors, and user flows so we can improve reliability and usability</Bullet>
         </Section>
 
         <Section title="3. Data Storage">
@@ -46,10 +48,19 @@ export default function PrivacyPolicy() {
           </Paragraph>
         </Section>
 
-        <Section title="5. Data Sharing">
+        <Section title="5. Analytics And Session Replay">
           <Paragraph>
-            We do not sell, rent, or share your data with third parties. No advertising networks,
-            analytics providers, or data brokers receive your information.
+            YaFoot uses PostHog for product analytics, error diagnostics, and session replay where supported.
+            Session replay helps us inspect app behavior, but text inputs are masked and request or response
+            bodies are not recorded. We do not intentionally capture passwords, invite links, chat message
+            bodies, league codes, custom punishment text, or other sensitive free-text content in analytics events.
+          </Paragraph>
+        </Section>
+
+        <Section title="6. Data Sharing">
+          <Paragraph>
+            We do not sell or rent your data. PostHog receives limited analytics, diagnostics, and replay data
+            as our processor. No advertising networks or data brokers receive your information.
           </Paragraph>
           <Paragraph>
             Your username and prediction activity are visible to other members of competitions you join
@@ -57,7 +68,7 @@ export default function PrivacyPolicy() {
           </Paragraph>
         </Section>
 
-        <Section title="6. Profile Photos">
+        <Section title="7. Profile Photos">
           <Paragraph>
             If you upload a profile photo, it is stored in Supabase Storage (US region) and is
             visible to other YaFoot users. You can change or remove your photo at any time from
@@ -65,7 +76,7 @@ export default function PrivacyPolicy() {
           </Paragraph>
         </Section>
 
-        <Section title="7. Your Rights">
+        <Section title="8. Your Rights">
           <Paragraph>
             You can delete your account and all associated data by contacting us. Since accounts
             are anonymous, we will need your username to locate your data.
@@ -75,21 +86,21 @@ export default function PrivacyPolicy() {
           </Paragraph>
         </Section>
 
-        <Section title="8. Children">
+        <Section title="9. Children">
           <Paragraph>
             YaFoot is rated 4+ and does not knowingly collect data from children under 13 beyond
             what is described above. There is no mechanism to verify age at sign-up.
           </Paragraph>
         </Section>
 
-        <Section title="9. Changes to This Policy">
+        <Section title="10. Changes to This Policy">
           <Paragraph>
             If we materially change this policy, we will update the date at the top of this page.
             Continued use of the app after changes constitutes acceptance.
           </Paragraph>
         </Section>
 
-        <Section title="10. Contact">
+        <Section title="11. Contact">
           <Paragraph>
             Questions about this policy? Reach us at support@yafoot.app or visit:{"\n"}
             https://dist-five-zeta-92i4a6g3xx.vercel.app/support

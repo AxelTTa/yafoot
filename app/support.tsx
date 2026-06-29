@@ -28,6 +28,10 @@ export default function Support() {
         <Section title="Account And Data">
           <Paragraph>YaFoot uses username-only anonymous accounts. No email or phone number is required to play.</Paragraph>
           <Paragraph>
+            YaFoot uses PostHog analytics, diagnostics, and supported session replay to improve reliability. Text inputs are
+            masked in replay, and analytics events avoid chat bodies, invite links, league codes, and other free-text content.
+          </Paragraph>
+          <Paragraph>
             To delete your account in the app, open Profile, go to settings, and use Delete my account. If you cannot access
             the app, email {SUPPORT_EMAIL} with your username and request deletion.
           </Paragraph>

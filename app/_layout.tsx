@@ -1,11 +1,12 @@
 import { Stack, useRouter, useSegments } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../lib/auth";
+import { AnalyticsProvider, identifyAnalyticsUser, resetAnalyticsUser, useRouteAnalytics } from "../lib/analytics";
 import { I18nProvider, getSavedLang } from "../lib/i18n";
 import { Loading } from "../components/ui";
-import { APP_STORE_SAFE } from "../lib/mode";
 import { colors } from "../lib/theme";
 
 if (typeof document !== "undefined" && !document.getElementById("yf-ionicons")) {
@@ -16,9 +17,10 @@ if (typeof document !== "undefined" && !document.getElementById("yf-ionicons")) 
 }
 
 function RootNav() {
-  const { session, loading } = useAuth();
+  const { session, profile, loading } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  useRouteAnalytics();
 
   useEffect(() => {
     if (loading) return;
@@ -38,6 +40,18 @@ function RootNav() {
       router.replace("/(tabs)");
     }
   }, [session, loading, segments]);
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      identifyAnalyticsUser(session.user.id, {
+        username: profile?.username,
+        has_avatar: Boolean(profile?.avatar_url),
+        platform: Platform.OS,
+      });
+    } else {
+      resetAnalyticsUser();
+    }
+  }, [session?.user?.id, profile?.username, profile?.avatar_url]);
 
   if (loading) return <Loading />;
 
@@ -65,10 +79,12 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <I18nProvider>
-        <AuthProvider>
-          <StatusBar style="dark" />
-          <RootNav />
-        </AuthProvider>
+        <AnalyticsProvider>
+          <AuthProvider>
+            <StatusBar style="dark" />
+            <RootNav />
+          </AuthProvider>
+        </AnalyticsProvider>
       </I18nProvider>
     </SafeAreaProvider>
   );

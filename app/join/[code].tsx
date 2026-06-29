@@ -4,6 +4,7 @@ import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Icon, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { captureError, track } from "../../lib/analytics";
 import { useI18n } from "../../lib/i18n";
 import { joinLeague } from "../../lib/api";
 import { notify } from "../../lib/notify";
@@ -21,8 +22,10 @@ export default function JoinLeague() {
     setJoining(true);
     try {
       const lid = await joinLeague(code.toUpperCase());
+      track("competition_joined", { league_id: lid, source: "deep_link" });
       router.replace(`/league/${lid}`);
     } catch (e: any) {
+      captureError(e, "competition_join", { source: "deep_link" });
       notify(t("error_join"), e.message);
       setJoining(false);
     }
@@ -30,6 +33,7 @@ export default function JoinLeague() {
 
   async function goCreateAccount() {
     if (code) await AsyncStorage.setItem("yafoot.pending_join", code.toUpperCase());
+    track("competition_join_account_required", { source: "deep_link" });
     router.replace("/(auth)/welcome");
   }
 

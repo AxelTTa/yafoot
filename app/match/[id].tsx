@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, Header, Icon, Loading, Pill, Screen } from "../../components/ui";
+import { captureError, track } from "../../lib/analytics";
 import { fetchMatch, fetchMyPredictions, savePrediction } from "../../lib/api";
 import { matchProbabilities } from "../../lib/odds";
 import { notify } from "../../lib/notify";
@@ -73,6 +74,14 @@ export default function MatchDetail() {
       }
       setTouched(false);
       setLoading(false);
+      if (m) {
+        track("match_opened", {
+          match_id: matchId,
+          status: m.status,
+          stage: m.stage ?? m.group_name,
+          has_prediction: Boolean(p),
+        });
+      }
     })();
   }, [id]);
 
@@ -97,8 +106,16 @@ export default function MatchDetail() {
       setPred((cur) => ({ ...(cur ?? saved), ...saved }));
       setInitial({ home, away });
       setTouched(false);
+      track("prediction_submitted", {
+        match_id: match!.id,
+        status: match!.status,
+        is_update: Boolean(pred),
+        pred_home: home,
+        pred_away: away,
+      });
       notify("Prediction saved", `${match!.home_team} ${home} - ${away} ${match!.away_team}`);
     } catch (e: any) {
+      captureError(e, "prediction_submit", { match_id: match!.id, status: match!.status });
       notify("Could not save", e.message);
     } finally {
       setSaving(false);

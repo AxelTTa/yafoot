@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { Button, Icon, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { track } from "../../lib/analytics";
 import { useI18n } from "../../lib/i18n";
 import { APP_STORE_URL, inviteLink } from "../../lib/invite";
 import { notify } from "../../lib/notify";
@@ -21,12 +22,16 @@ export default function OnboardingInvite() {
     if (!link) return;
     if (typeof navigator !== "undefined" && navigator.clipboard) await navigator.clipboard.writeText(link).catch(() => {});
     setCopied(true);
+    track("invite_shared", { method: "copy", source: "onboarding" });
     notify(t("btn_copied"), "Send it to friends so they can add you.");
   }
   async function share() {
     if (!link) return;
     if (Platform.OS === "web") return copy();
-    try { await Share.share({ message: `${link}\nApp Store: ${APP_STORE_URL}` }); } catch {}
+    try {
+      await Share.share({ message: `${link}\nApp Store: ${APP_STORE_URL}` });
+      track("invite_shared", { method: "native_share", source: "onboarding" });
+    } catch {}
   }
 
   const bubbleColors = [colors.green, colors.purple, colors.orange, colors.cyan];
@@ -53,7 +58,10 @@ export default function OnboardingInvite() {
           title={t("btn_continue")}
           variant="green"
           icon="arrow-forward"
-          onPress={() => router.replace("/(tabs)")}
+          onPress={() => {
+            track("onboarding_invite_continue");
+            router.replace("/(tabs)");
+          }}
           style={{ marginVertical: spacing.sm }}
         />
 

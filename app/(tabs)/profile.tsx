@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import { Avatar, Icon, ScreenHeader, ScrollView } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
+import { captureError, track } from "../../lib/analytics";
 import { useI18n } from "../../lib/i18n";
 import { fetchMyForecasts, savePrediction } from "../../lib/api";
 import { notify } from "../../lib/notify";
@@ -66,6 +67,12 @@ export default function Profile() {
     ]);
     setStats({ predictions: predictions ?? 0, exact: exact ?? 0, correct: correct ?? 0, leagues: leagues ?? 0 });
     setForecasts(fc);
+    track("profile_viewed", {
+      predictions: predictions ?? 0,
+      exact: exact ?? 0,
+      correct: correct ?? 0,
+      leagues: leagues ?? 0,
+    });
     refreshProfile();
   }, [session?.user?.id]);
 
@@ -243,9 +250,17 @@ export default function Profile() {
                   setEditSaving(true);
                   try {
                     await savePrediction(editFc.match_id, editHome, editAway);
+                    track("prediction_submitted", {
+                      match_id: editFc.match_id,
+                      source: "profile",
+                      is_update: true,
+                      pred_home: editHome,
+                      pred_away: editAway,
+                    });
                     setEditFc(null);
                     await load();
-                  } catch {
+                  } catch (e) {
+                    captureError(e, "profile_prediction_submit", { match_id: editFc.match_id });
                     notify("Save failed", "Could not save your prediction. Try again.");
                   } finally {
                     setEditSaving(false);

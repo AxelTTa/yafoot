@@ -13,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { Button, Card, Empty, Icon, IconTile, Loading, ScreenHeader } from "../../components/ui";
+import { captureError, track } from "../../lib/analytics";
 import { fetchMyLeagues, joinLeague } from "../../lib/api";
 import { notify } from "../../lib/notify";
 import { useI18n } from "../../lib/i18n";
@@ -42,10 +43,12 @@ export default function Leagues() {
     setBusy(true);
     try {
       const lid = await joinLeague(code.trim());
+      track("competition_joined", { league_id: lid, source: "manual_code" });
       setJoinModal(false); setCode("");
       await load();
       router.push(`/league/${lid}`);
     } catch (e: any) {
+      captureError(e, "competition_join", { source: "manual_code" });
       notify("Could not join", e.message);
     } finally {
       setBusy(false);

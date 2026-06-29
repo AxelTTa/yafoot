@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Icon, QRModal } from "../components/ui";
+import { captureError, track } from "../lib/analytics";
 import { createPredictionCompetition, fetchMatches } from "../lib/api";
 import { APP_STORE_URL, joinLink } from "../lib/invite";
 import { PunishmentSeverity, useI18n } from "../lib/i18n";
@@ -142,9 +143,16 @@ export default function CreateCompetitionWizard() {
         punishment: activePunishment,
         matches: selectedFixtures.map(fixturePayload),
       });
+      track("competition_created", {
+        league_id: league.id,
+        match_count: selectedFixtures.length,
+        length,
+        has_punishment: Boolean(activePunishment),
+      });
       setDone({ id: league.id, code: league.code, name: league.name });
       setStep(4);
     } catch (e: any) {
+      captureError(e, "competition_create", { match_count: selectedFixtures.length, length });
       notify("Could not create competition", e.message);
     } finally {
       setBusy(false);
@@ -157,10 +165,14 @@ export default function CreateCompetitionWizard() {
     const msg = `Join my YaFoot competition "${done.name}".\nCode: ${done.code}\n${url}\nApp Store: ${APP_STORE_URL}`;
     if (Platform.OS === "web") {
       if (typeof navigator !== "undefined" && navigator.clipboard) await navigator.clipboard.writeText(url).catch(() => {});
+      track("invite_shared", { method: "copy", source: "competition", league_id: done.id });
       notify("Invite link copied", url);
       return;
     }
-    try { await Share.share({ message: msg }); } catch {}
+    try {
+      await Share.share({ message: msg });
+      track("invite_shared", { method: "native_share", source: "competition", league_id: done.id });
+    } catch {}
   }
 
   const StepDots = (
