@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActionSheetIOS,
@@ -81,6 +81,7 @@ function FinalScoreControls({ leagueId, match, onFinalized }: { leagueId: number
 
 export default function LeagueDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const leagueId = Number(id);
   const { session } = useAuth();
   const me = session?.user?.id;
@@ -304,6 +305,7 @@ export default function LeagueDetail() {
               <MatchCard
                 match={item.match}
                 prediction={preds[item.match.id]}
+                onPress={() => router.push(`/match/${item.match.id}`)}
               />
               {isHost && !isFinished(item.match.status) ? (
                 <FinalScoreControls

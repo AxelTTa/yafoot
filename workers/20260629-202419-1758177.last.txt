@@ -1,0 +1,63 @@
+Worker 20260629-202419-1758177 report - final App Store listing/assets
+
+Status: PARTIAL
+Reason: App Store Connect version 1.0.1 is READY_FOR_SALE, so the existing ASC upload script safely refused to mutate live metadata/screenshots. No binary was submitted.
+
+What changed/prepared:
+- Added/used final App Store screenshot generator: scripts/take-app-store-screenshots.mjs
+- Updated ASC metadata constants and screenshot upload count in scripts/asc-upload.mjs
+- Generated 5 iPhone 6.7" screenshots at 1290x2796 and 5 iPad 12.9" screenshots at 2048x2732
+- Durable screenshot asset paths:
+  - app-store-assets/final-2026-06-29/iphone_01.png - World Cup 2026 score predictions
+  - app-store-assets/final-2026-06-29/iphone_02.png - match detail prediction + stats
+  - app-store-assets/final-2026-06-29/iphone_03.png - private leagues, leaderboard, punishment
+  - app-store-assets/final-2026-06-29/iphone_04.png - World Cup history/groups/context
+  - app-store-assets/final-2026-06-29/iphone_05.png - invite QR/App Store fallback
+  - app-store-assets/final-2026-06-29/ipad_01.png through ipad_05.png - matching iPad set
+
+ASC attempt:
+- Command run: node scripts/asc-upload.mjs
+- Log: /tmp/yafoot-asc-upload-20260629-202419-1758177.log
+- Result: blocked safely
+- ASC returned only version 1.0.1 with state READY_FOR_SALE.
+- Error: Target version 1.0.1 is not safely editable: READY_FOR_SALE
+- No review submission was attempted.
+
+Prepared App Store fields:
+- Name: YaFoot
+- Subtitle: World Cup Score Predictions
+- Keywords: yafoot,football,soccer,prediction,world cup,scores,friends,leaderboard,league,chat
+- Promotional text: Predict World Cup scores with friends, study match stats, and climb your private YaFoot leaderboard.
+- What's new: Final live YaFoot listing update: fresh World Cup prediction screenshots, match detail prediction plus stats positioning, private leagues, friends, standings, and App Store link guidance.
+- Support URL: https://dist-five-zeta-92i4a6g3xx.vercel.app/support
+- Marketing URL: https://dist-five-zeta-92i4a6g3xx.vercel.app/support
+- Privacy URL: https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy
+
+Prepared description:
+YaFoot is a social football prediction game for the 2026 World Cup. Predict exact match scores, follow live results, study match insights, and compete with friends in private leagues.
+
+Create or join a league, invite friends with a code or link, submit your scoreline before kickoff, and watch the leaderboard move as results come in. Match detail pages combine predictions with stats, win probabilities, likely scorelines, community forecasts, and World Cup history context so every pick feels informed.
+
+YaFoot is built for friendly competition: username-only setup, private league chat, friend requests, direct messages, standings, previous picks, and optional loser punishments inside your friend group.
+
+Free to play. No betting, no gambling, no real-money prizes, and no email required.
+
+Prepared review notes:
+YaFoot is a free social football prediction app for friend groups. Users create a username-only account, predict match scores before kickoff, join private leagues, invite friends, chat, view standings, and inspect match stats/history. The app does not offer betting, gambling, real-money prizes, odds wagering, loot boxes, ads, or unrestricted web access. Invite and QR guidance points users to the public App Store listing when the app is not installed: https://apps.apple.com/us/app/yafoot/id6782063727. No demo account is required; reviewers can choose English, enter any username, continue to the app, open Matches or Leagues, and submit predictions where matches are open.
+
+Manual ASC steps remaining:
+1. Create a new editable iOS version in App Store Connect, or prepare a new binary/version if Apple requires one for metadata/screenshot refresh.
+2. Upload the 10 screenshots from app-store-assets/final-2026-06-29/.
+3. Paste the prepared fields above, then run node scripts/asc-upload.mjs if the new version is editable.
+4. Do not submit for review until binary/deep-link expectations are confirmed.
+
+Reference notes/sources:
+- Apple product page guidance: https://developer.apple.com/app-store/product-page/ - avoid improper keyword use, duplicate/plural/category terms, competitor names, and irrelevant terms.
+- MPP App Store reference: https://apps.apple.com/ae/app/mpp-the-social-predictor/id1378863579 - emphasizes social prediction with friends, private/community ranking, prizes/challenges.
+- ESPN Tournament Challenge App Store reference: https://apps.apple.com/us/app/espn-tournament-challenge/id359891723 - leads with tournament competition, friends/groups, predictor insight.
+- Predictor for Friends App Store reference: https://apps.apple.com/sv/app/predictor-for-friends/id875268306?l=en-GB - positions friend groups, football predictions, leagues.
+- Kickgeist World Cup prediction reference: https://kickgeist.com/en/friends/ - World Cup 2026 friend-group prediction positioning, no money/bragging-rights framing.
+
+Notes:
+- Product worker 20260629-202406-1757594 exited without a final report file, but commit f47cea4 later appeared with product/listing changes and a deploy timestamp.
+- Current dirty app files app/league/[id].tsx and components/MatchCard.tsx were not created by this listing worker and were left untouched.

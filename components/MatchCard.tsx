@@ -1,9 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
-import { Icon } from "./ui";
-import { savePrediction } from "../lib/api";
 import { APP_STORE_SAFE } from "../lib/mode";
-import { notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 import { Match, Prediction, isFinished, isLive } from "../lib/types";
 import { prettyTeam, teamFlag } from "../lib/teams";
@@ -18,142 +15,14 @@ function kickoffLabel(iso: string | null) {
   return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
 }
 
-function MiniStep({ value, label, onChange }: { value: number; label: "home" | "away"; onChange: (n: number) => void }) {
-  return (
-    <View style={il.stepper}>
-      <Pressable accessibilityLabel={`Decrease ${label} prediction`} onPress={() => onChange(Math.max(0, value - 1))} style={il.btn} hitSlop={6}>
-        <Text style={il.sign}>−</Text>
-      </Pressable>
-      <Text style={il.val}>{value}</Text>
-      <Pressable accessibilityLabel={`Increase ${label} prediction`} onPress={() => onChange(Math.min(20, value + 1))} style={il.btn} hitSlop={6}>
-        <Text style={il.sign}>+</Text>
-      </Pressable>
-    </View>
-  );
-}
-
-type SaveState = "idle" | "saving" | "saved" | "error";
-
-function InlinePrediction({ matchId, prediction }: { matchId: number; prediction?: Prediction }) {
-  const [home, setHome] = useState(prediction?.pred_home ?? 0);
-  const [away, setAway] = useState(prediction?.pred_away ?? 0);
-  const [saveState, setSaveState] = useState<SaveState>(prediction ? "saved" : "idle");
-  const [hasSubmitted, setHasSubmitted] = useState(!!prediction);
-  const [touched, setTouched] = useState(false);
-  const lastSaved = useRef({ h: prediction?.pred_home ?? 0, a: prediction?.pred_away ?? 0 });
-  const fadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const scheduleFade = useCallback(() => {
-    if (fadeRef.current) clearTimeout(fadeRef.current);
-    fadeRef.current = setTimeout(() => setSaveState("idle"), 2000);
-  }, []);
-
-  useEffect(() => () => { if (fadeRef.current) clearTimeout(fadeRef.current); }, []);
-
-  // Sync when prediction prop changes (e.g. after initial load)
-  useEffect(() => {
-    if (!prediction) return;
-    const h = prediction.pred_home;
-    const a = prediction.pred_away;
-    setHome(h); setAway(a);
-    setHasSubmitted(true);
-    setTouched(false);
-    lastSaved.current = { h, a };
-    setSaveState("saved");
-    scheduleFade();
-  }, [prediction?.pred_home, prediction?.pred_away]);
-
-  const dirty = hasSubmitted ? home !== lastSaved.current.h || away !== lastSaved.current.a : touched;
-  const changeHome = (n: number) => {
-    if (n !== home) setTouched(true);
-    setHome(n);
-    setSaveState("idle");
-  };
-  const changeAway = (n: number) => {
-    if (n !== away) setTouched(true);
-    setAway(n);
-    setSaveState("idle");
-  };
-
-  const submit = async () => {
-    setSaveState("saving");
-    try {
-      await savePrediction(matchId, home, away);
-      lastSaved.current = { h: home, a: away };
-      setHasSubmitted(true);
-      setTouched(false);
-      setSaveState("saved");
-      scheduleFade();
-    } catch {
-      notify("Save failed", "Check your connection and try again.");
-      setSaveState("error");
-    }
-  };
-
-  return (
-    <View style={il.wrap}>
-      <View style={il.scoreRow}>
-        <MiniStep value={home} label="home" onChange={changeHome} />
-        <Text style={il.dash}>–</Text>
-        <MiniStep value={away} label="away" onChange={changeAway} />
-      </View>
-      {dirty ? (
-        <Pressable onPress={submit} disabled={saveState === "saving"} style={il.submitBtn} hitSlop={4}>
-          <Icon name="checkmark-circle" size={13} color={colors.blanc} />
-          <Text style={il.submitTxt}>Submit prediction</Text>
-        </Pressable>
-      ) : hasSubmitted ? (
-        <View style={il.savedHint}>
-          <Icon name="checkmark-circle" size={13} color={colors.greenDark} />
-          <Text style={il.savedHintTxt}>Prediction saved</Text>
-        </View>
-      ) : (
-        <Text style={il.emptyHint}>Set a score to submit</Text>
-      )}
-      {saveState === "saving" ? (
-        <View style={[il.badge, { backgroundColor: colors.orange }]}>
-          <Text style={il.badgeTxt}>Submitting...</Text>
-        </View>
-      ) : saveState === "saved" ? (
-        <View style={[il.badge, { backgroundColor: colors.green }]}>
-          <Text style={il.badgeTxt}>Submitted</Text>
-        </View>
-      ) : saveState === "error" ? (
-        <Pressable onPress={submit} style={[il.badge, { backgroundColor: colors.red }]} hitSlop={4}>
-          <Text style={il.badgeTxt}>Error — retry</Text>
-        </Pressable>
-      ) : null}
-    </View>
-  );
-}
-
-const il = StyleSheet.create({
-  wrap: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 6 },
-  scoreRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  stepper: { flexDirection: "row", alignItems: "center", gap: 4 },
-  btn: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.surfaceAlt, alignItems: "center", justifyContent: "center" },
-  sign: { color: colors.ink, fontSize: 17, fontWeight: "900", lineHeight: 19 },
-  val: { color: colors.ink, fontSize: 19, fontWeight: "900", minWidth: 24, textAlign: "center" },
-  dash: { color: colors.textFaint, fontSize: 15, fontWeight: "800" },
-  submitBtn: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.greenDark, borderRadius: radius.pill, paddingHorizontal: 10, minHeight: 30 },
-  submitTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
-  savedHint: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(166,230,61,0.2)", borderRadius: radius.pill, paddingHorizontal: 10, minHeight: 30 },
-  savedHintTxt: { color: colors.greenDark, fontSize: 11, fontWeight: "900" },
-  emptyHint: { color: colors.textFaint, fontSize: 11, fontWeight: "800" },
-  badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
-  badgeTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
-});
-
 export default function MatchCard({
   match,
   prediction,
   onPress,
-  onStats,
 }: {
   match: Match;
   prediction?: Prediction;
   onPress?: () => void;
-  onStats?: () => void;
 }) {
   const live = isLive(match.status);
   const finished = isFinished(match.status);
@@ -229,12 +98,6 @@ export default function MatchCard({
             <Text style={styles.locked}>{finished ? "Full time" : "In play"}</Text>
           )}
         </View>
-        {onStats ? (
-          <Pressable onPress={onStats} style={styles.statsBtn} hitSlop={6}>
-            <Icon name="stats-chart" size={13} color={colors.purple} />
-            <Text style={styles.statsText}>Stats</Text>
-          </Pressable>
-        ) : null}
       </View>
     </Pressable>
   );
@@ -263,6 +126,4 @@ const styles = StyleSheet.create({
   ptsPill: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   ptsText: { fontSize: 12, fontWeight: "900" },
   locked: { color: colors.textFaint, fontSize: 12, fontWeight: "700" },
-  statsBtn: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(155,93,229,0.12)", borderRadius: radius.pill, paddingHorizontal: 11, paddingVertical: 6 },
-  statsText: { color: colors.purple, fontSize: 12, fontWeight: "900" },
 });
