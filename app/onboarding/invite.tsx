@@ -4,7 +4,7 @@ import { Platform, Pressable, ScrollView, Share, StyleSheet, Text, View } from "
 import { Button, Icon, Screen } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
-import { inviteLink } from "../../lib/invite";
+import { APP_STORE_URL, inviteLink } from "../../lib/invite";
 import { notify } from "../../lib/notify";
 import { colors, radius, shadow, spacing } from "../../lib/theme";
 
@@ -26,7 +26,7 @@ export default function OnboardingInvite() {
   async function share() {
     if (!link) return;
     if (Platform.OS === "web") return copy();
-    try { await Share.share({ message: `${link}` }); } catch {}
+    try { await Share.share({ message: `${link}\nApp Store: ${APP_STORE_URL}` }); } catch {}
   }
 
   const bubbleColors = [colors.green, colors.purple, colors.orange, colors.cyan];

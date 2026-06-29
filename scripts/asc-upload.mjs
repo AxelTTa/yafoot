@@ -16,12 +16,12 @@ const SUPPORT_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
 const MARKETING_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
 const PRIVACY_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy";
 const SAFE_NAME = "YaFoot";
-const SAFE_SUBTITLE = "Friend Score Predictions";
-const SAFE_DESCRIPTION = "Create private football prediction competitions with friends. Add your own matches with country pickers, flags, and guided start-time controls, invite friends with a code, submit exact-score predictions inside each competition, and follow standings, chat, previous picks, and results history. YaFoot keeps setup fast with username-only play, shareable competition codes, friend invites, chat, and direct messages. Free to play. No email required.";
-const SAFE_KEYWORDS = "football,soccer,predictions,friends,competition,leaderboard,scores,challenge,chat";
-const SAFE_PROMOTIONAL_TEXT = "Create private prediction competitions, add your own country matchups, invite friends, and settle the leaderboard when final scores are entered.";
-const SAFE_WHATS_NEW = "App Store-safe review build focused on private football prediction competitions: create competitions, add custom country-vs-country matches, invite friends, submit predictions, enter final scores as host, and follow standings.";
-const REVIEW_NOTES = "YaFoot is a generic friend-created football prediction competition app. The review build is limited to private competitions with user-created country-vs-country matches and does not include branded competition content, preset schedules, logos, crests, award imagery, or third-party marks. Reviewers can create a competition from the Competitions tab, add custom matches with country pickers and guided start-time controls, invite friends by code, submit predictions inside the competition detail, set final scores as host, and use friends/chat. There is no standalone match feed or live group round mode in the review path. Support and privacy/delete-account information are available at /support and /privacy.";
+const SAFE_SUBTITLE = "World Cup Score Predictions";
+const SAFE_DESCRIPTION = "YaFoot is a social football prediction game for the 2026 World Cup. Predict exact match scores, follow live results, study match insights, and compete with friends in private leagues.\n\nCreate or join a league, invite friends with a code or link, submit your scoreline before kickoff, and watch the leaderboard move as results come in. Match detail pages combine predictions with stats, win probabilities, likely scorelines, community forecasts, and World Cup history context so every pick feels informed.\n\nYaFoot is built for friendly competition: username-only setup, private league chat, friend requests, direct messages, standings, previous picks, and optional loser punishments inside your friend group.\n\nFree to play. No betting, no gambling, no real-money prizes, and no email required.";
+const SAFE_KEYWORDS = "yafoot,football,soccer,prediction,world cup,scores,friends,leaderboard,league,chat";
+const SAFE_PROMOTIONAL_TEXT = "Predict World Cup scores with friends, study match stats, and climb your private YaFoot leaderboard.";
+const SAFE_WHATS_NEW = "Final live YaFoot listing update: fresh World Cup prediction screenshots, match detail prediction plus stats positioning, private leagues, friends, standings, and App Store link guidance.";
+const REVIEW_NOTES = "YaFoot is a free social football prediction app for friend groups. Users create a username-only account, predict match scores before kickoff, join private leagues, invite friends, chat, view standings, and inspect match stats/history. The app does not offer betting, gambling, real-money prizes, odds wagering, loot boxes, ads, or unrestricted web access. Invite and QR guidance points users to the public App Store listing when the app is not installed: https://apps.apple.com/us/app/yafoot/id6782063727. No demo account is required; reviewers can choose English, enter any username, continue to the app, open Matches or Leagues, and submit predictions where matches are open.";
 const REVIEW_CONTACT = {
   firstName: "Axel",
   lastName: "Cassou",
@@ -332,12 +332,7 @@ async function main() {
       console.warn("Could not delete existing screenshots:", e.message);
     }
 
-    const files = [
-      `${SHOTS_DIR}/${prefix}_01.png`,
-      `${SHOTS_DIR}/${prefix}_02.png`,
-      `${SHOTS_DIR}/${prefix}_03.png`,
-      `${SHOTS_DIR}/${prefix}_04.png`,
-    ];
+    const files = [1, 2, 3, 4, 5].map((n) => `${SHOTS_DIR}/${prefix}_0${n}.png`);
 
     for (let i = 0; i < files.length; i++) {
       const filePath = files[i];

@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./supabase";
 
 const KEY = "yafoot.pendingInvite";
+export const APP_STORE_URL = "https://apps.apple.com/us/app/yafoot/id6782063727";
 
 export async function setPendingInvite(code: string) {
   try { await AsyncStorage.setItem(KEY, code); } catch {}
@@ -28,4 +29,20 @@ export function inviteBase(): string {
 }
 export function inviteLink(username: string): string {
   return `${inviteBase()}/invite/${encodeURIComponent(username)}`;
+}
+export function joinLink(code: string): string {
+  return `${inviteBase()}/join/${encodeURIComponent(code)}`;
+}
+export function appDeepLink(path: string): string {
+  return `yafoot://${path.replace(/^\//, "")}`;
+}
+export function openInstalledAppOrStore(path: string) {
+  if (typeof window === "undefined") return;
+  const started = Date.now();
+  window.location.href = appDeepLink(path);
+  window.setTimeout(() => {
+    if (Date.now() - started < 1800 && document.visibilityState === "visible") {
+      window.location.href = APP_STORE_URL;
+    }
+  }, 900);
 }

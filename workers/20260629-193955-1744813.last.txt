@@ -1,34 +1,5 @@
-[worker 20260629-193955-1744813] PASS
+Verified and reported.
 
-Verified App Store live path for YaFoot.
+App Store YaFoot `1.0.1` build `6` is on EAS channel `production`, runtime `1.0.1`. Latest production iOS OTA is `019f11f5-84a4-78cc-baaa-4a84d06ba433`, runtime `1.0.1`, with `appStoreSafe:false`, so the App Store-installed app should now show full mode after force close/reopen.
 
-App Store:
-- Public App Store lookup for `com.axelcassou.yafoot` returns YaFoot version `1.0.1`, release/current version date `2026-06-28`.
-- Latest EAS iOS store build is build id `02a99529-24cb-4764-b2e2-c2c8f81eaf87`, app version `1.0.1`, build `6`, channel `production`, runtime `1.0.1`, distribution `STORE`.
-- This matches the approved App Store binary target Axel referenced.
-
-OTA:
-- EAS channel `production` is active and maps to branch `production`.
-- Latest production update group is `6eb32b74-a876-42c2-a504-6e209c27fabd`.
-- Latest iOS update id is `019f11f5-84a4-78cc-baaa-4a84d06ba433`.
-- Latest Android update id is `019f11f5-84a4-7731-a1f1-e0e2f6bcc9f3`.
-- Runtime is `1.0.1` for both platforms.
-- Manifest extra includes `appStoreSafe:false`, so the restored full/main experience is the update served to compatible production installs.
-- No rollback-to-embedded is configured.
-
-Conclusion:
-- App Store-installed YaFoot 1.0.1 build 6 should receive the restored full-mode OTA from the production channel.
-- No new App Store binary is required for OTA reachability.
-- User action if stale: force close and reopen once; reinstall only if the device has cached embedded/safe mode and refuses to fetch OTA.
-
-Web:
-- Live URL remains `https://dist-five-zeta-92i4a6g3xx.vercel.app`.
-- Vercel returned HTTP 200 with last-modified `2026-06-29T05:59:14Z`.
-- Live tour passed with 0 page errors across invite, matches, groups, stats, match detail, profile, settings, notifications.
-- `font-diag.mjs` was inconclusive due to a browser-side `Illegal invocation` in the existing diagnostic script, not treated as a product failure.
-
-Policy risk:
-- Known: this OTA exposes the restored World Cup/full experience in the App Store app after Apple approved the safer custom-competition description/build path. That can carry review/licensing risk. No ASC metadata or binary submission was changed by this worker.
-
-Deploy:
-- No deploy run by this worker because EAS metadata already confirmed the correct OTA is live and no app changes were needed.
+Web full mode is live at `https://dist-five-zeta-92i4a6g3xx.vercel.app`. No app changes or new binary were needed. Summary written to `workers/20260629-193955-1744813.last.txt`, committed/pushed as `ef9abbb`, and Telegram sent.

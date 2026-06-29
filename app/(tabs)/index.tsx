@@ -125,7 +125,6 @@ export default function Matches() {
               match={item}
               prediction={preds[item.id]}
               onPress={() => router.push(`/match/${item.id}`)}
-              onStats={APP_STORE_SAFE ? undefined : () => router.push(`/stats/${item.id}`)}
             />
           )}
           ListEmptyComponent={

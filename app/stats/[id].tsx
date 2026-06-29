@@ -132,8 +132,8 @@ const str = StyleSheet.create({
   val: { color: colors.ink, fontSize: 16, fontWeight: "700", minWidth: 60, textAlign: "center" },
 });
 
-export default function MatchStats() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export function MatchStatsContent({ matchId }: { matchId: string }) {
+  const id = matchId;
   const [match, setMatch] = useState<Match | null>(null);
   const [h2hData, setH2hData] = useState<H2HData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -150,8 +150,8 @@ export default function MatchStats() {
     })();
   }, [id]);
 
-  if (loading) return <Screen><Header title="Match Stats" /><Loading /></Screen>;
-  if (!match) return <Screen><Header title="Match Stats" /></Screen>;
+  if (loading) return <Loading />;
+  if (!match) return null;
 
   const model = matchProbabilities(match.home_code, match.away_code);
   const hw = Math.round(model.homeWin * 100);
@@ -183,9 +183,7 @@ export default function MatchStats() {
   const showFirstEver = fdMatches.length === 0 && histMatches.length === 0;
 
   return (
-    <Screen>
-      <Header title="Match Insights" />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.lg, paddingBottom: 60 }}>
+      <View style={styles.content}>
 
         {/* fixture hero */}
         <View style={styles.hero}>
@@ -220,7 +218,7 @@ export default function MatchStats() {
         </View>
 
         {/* ── H2H Record ── */}
-        <Text style={styles.sectionTitle}>Head-to-Head History</Text>
+        <Text style={styles.sectionTitle}>Head-to-head World Cup history</Text>
         <View style={styles.card}>
           {fdMatches.length > 0 ? (
             <>
@@ -241,7 +239,7 @@ export default function MatchStats() {
                 </View>
               )}
               <Text style={styles.h2hAllComp}>
-                All competitions · {fdAgg?.numberOfMatches ?? fdMatches.length} meetings
+                World Cup history · {fdAgg?.numberOfMatches ?? fdMatches.length} meetings
               </Text>
               {(homeBW || awayBW) && (
                 <View style={styles.biggestWrap}>
@@ -301,7 +299,7 @@ export default function MatchStats() {
                 </View>
               )}
               <Text style={styles.h2hAllComp}>
-                Match history · {histSummary?.total ?? histMatches.length} meetings
+                World Cup history · {histSummary?.total ?? histMatches.length} meetings
               </Text>
               <View style={styles.divider} />
               {histMatches.map((hm, i) => {
@@ -336,7 +334,7 @@ export default function MatchStats() {
             </>
           ) : localH2H.length > 0 ? (
             <>
-              <Text style={styles.h2hAllComp}>Previous meetings</Text>
+              <Text style={styles.h2hAllComp}>Previous World Cup meetings</Text>
               {localH2H.map((hm: any, i: number) => {
                 const homeFirst = hm.home_team === match.home_team;
                 const hmScore = homeFirst ? (hm.home_score ?? 0) : (hm.away_score ?? 0);
@@ -365,11 +363,11 @@ export default function MatchStats() {
             <View style={{ alignItems: "center", paddingVertical: spacing.md }}>
               <Text style={styles.h2hBigNum}>🏆</Text>
               <Text style={[styles.emptyTxt, { textAlign: "center", marginTop: spacing.sm }]}>
-                First recorded meeting
+                First recorded World Cup meeting
               </Text>
             </View>
           ) : (
-            <Text style={styles.emptyTxt}>No previous meetings found.</Text>
+            <Text style={styles.emptyTxt}>No World Cup history found.</Text>
           )}
         </View>
 
@@ -438,12 +436,24 @@ export default function MatchStats() {
             </View>
           </>
         )}
+      </View>
+  );
+}
+
+export default function MatchStats() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return (
+    <Screen>
+      <Header title="Match Insights" />
+      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: 60 }}>
+        <MatchStatsContent matchId={String(id)} />
       </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  content: { gap: spacing.lg },
   hero: { flexDirection: "row", alignItems: "center", backgroundColor: colors.surfaceDark, borderRadius: radius.xl, padding: spacing.xl, ...shadow },
   heroSide: { flex: 1, alignItems: "center", gap: 8 },
   heroFlag: { fontSize: 52 },

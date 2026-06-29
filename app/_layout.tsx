@@ -53,8 +53,6 @@ function RootNav() {
       <Stack.Screen name="league/[id]" />
       <Stack.Screen name="chat/[id]" />
       <Stack.Screen name="create-league" />
-      {!APP_STORE_SAFE ? <Stack.Screen name="soiree/index" /> : null}
-      {!APP_STORE_SAFE ? <Stack.Screen name="soiree/[id]" /> : null}
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="support" />

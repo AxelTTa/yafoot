@@ -18,7 +18,7 @@ import { Button, Icon, QRModal } from "../components/ui";
 import { CountryOption, COUNTRIES } from "../lib/countries";
 import { createPredictionCompetition } from "../lib/api";
 import { useI18n, PunishmentSeverity } from "../lib/i18n";
-import { inviteBase } from "../lib/invite";
+import { APP_STORE_URL, joinLink } from "../lib/invite";
 import { notify } from "../lib/notify";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 
@@ -291,8 +291,8 @@ export default function CreateCompetitionWizard() {
 
   async function shareCompetition() {
     if (!done) return;
-    const url = `${inviteBase()}/join/${done.code}`;
-    const msg = `Join my YaFoot competition "${done.name}".\nCode: ${done.code}\n${url}`;
+    const url = joinLink(done.code);
+    const msg = `Join my YaFoot competition "${done.name}".\nCode: ${done.code}\n${url}\nApp Store: ${APP_STORE_URL}`;
     if (Platform.OS === "web") {
       if (typeof navigator !== "undefined" && navigator.clipboard) await navigator.clipboard.writeText(url).catch(() => {});
       notify("Invite link copied", url);
@@ -521,7 +521,7 @@ export default function CreateCompetitionWizard() {
             </View>
           </Pressable>
 
-          <QRModal visible={showQR} onClose={() => setShowQR(false)} value={`${inviteBase()}/join/${done.code}`} title="Competition QR" subtitle={`Invite code: ${done.code}`} />
+          <QRModal visible={showQR} onClose={() => setShowQR(false)} value={joinLink(done.code)} title="Competition QR" subtitle={`Invite code: ${done.code}`} />
 
           <Button title={t("create_share_invite")} variant="green" icon="share-social" onPress={shareCompetition} style={{ marginTop: spacing.md }} />
           <Button title={t("create_done_go")} variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${done.id}`)} style={{ marginTop: spacing.sm }} />

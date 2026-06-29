@@ -39,6 +39,7 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
   const [away, setAway] = useState(prediction?.pred_away ?? 0);
   const [saveState, setSaveState] = useState<SaveState>(prediction ? "saved" : "idle");
   const [hasSubmitted, setHasSubmitted] = useState(!!prediction);
+  const [touched, setTouched] = useState(false);
   const lastSaved = useRef({ h: prediction?.pred_home ?? 0, a: prediction?.pred_away ?? 0 });
   const fadeRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -56,12 +57,23 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
     const a = prediction.pred_away;
     setHome(h); setAway(a);
     setHasSubmitted(true);
+    setTouched(false);
     lastSaved.current = { h, a };
     setSaveState("saved");
     scheduleFade();
   }, [prediction?.pred_home, prediction?.pred_away]);
 
-  const dirty = home !== lastSaved.current.h || away !== lastSaved.current.a || !hasSubmitted;
+  const dirty = hasSubmitted ? home !== lastSaved.current.h || away !== lastSaved.current.a : touched;
+  const changeHome = (n: number) => {
+    if (n !== home) setTouched(true);
+    setHome(n);
+    setSaveState("idle");
+  };
+  const changeAway = (n: number) => {
+    if (n !== away) setTouched(true);
+    setAway(n);
+    setSaveState("idle");
+  };
 
   const submit = async () => {
     setSaveState("saving");
@@ -69,6 +81,7 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
       await savePrediction(matchId, home, away);
       lastSaved.current = { h: home, a: away };
       setHasSubmitted(true);
+      setTouched(false);
       setSaveState("saved");
       scheduleFade();
     } catch {
@@ -80,14 +93,23 @@ function InlinePrediction({ matchId, prediction }: { matchId: number; prediction
   return (
     <View style={il.wrap}>
       <View style={il.scoreRow}>
-        <MiniStep value={home} label="home" onChange={(n) => { setHome(n); setSaveState("idle"); }} />
+        <MiniStep value={home} label="home" onChange={changeHome} />
         <Text style={il.dash}>–</Text>
-        <MiniStep value={away} label="away" onChange={(n) => { setAway(n); setSaveState("idle"); }} />
+        <MiniStep value={away} label="away" onChange={changeAway} />
       </View>
-      <Pressable onPress={submit} disabled={saveState === "saving" || !dirty} style={[il.submitBtn, !dirty && il.submitBtnQuiet]} hitSlop={4}>
-        <Icon name="checkmark-circle" size={13} color={dirty ? colors.blanc : colors.greenDark} />
-        <Text style={[il.submitTxt, !dirty && il.submitTxtQuiet]}>{dirty ? "Submit prediction" : "Prediction submitted"}</Text>
-      </Pressable>
+      {dirty ? (
+        <Pressable onPress={submit} disabled={saveState === "saving"} style={il.submitBtn} hitSlop={4}>
+          <Icon name="checkmark-circle" size={13} color={colors.blanc} />
+          <Text style={il.submitTxt}>Submit prediction</Text>
+        </Pressable>
+      ) : hasSubmitted ? (
+        <View style={il.savedHint}>
+          <Icon name="checkmark-circle" size={13} color={colors.greenDark} />
+          <Text style={il.savedHintTxt}>Prediction saved</Text>
+        </View>
+      ) : (
+        <Text style={il.emptyHint}>Set a score to submit</Text>
+      )}
       {saveState === "saving" ? (
         <View style={[il.badge, { backgroundColor: colors.orange }]}>
           <Text style={il.badgeTxt}>Submitting...</Text>
@@ -114,9 +136,10 @@ const il = StyleSheet.create({
   val: { color: colors.ink, fontSize: 19, fontWeight: "900", minWidth: 24, textAlign: "center" },
   dash: { color: colors.textFaint, fontSize: 15, fontWeight: "800" },
   submitBtn: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.greenDark, borderRadius: radius.pill, paddingHorizontal: 10, minHeight: 30 },
-  submitBtnQuiet: { backgroundColor: "rgba(166,230,61,0.2)" },
   submitTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
-  submitTxtQuiet: { color: colors.greenDark },
+  savedHint: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(166,230,61,0.2)", borderRadius: radius.pill, paddingHorizontal: 10, minHeight: 30 },
+  savedHintTxt: { color: colors.greenDark, fontSize: 11, fontWeight: "900" },
+  emptyHint: { color: colors.textFaint, fontSize: 11, fontWeight: "800" },
   badge: { borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
   badgeTxt: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
 });
@@ -186,7 +209,11 @@ export default function MatchCard({
       <View style={styles.footer}>
         <View style={{ flex: 1 }}>
           {!live && !finished ? (
-            <InlinePrediction matchId={match.id} prediction={prediction} />
+            prediction ? (
+              <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>
+            ) : (
+              <Text style={styles.locked}>Tap to predict</Text>
+            )
           ) : prediction ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
               <Text style={styles.predLabel}>Pick {prediction.pred_home}–{prediction.pred_away}</Text>

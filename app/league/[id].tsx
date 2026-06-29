@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import MatchCard from "../../components/MatchCard";
 import { Avatar, Empty, Header, Icon, Loading, QRModal, Screen } from "../../components/ui";
-import { inviteBase } from "../../lib/invite";
+import { joinLink } from "../../lib/invite";
 import { useAuth } from "../../lib/auth";
 import { useI18n } from "../../lib/i18n";
 import { notify, confirmAsync } from "../../lib/notify";
@@ -252,7 +252,7 @@ export default function LeagueDetail() {
         <QRModal
           visible={showQR}
           onClose={() => setShowQR(false)}
-          value={`${inviteBase()}/join/${league.code}`}
+          value={joinLink(league.code)}
           title="Competition QR"
           subtitle={`Scan to join ${league.name}`}
         />

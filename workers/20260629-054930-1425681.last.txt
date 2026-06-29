@@ -1,31 +1,12 @@
-[worker 20260629-054930-1425681] PASS
+Shipped and reported to Telegram.
 
-Live: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Live app is back in full mode at https://dist-five-zeta-92i4a6g3xx.vercel.app:
+- Matches/Predict/Groups/Stats restored
+- Soirée mode restored
+- Global feed filtered to official `FIFA World Cup` fixtures
+- Build-your-own custom match creation removed from the main full-mode create path
+- Safe mode preserved behind `EXPO_PUBLIC_APP_STORE_SAFE=true`
 
-Restored:
-- Full mode is now the live/default build: `app.json > expo.extra.appStoreSafe=false`, and `lib/mode.ts` falls back to false unless `EXPO_PUBLIC_APP_STORE_SAFE=true`.
-- Main tabs/copy are back for full mode: Matches, Predict, Leagues, Friends, Profile.
-- Matches/Predict global feed is official `FIFA World Cup` only, with Groups, Stats, live/upcoming/results flow and football-data-backed rows.
-- Party/Soiree mode is visible again in full mode and `/soiree` loads.
-- Full-mode league creation now uses official World Cup fixtures via `/create-official-league`.
+Verified with `npx tsc --noEmit`, `bash scripts/deploy.sh`, Expo OTA, and a live browser smoke. Summary written to `workers/20260629-054930-1425681.last.txt`.
 
-Preserved:
-- App Store-safe custom competition/build-your-own-games flow remains behind `APP_STORE_SAFE` and still uses `/create-league`.
-- League detail custom matches still load through `league_matches`, so existing private competitions are not broken.
-
-Removed from main path:
-- Build-your-own match creation is no longer the full-mode primary Create flow.
-- Safe/custom challenge rows are filtered out of the global Matches/Predict feed in full mode.
-
-Verified:
-- `npx tsc --noEmit`
-- `bash scripts/deploy.sh` passed twice: typecheck, web export, native Expo Go compile, Vercel deploy, Expo Go OTA, git push.
-- Live smoke passed after deploy: World Cup 2026, Matches, Predict, Groups, Stats, Soiree, official league create; no safe smoke rows in global feed.
-
-Commits:
-- `dd44fc6` restore full live app mode and official create path
-- `6a6b95a` filter full global feed to FIFA World Cup fixtures
-
-Risk / next:
-- Policy risk: the approved App Store binary may receive full World Cup/official fixture content via OTA. This can reintroduce the content Apple previously rejected unless Axel is comfortable with that licensing/review risk or holds appropriate rights.
-- No App Store Connect metadata or new binary submission was changed.
+Commits: `dd44fc6`, `6a6b95a`, `5888801`. Policy risk noted: OTA now reintroduces content Apple previously rejected; no ASC metadata or new binary submission was changed.

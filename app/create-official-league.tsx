@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, StyleShee
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Icon, QRModal } from "../components/ui";
 import { createLeague } from "../lib/api";
-import { inviteBase } from "../lib/invite";
+import { APP_STORE_URL, joinLink } from "../lib/invite";
 import { useI18n, PunishmentSeverity } from "../lib/i18n";
 import { notify } from "../lib/notify";
 import { supabase } from "../lib/supabase";
@@ -63,8 +63,8 @@ export default function CreateOfficialLeague() {
 
   async function shareLeague() {
     if (!done) return;
-    const url = `${inviteBase()}/join/${done.code}`;
-    const msg = `Join my league "${done.name}" on YaFoot!\nCode: ${done.code}\n${url}`;
+    const url = joinLink(done.code);
+    const msg = `Join my league "${done.name}" on YaFoot!\nCode: ${done.code}\n${url}\nApp Store: ${APP_STORE_URL}`;
     if (Platform.OS === "web") {
       if (typeof navigator !== "undefined" && navigator.clipboard) await navigator.clipboard.writeText(url).catch(() => {});
       notify(t("league_created"), url);
@@ -91,7 +91,7 @@ export default function CreateOfficialLeague() {
             <Text style={styles.qrHintTxt}>{t("create_qr_hint")}</Text>
           </View>
         </Pressable>
-        <QRModal visible={showQR} onClose={() => setShowQR(false)} value={`${inviteBase()}/join/${done.code}`} title={t("qr_league")} subtitle={`${t("invite_code")}: ${done.code}`} />
+        <QRModal visible={showQR} onClose={() => setShowQR(false)} value={joinLink(done.code)} title={t("qr_league")} subtitle={`${t("invite_code")}: ${done.code}`} />
         <Button title={t("create_done_share")} variant="green" icon="share-social" onPress={shareLeague} style={{ marginTop: spacing.md }} />
         <Button title={t("create_done_go")} variant="ghost" icon="arrow-forward" onPress={() => router.replace(`/league/${done.id}`)} style={{ marginTop: spacing.sm }} />
       </ScrollView>
