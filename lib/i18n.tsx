@@ -118,7 +118,7 @@ const T = {
     lang_continue: "Let's play",
 
     // welcome
-    welcome_tagline: "Create football prediction challenges.\nBeat your mates.",
+    welcome_tagline: "Predict World Cup scores.\nBeat your mates.",
     welcome_invited: "Your mate invited you!",
     username_label: "YOUR NAME",
     username_placeholder: "Your name (e.g. Axel)",
@@ -139,14 +139,14 @@ const T = {
     btn_continue: "Continue to app",
 
     // tabs
-    tab_matches: "Challenges",
+    tab_matches: "Matches",
     tab_predict: "Predict",
-    tab_leagues: "Competitions",
+    tab_leagues: "Leagues",
     tab_friends: "Friends",
     tab_profile: "Profile",
 
     // matches screen
-    matches_sub: "Friend challenges",
+    matches_sub: "World Cup 2026",
     filter_live: "Live",
     filter_upcoming: "Upcoming",
     filter_groups: "Groups",
@@ -159,25 +159,25 @@ const T = {
     predict_empty: "Sit tight — the next matches drop soon.",
 
     // leagues
-    leagues_sub: "Private prediction groups with your own matches.",
+    leagues_sub: "Compete with your crew. Last place suffers.",
     btn_create: "Create",
     btn_join: "Join",
-    create_title: "Create a competition",
-    join_title: "Join a competition",
-    name_placeholder: "Competition name",
+    create_title: "Create a league",
+    join_title: "Join a league",
+    name_placeholder: "League name (e.g. Office Cup)",
     code_placeholder: "Enter the 6-char code",
-    btn_create_league: "Create Competition",
-    btn_join_league: "Join Competition",
+    btn_create_league: "Create League",
+    btn_join_league: "Join League",
     err_name: "Name needs at least 2 characters.",
-    no_leagues: "No competitions yet",
-    no_leagues_sub: "Create a private competition, add matches, then invite friends.",
+    no_leagues: "Flying solo? Fix that.",
+    no_leagues_sub: "Create a league and rope in your crew, or find one that'll humble you.",
 
     // create wizard
     create_step1_title: "How long?",
     create_step1_sub: "How many matches does your competition last?",
     create_step2_title: "Loser's punishment",
     create_step2_sub: "Pick one for last place — or skip.",
-    create_step3_title: "Name your competition",
+    create_step3_title: "Name your league",
     create_step3_sub: "What's your crew called?",
     create_intro_title: "Name your competition",
     create_intro_sub: "Private score predictions for your friends. You choose the countries and matches.",
@@ -222,7 +222,7 @@ const T = {
 
     // join (unauthenticated)
     join_need_account: "Create an account first",
-    join_need_account_sub: "Takes 5 seconds, then we'll drop you straight into the competition.",
+    join_need_account_sub: "Takes 5 seconds, then we'll drop you straight into the league.",
     join_create_account: "Create account →",
 
     // duration
@@ -415,14 +415,14 @@ const T = {
     btn_continue: "Aller dans l'app",
 
     // tabs
-    tab_matches: "Défis",
+    tab_matches: "Matchs",
     tab_predict: "Pronos",
-    tab_leagues: "Compets",
+    tab_leagues: "Ligues",
     tab_friends: "Potes",
     tab_profile: "Profil",
 
     // matches
-    matches_sub: "Défis entre potes",
+    matches_sub: "Coupe du monde 2026",
     filter_live: "En direct",
     filter_upcoming: "À venir",
     filter_groups: "Groupes",
@@ -435,25 +435,25 @@ const T = {
     predict_empty: "Souffle un peu — les matchs arrivent.",
 
     // leagues
-    leagues_sub: "Des pronos prives avec tes propres matchs.",
+    leagues_sub: "Des pronos entre potes. Le dernier prend cher.",
     btn_create: "Créer",
     btn_join: "Rejoindre",
-    create_title: "Créer une compet",
-    join_title: "Rejoindre une compet",
-    name_placeholder: "Nom de la compet",
+    create_title: "Créer une ligue",
+    join_title: "Rejoindre une ligue",
+    name_placeholder: "Nom de la ligue",
     code_placeholder: "Colle le code à 6 caractères",
-    btn_create_league: "Créer la compet",
+    btn_create_league: "Créer la ligue",
     btn_join_league: "Rejoindre",
     err_name: "Au moins 2 caractères, s'il te plaît.",
-    no_leagues: "Pas encore de compet",
-    no_leagues_sub: "Crée une compet privee, ajoute des matchs, puis invite tes potes.",
+    no_leagues: "Solo ? Corrige ça.",
+    no_leagues_sub: "Crée une ligue et invite tes potes pour les humilier.",
 
     // create wizard
     create_step1_title: "Sur combien de matchs ?",
     create_step1_sub: "Combien de matchs dure ta compétition ?",
     create_step2_title: "La punition du perdant",
     create_step2_sub: "Choisis pour le dernier — ou passe.",
-    create_step3_title: "Nomme ta compet",
+    create_step3_title: "Nomme ta ligue",
     create_step3_sub: "C'est quoi le nom de votre crew ?",
     create_intro_title: "Nomme ta compet",
     create_intro_sub: "Des scores entre potes. Tu choisis les pays et les matchs.",
@@ -498,7 +498,7 @@ const T = {
 
     // join (unauthenticated)
     join_need_account: "Crée un compte d'abord",
-    join_need_account_sub: "5 secondes, et on te depose direct dans la compet.",
+    join_need_account_sub: "5 secondes, et on te depose direct dans la ligue.",
     join_create_account: "Créer un compte →",
 
     // duration

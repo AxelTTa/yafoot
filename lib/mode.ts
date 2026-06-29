@@ -17,5 +17,5 @@ const extraSafe =
       ? extra.appStoreSafe
       : null;
 
-export const APP_STORE_SAFE = envSafe ?? extraSafe ?? true;
+export const APP_STORE_SAFE = envSafe ?? extraSafe ?? false;
 export const SAFE_COMPETITION = "YaFoot Challenge";

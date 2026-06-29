@@ -1,6 +1,8 @@
 [worker 20260626-185031-714187] 🟢 PASS
-- Changed/tested: Added create-competition network retry, fixed web Ionicons asset rewrite, added mandatory live UI competition smoke, and shipped via deploy.
-- Blocker: none
-- Metrics: post-deploy smoke PASS: league 61/code 0080FB; create RPC 200; guest joined; both predicted; host finalized; typecheck/native/Vercel/Expo OTA OK.
-- Link/artifacts: https://dist-five-zeta-92i4a6g3xx.vercel.app · commit d898bdd · /tmp/yafoot-live-competition-smoke-postdeploy-20260626-185031-714187/report.json
-- Next: none
+
+- Shipped fix via `scripts/deploy.sh`; live URL is current.
+- Root cause mitigated: create RPC had no retry for browser `Load failed` network failures; web bundle also produced false `NetworkError`s from an Ionicons asset rewritten to HTML.
+- Added mandatory live UI smoke: create competition, invite/join second user, both predict, host finalizes.
+- Post-deploy smoke passed: league `61`, code `0080FB`, create RPC `200`.
+- App commit: `d898bdd`; summary commit: `2c240a0`.
+- Telegram update sent; worker summary written to `workers/20260626-185031-714187.last.txt`.
