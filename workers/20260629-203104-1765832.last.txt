@@ -1,0 +1,22 @@
+[worker 20260629-203104-1765832] PASS
+
+Done:
+- Replaced Groups standings view with a scrollable World Cup knockout bracket derived from match stage data, with TBD/placeholder slots readable on mobile.
+- Restored primary competition creation to 3 screens: length, punishment, name. Length choices now use upcoming prediction-ready knockout fixtures only.
+- Polished punishment cards with severity levels, improved mobile profile wrapping, and documented Telegram image/logo workflow in docs/telegram-image-workflow.md.
+- Kept Soiree hidden and Predict tab hidden.
+
+Shipped:
+- Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
+- Deploy commits: da2a1b4, efc2df2
+- Expo Go OTA updates published by scripts/deploy.sh.
+
+Verification:
+- npx tsc --noEmit PASS.
+- bash scripts/deploy.sh PASS twice; native Expo export PASS both times.
+- Production live competition smoke PASS after fix loop: /tmp/yafoot-live-competition-smoke-mqzppaa7/report.json
+- Key artifacts: /tmp/yafoot-live-competition-smoke-mqzppaa7/01-host-length.png, /tmp/yafoot-live-competition-smoke-mqzppaa7/02-host-punishment.png, /tmp/yafoot-test/06-06-groups.png, /tmp/yafoot-test/15-16-profile.png
+
+Notes:
+- No icon/logo was changed by this worker because no image was provided in this task. Existing bridge workflow supports Telegram images as [IMAGE:/tmp/path.ext].
+- There are unrelated dirty worker status files from other workers left untouched.
