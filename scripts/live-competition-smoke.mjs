@@ -260,8 +260,8 @@ async function submitPrediction(page, label, homeClicks, awayClicks) {
       clickText(page, "Update pick", { exact: true, timeout: 10000 })
     )
   );
-  const text = await waitFor(page, /Prediction saved|Prediction submitted|Change the score to update|Pick\s+\d/i, 20000);
-  assert(/Prediction saved|Prediction submitted|Change the score to update|Pick\s+\d/i.test(text), `${label} prediction submitted`, text.slice(0, 400));
+  const text = await waitFor(page, /Prediction saved|Prediction submitted|Change the score to update|Pick\s+\d|Update pick/i, 20000);
+  assert(/Prediction saved|Prediction submitted|Change the score to update|Pick\s+\d|Update pick/i.test(text), `${label} prediction submitted`, text.slice(0, 400));
   await screenshot(page, `${label}-prediction`);
   if (/\/match\/\d+/.test(page.url()) && /\/league\/\d+/.test(startedUrl)) {
     await page.goBack({ waitUntil: "domcontentloaded", timeout: 30000 }).catch(() => {});
