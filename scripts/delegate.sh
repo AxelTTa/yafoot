@@ -42,7 +42,14 @@ For test workers, add one compact metric line only if useful. Avoid long prose.
 
 Army-run default behavior:
 - If the task asks to run an "army", treat it as a fix loop, not a report-only audit.
-- Run simulated users/tests and record issues with severity: high, medium, or low.
+- Run simulated users/tests through the real UI and record issues with severity: high, medium, or low.
+- Default army commands after a deploy are:
+  URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/realistic-army-test.mjs
+  URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/live-competition-smoke.mjs
+- Army must create accounts, add friends, exchange DMs, create/join competitions, predict from
+  Matches/detail/Predict/competition pages, test English/French, scan major pages, check
+  result-score behavior, layout, rage clicks, latency, and user-like qualitative feedback.
+- Do not pass an army run that only calls APIs or silently skips required product flows.
 - Fix high/medium issues when the fix is safe, scoped, and consistent with the task context.
 - Do not make risky or product-changing fixes without explicit task context.
 - After each safe fix, run: bash scripts/deploy.sh

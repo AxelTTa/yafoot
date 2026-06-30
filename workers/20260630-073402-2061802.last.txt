@@ -1,0 +1,3 @@
+[worker 20260630-073402-2061802] 🟢 PASS
+- Done: Added realistic full-app army UI harness and updated worker/army rules to require accounts, friends/DMs, competitions, predictions, languages, page scans, result scores, layout/rage/latency, and clear findings.
+- Next: final army worker should run after product rebuild.

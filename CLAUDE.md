@@ -79,6 +79,11 @@ Two delivery targets — keep BOTH current:
 - `e2e-test.mjs` (backend, needs `ws` polyfill + service role) — 18 checks.
 - `multiplayer-test.mjs` (2 users: league + realtime chat + leaderboard) — 7 checks.
 - `friends-predict-test.mjs`, `onboarding-test.mjs`, `tour.mjs` (screenshots), `font-diag.mjs`.
+- `realistic-army-test.mjs` is the required full-app army harness. It drives real UI with isolated
+  Puppeteer users, creates accounts, mixes English/French, scans every major page, creates/joins
+  competitions, predicts from Matches/detail/Predict/competition pages, exercises friends + DMs,
+  checks live/result score behavior, records screenshots, latency, layout issues, rage clicks, and
+  qualitative user-like feedback. Army workers must treat missed required flows as failures, not skips.
 - `live-competition-smoke.mjs` is the required production gate for competition work and army runs:
   it creates a competition through the real live UI, asserts the Supabase create RPC succeeds,
   extracts the invite code from the page, joins with a second clean browser user, submits predictions
@@ -114,6 +119,13 @@ Two delivery targets — keep BOTH current:
   risky or product-changing fixes without explicit task context. Low-only findings may be reported
   without blocking PASS. Tasks explicitly described as read-only/audit-only remain read-only and must
   not edit, deploy, or fix.
+- Army runs must exercise the real product UI, not just API calls. Default command after any deploy:
+  `URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/realistic-army-test.mjs`. The run
+  must create fresh accounts, add friends, exchange DMs, create/join a competition, submit predictions
+  from Matches/detail/Predict/competition pages, test English and French, scan all major pages, review
+  layout/latency/rage-click signals, verify result-score behavior, and write clear high/medium/low
+  findings plus concise qualitative feedback. Missing a required flow is at least medium severity;
+  auth, create/join, prediction, score/finalize, or deployed-live regressions are high severity.
 - Every army run must include the live competition UI path, not a direct DB/RPC shortcut:
   `URL=https://dist-five-zeta-92i4a6g3xx.vercel.app node scripts/live-competition-smoke.mjs`.
   It must be run against the deployed live URL after deploy. A missing invite code, failed create
