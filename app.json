@@ -36,7 +36,6 @@
     "plugins": [
       "expo-router",
       "expo-asset",
-      "posthog-react-native/expo",
       [
         "expo-font",
         {
