@@ -1,0 +1,75 @@
+[worker 20260630-004753-1901423] App Store update package prepared
+
+Result: PASS. Not submitted for App Review.
+
+Prepared package:
+- App Store Connect app: 6782063727
+- Draft version: 1.0.2
+- ASC version id: 22c8f111-7b69-4b59-9f48-9e5e35288d6b
+- ASC state: PREPARE_FOR_SUBMISSION
+- Attached build: 7
+- ASC build id: e4eff98b-45fe-4ebd-a3df-c781cd27df45
+- Build processing state: VALID
+- Review path: https://appstoreconnect.apple.com/apps/6782063727/appstore/ios/version/deliverable
+- TestFlight/build path: https://appstoreconnect.apple.com/apps/6782063727/testflight/ios
+
+Native/package work:
+- Bumped app/package version to 1.0.2 and iOS buildNumber to 7.
+- Set EAS remote iOS build number to 7.
+- Built iOS production IPA successfully:
+  https://expo.dev/artifacts/eas/2w0WjfYcAXQpaVvgPhHJ_9xluXYYuM4FbJ8CcVvL7lE.ipa
+- Uploaded build 7 to Apple through EAS Submit.
+- Removed native PostHog Expo plugin/session-replay pods because they blocked App Store Xcode build and PostHog env is currently absent; JS analytics remains dormant unless configured.
+
+Assets/links:
+- Existing professional brand mark assets remain current:
+  assets/icon.png, assets/adaptive-icon.png, assets/favicon.png, assets/splash.png, assets/brand-mark.png
+- Hosted AASA file prepared and live:
+  https://dist-five-zeta-92i4a6g3xx.vercel.app/.well-known/apple-app-site-association
+- AASA read-back: 200, appID 83PWQ46HYA.com.axelcassou.yafoot, invite/join components.
+- True iOS universal links are not enabled in build 7 because Apple provisioning profile "YaFoot App Store" does not include Associated Domains. Manual Apple step: enable Associated Domains for com.axelcassou.yafoot in Apple Developer, regenerate/update the App Store provisioning profile/local credentials, then re-add `ios.associatedDomains` and rebuild.
+
+Screenshots:
+- Generated and uploaded 10 polished screenshots:
+  app-store-assets/final-2026-06-30-v102/iphone_01.png
+  app-store-assets/final-2026-06-30-v102/iphone_02.png
+  app-store-assets/final-2026-06-30-v102/iphone_03.png
+  app-store-assets/final-2026-06-30-v102/iphone_04.png
+  app-store-assets/final-2026-06-30-v102/iphone_05.png
+  app-store-assets/final-2026-06-30-v102/ipad_01.png
+  app-store-assets/final-2026-06-30-v102/ipad_02.png
+  app-store-assets/final-2026-06-30-v102/ipad_03.png
+  app-store-assets/final-2026-06-30-v102/ipad_04.png
+  app-store-assets/final-2026-06-30-v102/ipad_05.png
+- ASC read-back: APP_IPHONE_67 count 5 all COMPLETE; APP_IPAD_PRO_3GEN_129 count 5 all COMPLETE.
+
+Metadata:
+- Name intended/read-back constant: YaFoot
+- Subtitle intended: Football Score Predictions
+- Description/promotional text/keywords/what's new/review notes updated for YaFoot, football predictions, private leagues, friends, scores, standings, and no betting/gambling.
+- Metadata does not mention FIFA and does not claim official affiliation.
+- ASC accepted version localization, promotional text, description, keywords, what's new, support URL, marketing URL, copyright, and review notes.
+- ASC refused app name/subtitle/category edits because those app-info fields are locked in the current state; existing name is YaFoot.
+
+Verification:
+- `bash scripts/deploy.sh` passed after each app/package fix:
+  typecheck, web export, native iOS Expo export, Vercel deploy, Expo Go OTA, git commit/push.
+- Live web: 200 at https://dist-five-zeta-92i4a6g3xx.vercel.app/
+- Support: 200 at /support
+- Privacy: 200 at /privacy
+- EAS build c6f8888e-72e7-4e03-8234-d90d7f0c8f04: FINISHED, appVersion 1.0.2, appBuildVersion 7.
+- EAS Submit d263d152-07a1-468d-b856-4c94e62d4804 uploaded binary to ASC.
+- ASC review submissions read-back only showed COMPLETE historical submissions; no active submission was created by this worker.
+
+Commits pushed:
+- 8b57498 deploy 2026-06-30T01:01:22Z
+- 41072a4 deploy 2026-06-30T01:11:20Z
+- 2e81861 deploy 2026-06-30T01:15:38Z
+- 81a4f6d deploy 2026-06-30T01:22:52Z
+- 3875f31 Improve ASC draft reuse for app store updates
+
+Manual next steps for Axel:
+- Open App Store Connect draft 1.0.2 and review metadata/screenshots/build.
+- Confirm age rating, privacy answers, encryption/export-compliance answer, name/subtitle/category current values.
+- Submit manually only after review.
+- For real universal links later, enable Associated Domains in Apple Developer and rebuild with that entitlement.
