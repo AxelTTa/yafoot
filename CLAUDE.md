@@ -101,10 +101,12 @@ Two delivery targets — keep BOTH current:
 - Worker Telegram self-reports must be phone-friendly:
   - First line exactly `[worker <id>] 🟢 PASS | running: <N>`, `[worker <id>] 🟠 PARTIAL | running: <N>`, or `[worker <id>] 🔴 BLOCKED | running: <N>` when the count is available.
   - Before final Telegram, compute running YaFoot workers if possible:
-    `RUNNING=$(pgrep -af 'codx.*YaFoot WORKER agent' 2>/dev/null | wc -l | tr -d ' ') || RUNNING=""`.
+    `RUNNING=$(bash scripts/count_workers.sh 2>/dev/null || true)`.
   - Omit ` | running: <N>` only if unavailable; preserve the 🟢/🟠/🔴 statuses.
   - Then max 3 short lines: `Done:`, `Blocker:` only if any, and `Next:`. For test workers, add one compact metric line only if useful.
   - Keep under ~450 characters unless critical; avoid long prose.
+- After the last detached worker exits, `scripts/notify_all_done.sh` sends Axel a separate all-clear:
+  `✅ YaFoot all delegated work is done.` This is automatic. Do not suppress it.
 - **Army runs are fix loops by default, not report-only audits.** When Axel asks to run an "army",
   workers must simulate users, record issues, classify each issue as high / medium / low, fix safe
   scoped high/medium issues, run `bash scripts/deploy.sh`, then rerun the army/test loop. Repeat

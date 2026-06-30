@@ -12,6 +12,7 @@ mkdir -p workers
 TS="$(date -u +%Y%m%d-%H%M%S)-$$"
 LOG="workers/${TS}.log"
 OUT="workers/${TS}.last.txt"
+PIDFILE="workers/${TS}.pid"
 DOLLAR='$'
 
 read -r -d '' WSYS <<EOF || true
@@ -31,7 +32,7 @@ Status line must be one of:
   [worker ${TS}] 🔴 BLOCKED | running: <N>
 
 Before the final Telegram, compute running YaFoot worker count if possible:
-  RUNNING=${DOLLAR}(pgrep -af 'codx.*YaFoot WORKER agent' 2>/dev/null | wc -l | tr -d ' ') || RUNNING=""
+  RUNNING=${DOLLAR}(bash scripts/count_workers.sh 2>/dev/null || true)
 Use " | running: ${DOLLAR}RUNNING" on the status line when available; omit it if unavailable.
 Keep it under ~450 characters unless critical. Use max 3 short bullet/lines:
   - Done: <short result>
@@ -61,15 +62,23 @@ PROMPT="${WSYS}
 TASK:
 ${TASK}"
 
-nohup setsid "$ENGINE" exec \
-  -m "$CODEX_MODEL" \
-  --skip-git-repo-check \
-  --ignore-user-config \
-  --ignore-rules \
-  --dangerously-bypass-approvals-and-sandbox \
-  -C /home/ubuntu/yafoot \
-  -o "$OUT" \
-  --color never \
-  "$PROMPT" \
-  > "$LOG" 2>&1 < /dev/null &
+nohup setsid bash -lc '
+  set +e
+  echo "$$" > "$6"
+  "$0" exec \
+    -m "$1" \
+    --skip-git-repo-check \
+    --ignore-user-config \
+    --ignore-rules \
+    --dangerously-bypass-approvals-and-sandbox \
+    -C /home/ubuntu/yafoot \
+    -o "$2" \
+    --color never \
+    "$3" \
+    > "$4" 2>&1 < /dev/null
+  status=$?
+  bash /home/ubuntu/yafoot/scripts/notify_all_done.sh "$5" "$status" >> "$4" 2>&1 || true
+  rm -f "$6"
+  exit "$status"
+' "$ENGINE" "$CODEX_MODEL" "$OUT" "$PROMPT" "$LOG" "$TS" "$PIDFILE" >/dev/null 2>&1 < /dev/null &
 echo "WORKER_STARTED id=${TS} pid=$! engine=${ENGINE} log=${LOG}"

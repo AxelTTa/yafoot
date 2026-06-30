@@ -15,6 +15,7 @@ ALLOWED = str(os.environ["TELEGRAM_ALLOWED_CHAT_ID"]).strip()
 CLAUD_BIN = os.environ.get("CLAUD_BIN", "codx")
 WORKDIR = os.environ.get("WORKDIR", "/home/ubuntu/yafoot")
 CODEX_MODEL = os.environ.get("CODEX_MODEL", "gpt-5.5")
+MANAGER_TIMEOUT = int(os.environ.get("MANAGER_TIMEOUT", "120"))
 API = f"https://api.telegram.org/bot{TOKEN}"
 FILE_API = f"https://api.telegram.org/file/bot{TOKEN}"
 SESS_FILE = os.path.join(WORKDIR, "yafoot_sessions.json")
@@ -50,11 +51,14 @@ and that they must ship via scripts/deploy.sh. One task per worker; spin up seve
 Worker self-reports must be very short and phone-friendly. First line must be
 `[worker <id>] 🟢 PASS | running: <N>`, `[worker <id>] 🟠 PARTIAL | running: <N>`, or
 `[worker <id>] 🔴 BLOCKED | running: <N>`; preserve those emoji statuses. Workers should compute
-`N` before final Telegram with a safe command like
-`pgrep -af 'codx.*YaFoot WORKER agent' 2>/dev/null | wc -l | tr -d ' '`, and omit ` | running: <N>`
+`N` before final Telegram with `bash scripts/count_workers.sh`, and omit ` | running: <N>`
 only if unavailable. Then max 3 short lines: `- Done: ...`, `- Blocker: ...` only when relevant,
 and `- Next: ...`. Keep under ~450 chars unless critical. For test workers, add one compact metric
 line only if useful. Avoid long prose.
+
+ALL-CLEAR: after the final detached worker exits, scripts/notify_all_done.sh sends Axel a separate
+`✅ YaFoot all delegated work is done.` message. This is automatic and helps Axel know a long batch
+has fully finished.
 
 ARMY RUNS: when Axel asks to run an "army", delegate it as an iterative fix loop, not a report-only
 audit. The worker must run simulated users/tests, record issues, classify each high/medium/low, fix
@@ -280,7 +284,7 @@ def run_codx(system_prompt, text, chat_id):
         for attempt in range(2):
             proc = subprocess.run(
                 build_cmd(sid), cwd=WORKDIR, capture_output=True, text=True,
-                env=agent_env(), start_new_session=True,
+                env=agent_env(), start_new_session=True, timeout=MANAGER_TIMEOUT,
             )
             if proc.returncode == 0:
                 break
@@ -303,6 +307,13 @@ def run_codx(system_prompt, text, chat_id):
         except Exception:
             result = ""
         return result or (proc.stdout or "(no output)")[-1500:]
+    except subprocess.TimeoutExpired:
+        return (
+            "(manager timeout)\n"
+            f"YaFoot manager took over {MANAGER_TIMEOUT}s before returning. "
+            "I stopped that manager turn so Telegram stays responsive. "
+            "For long work, send again and I will delegate it to a detached worker."
+        )
     except Exception as e:
         return f"(manager error: {e})"
     finally:
