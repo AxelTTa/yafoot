@@ -1,5 +1,9 @@
-[worker 20260629-204436-1784402] PASS
-- Done: shipped branding update in 75e5934: 7 files changed; signup uses no-text mark plus YaFoot text; icon/favicon/splash use Telegram no-text mark.
-- Live: https://dist-five-zeta-92i4a6g3xx.vercel.app
-- Expo: OTA published to production after deploy retry; installed App Store/home-screen icon still needs a new native binary.
-- Next: run native App Store build/submit when ready to update installed icon.
+Done. Branding shipped and Telegram update sent.
+
+Changed/shipped:
+- Signup/onboarding logo now uses the uploaded no-text mark plus crisp native `YaFoot` text.
+- App icon, adaptive icon, favicon, splash, and `assets/brand-mark.png` use the cleaned Telegram no-text mark.
+- Web live: https://dist-five-zeta-92i4a6g3xx.vercel.app
+- Expo Go OTA published successfully after retry.
+
+Note: installed home-screen/App Store icon changes require a new native binary; OTA only updates in-app branding. There are unrelated dirty files from other worker activity left untouched.

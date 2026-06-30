@@ -8,20 +8,20 @@ const KEY_ID    = "7N7T2FPQN2";
 const ISSUER_ID = "b79da7bd-6f34-47ab-abd1-2a65ae9774a1";
 const APP_ID    = "6782063727";
 const KEY_PATH  = "/home/ubuntu/yafoot/asc-key.p8";
-const SHOTS_DIR = "/tmp/screenshots";
+const SHOTS_DIR = process.env.SCREENSHOTS_DIR || "/tmp/screenshots";
 const BASE      = "https://api.appstoreconnect.apple.com/v1";
-const TARGET_VERSION = "1.0.1";
-const TARGET_BUILD = "6";
+const TARGET_VERSION = "1.0.2";
+const TARGET_BUILD = "7";
 const SUPPORT_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
 const MARKETING_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/support";
 const PRIVACY_URL = "https://dist-five-zeta-92i4a6g3xx.vercel.app/privacy";
 const SAFE_NAME = "YaFoot";
-const SAFE_SUBTITLE = "World Cup Score Predictions";
-const SAFE_DESCRIPTION = "YaFoot is a social football prediction game for the 2026 World Cup. Predict exact match scores, follow live results, study match insights, and compete with friends in private leagues.\n\nCreate or join a league, invite friends with a code or link, submit your scoreline before kickoff, and watch the leaderboard move as results come in. Match detail pages combine predictions with stats, win probabilities, likely scorelines, community forecasts, and World Cup history context so every pick feels informed.\n\nYaFoot is built for friendly competition: username-only setup, private league chat, friend requests, direct messages, standings, previous picks, and optional loser punishments inside your friend group.\n\nFree to play. No betting, no gambling, no real-money prizes, and no email required.";
-const SAFE_KEYWORDS = "yafoot,football,soccer,prediction,world cup,scores,friends,leaderboard,league,chat";
+const SAFE_SUBTITLE = "Football Score Predictions";
+const SAFE_DESCRIPTION = "YaFoot is a social football prediction game for the 2026 World Cup. Predict exact match scores, follow live results, study match insights, and compete with friends in private leagues.\n\nCreate or join a YaFoot league, invite friends with a code or link, submit your scoreline before kickoff, and watch the leaderboard move as results come in. Match detail pages combine predictions with stats, win probabilities, likely scorelines, community forecasts, standings, and football history context so every pick feels informed.\n\nYaFoot is built for friendly competition: username-only setup, private league chat, friend requests, direct messages, standings, previous picks, and optional loser punishments inside your friend group.\n\nFree to play. No betting, no gambling, no real-money prizes, and no email required. YaFoot is independent and is not affiliated with any tournament organizer, team, or governing body.";
+const SAFE_KEYWORDS = "yafoot,football,soccer,predictions,world cup,scores,friends,leaderboard,league,chat";
 const SAFE_PROMOTIONAL_TEXT = "Predict World Cup scores with friends, study match stats, and climb your private YaFoot leaderboard.";
-const SAFE_WHATS_NEW = "Final live YaFoot listing update: fresh World Cup prediction screenshots, match detail prediction plus stats positioning, private leagues, friends, standings, and App Store link guidance.";
-const REVIEW_NOTES = "YaFoot is a free social football prediction app for friend groups. Users create a username-only account, predict match scores before kickoff, join private leagues, invite friends, chat, view standings, and inspect match stats/history. The app does not offer betting, gambling, real-money prizes, odds wagering, loot boxes, ads, or unrestricted web access. Invite and QR guidance points users to the public App Store listing when the app is not installed: https://apps.apple.com/us/app/yafoot/id6782063727. No demo account is required; reviewers can choose English, enter any username, continue to the app, open Matches or Leagues, and submit predictions where matches are open.";
+const SAFE_WHATS_NEW = "YaFoot 1.0.2 refreshes the App Store package with the latest brand icon, polished prediction screenshots, clearer football match insights, private leagues, friends, standings, and improved invite-link handling.";
+const REVIEW_NOTES = "YaFoot is a free social football prediction app for friend groups. Users create a username-only account, predict match scores before kickoff, join private leagues, invite friends, chat, view standings, and inspect match stats/history. The app does not offer betting, gambling, real-money prizes, odds wagering, loot boxes, ads, or unrestricted web access. YaFoot is independent and does not claim official affiliation with any tournament organizer, team, or governing body. Invite and QR guidance points users to the public App Store listing when the app is not installed: https://apps.apple.com/us/app/yafoot/id6782063727. No demo account is required; reviewers can choose English, enter any username, continue to the app, open Matches or Leagues, and submit predictions where matches are open.";
 const REVIEW_CONTACT = {
   firstName: "Axel",
   lastName: "Cassou",
@@ -110,7 +110,24 @@ async function main() {
     const allVersions = await api("GET", `/apps/${APP_ID}/appStoreVersions?limit=10`);
     console.log("All versions:", JSON.stringify(allVersions.data?.map(v => ({ id: v.id, state: v.attributes?.appStoreState, ver: v.attributes?.versionString })), null, 2));
     version = allVersions.data?.find(v => v.attributes?.versionString === TARGET_VERSION);
-    if (!version) throw new Error(`Target version ${TARGET_VERSION} not found in App Store Connect`);
+    if (!version) {
+      console.log(`Creating App Store version ${TARGET_VERSION} draft…`);
+      const created = await api("POST", "/appStoreVersions", {
+        data: {
+          type: "appStoreVersions",
+          attributes: {
+            platform: "IOS",
+            versionString: TARGET_VERSION,
+            copyright: "2026 Axel Cassou",
+          },
+          relationships: {
+            app: { data: { type: "apps", id: APP_ID } },
+          },
+        },
+      });
+      version = created.data;
+      console.log("Created target version ID:", version.id, "state:", version.attributes?.appStoreState);
+    }
     if (!["PREPARE_FOR_SUBMISSION","REJECTED","DEVELOPER_REJECTED","READY_FOR_REVIEW"].includes(version.attributes?.appStoreState)) {
       throw new Error(`Target version ${TARGET_VERSION} is not safely editable: ${version.attributes?.appStoreState}`);
     }
@@ -286,14 +303,33 @@ async function main() {
     console.warn("Review notes/contact update failed:", e.message);
   }
 
-  console.log("\n── Step f: verify attached build if present ──");
+  console.log("\n── Step f: attach/verify build if present ──");
   try {
     const buildResp = await api("GET", `/appStoreVersions/${versionId}/build`);
-    const build = buildResp?.data;
+    let build = buildResp?.data;
     const uploadedBuild = build?.attributes?.version;
     console.log("Attached build:", uploadedBuild || "(none)", "id:", build?.id || "(none)");
     if (uploadedBuild && uploadedBuild !== TARGET_BUILD) {
       console.warn(`Attached build is ${uploadedBuild}; expected ${TARGET_BUILD}. Update binary/build manually before review.`);
+    }
+    if (!uploadedBuild) {
+      const buildsResp = await api("GET", `/builds?filter[app]=${APP_ID}&filter[version]=${TARGET_BUILD}&sort=-uploadedDate&limit=10`);
+      build = buildsResp.data?.[0];
+      if (build) {
+        console.log("Attaching processed build:", build.id, "build:", build.attributes?.version, "processing:", build.attributes?.processingState);
+        await api("PATCH", `/appStoreVersions/${versionId}`, {
+          data: {
+            type: "appStoreVersions",
+            id: versionId,
+            relationships: {
+              build: { data: { type: "builds", id: build.id } },
+            },
+          },
+        });
+        console.log("Build attached.");
+      } else {
+        console.warn(`No processed App Store Connect build ${TARGET_BUILD} found yet. Run this script again after EAS submit/Apple processing.`);
+      }
     }
   } catch (e) {
     console.warn("Could not read attached build:", e.message);
@@ -397,6 +433,25 @@ async function main() {
 
   await uploadScreenshots("APP_IPHONE_67", "iphone");
   await uploadScreenshots("APP_IPAD_PRO_3GEN_129", "ipad");
+
+  console.log("\n── Read-back ──");
+  try {
+    const rbVersion = await api("GET", `/appStoreVersions/${versionId}`);
+    const rbBuild = await api("GET", `/appStoreVersions/${versionId}/build`).catch(() => null);
+    const rbLoc = await api("GET", `/appStoreVersionLocalizations/${locId}`);
+    const rbSets = await api("GET", `/appStoreVersionLocalizations/${locId}/appScreenshotSets?limit=20`);
+    console.log("Version:", rbVersion.data?.attributes?.versionString, "state:", rbVersion.data?.attributes?.appStoreState);
+    console.log("Build:", rbBuild?.data?.attributes?.version || "(none)", "processing:", rbBuild?.data?.attributes?.processingState || "(n/a)");
+    console.log("Name:", SAFE_NAME, "Subtitle:", SAFE_SUBTITLE);
+    console.log("Description chars:", rbLoc.data?.attributes?.description?.length || 0);
+    for (const set of rbSets.data || []) {
+      const shotsResp = await api("GET", `/appScreenshotSets/${set.id}/appScreenshots?limit=20`);
+      const states = (shotsResp.data || []).map(s => s.attributes?.assetDeliveryState?.state || "UNKNOWN");
+      console.log("Screenshot set:", set.attributes?.screenshotDisplayType, "count:", states.length, "states:", states.join(","));
+    }
+  } catch (e) {
+    console.warn("Read-back failed:", e.message);
+  }
 
   if (process.env.ASC_SUBMIT_FOR_REVIEW !== "1") {
     console.log("\nSubmission skipped. Set ASC_SUBMIT_FOR_REVIEW=1 to submit after confirming binary, metadata, screenshots, age-rating answers, and privacy answers in App Store Connect.");

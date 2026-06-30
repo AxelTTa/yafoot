@@ -1,0 +1,12 @@
+Telegram sent.
+
+Final audit is `PARTIAL`, not `PASS`: live web + EAS OTA passed, but the public App Store listing is still old and native icon/universal-link changes require a new binary/App Store version.
+
+Report written: [workers/20260629-204549-1787912.last.txt](/home/ubuntu/yafoot/workers/20260629-204549-1787912.last.txt)
+
+Key artifacts:
+- `/tmp/yafoot-audit-20260629/final-groups.png`
+- `/tmp/yafoot-audit-20260629/final-match-changed.png`
+- `/tmp/yafoot-live-competition-smoke-mqzpt98s/report.json`
+
+Public App Store source checked: https://apps.apple.com/us/app/yafoot/id6782063727

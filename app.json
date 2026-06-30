@@ -2,7 +2,7 @@
   "expo": {
     "name": "YaFoot",
     "slug": "yafoot",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "scheme": "yafoot",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.axelcassou.yafoot",
-      "buildNumber": "6",
+      "buildNumber": "7",
+      "associatedDomains": [
+        "applinks:dist-five-zeta-92i4a6g3xx.vercel.app"
+      ],
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Choose a profile photo for your YaFoot account",
         "NSCameraUsageDescription": "Take a profile photo for your YaFoot account"

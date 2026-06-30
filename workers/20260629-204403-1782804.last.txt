@@ -1,0 +1,12 @@
+Done. Logo/app icon work shipped.
+
+Changed and deployed:
+- `assets/icon.png`, `adaptive-icon.png`, `favicon.png`, `splash.png`, `brand-mark.png`
+- `components/Brand.tsx`
+- `app.json` adaptive icon points to the adaptive asset
+
+`bash scripts/deploy.sh` passed: typecheck, web export, native iOS export, Vercel deploy, Expo Go OTA, git push.
+
+Telegram update sent. Summary written to [workers/20260629-204403-1782804.last.txt](/home/ubuntu/yafoot/workers/20260629-204403-1782804.last.txt).
+
+Note: web/Expo Go are updated now; the installed App Store binary icon needs a new native EAS build/submission.

@@ -1,4 +1,16 @@
-[worker 20260629-202406-1757594] 🟢 PASS | running: 14
-- Done: Full-live update shipped. Predict/Soiree hidden, match detail now prediction+stats, WC history copy, App Store fallback links live.
-- Tests: deploy OK, native export OK, OTA OK, live competition smoke PASS, golden path 18/18.
-- Next: true iOS universal links need Associated Domains + AASA + new App Store binary.
+Done and shipped.
+
+Live: https://dist-five-zeta-92i4a6g3xx.vercel.app  
+App Store: https://apps.apple.com/us/app/yafoot/id6782063727  
+Commits: `b1c57ef`, `4086c5e`
+
+Verified:
+- `bash scripts/deploy.sh` passed
+- Native Expo export passed
+- EAS OTA published
+- Live competition smoke passed
+- Golden path passed `18/18`
+
+Telegram update sent to Axel.
+
+Remaining native step: true iOS universal links require Associated Domains + AASA file + a new App Store binary. Current web fallback tries `yafoot://...` and falls back to the App Store listing.

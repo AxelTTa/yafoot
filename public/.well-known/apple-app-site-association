@@ -1,0 +1,22 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "83PWQ46HYA.com.axelcassou.yafoot"
+        ],
+        "components": [
+          {
+            "/": "/invite/*",
+            "comment": "Open YaFoot friend invite links in the iOS app."
+          },
+          {
+            "/": "/join/*",
+            "comment": "Open YaFoot league invite links in the iOS app."
+          }
+        ]
+      }
+    ]
+  }
+}

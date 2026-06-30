@@ -1,0 +1,4 @@
+[worker 20260629-231439-1861450] 🟠 PARTIAL | running: 7
+- Done: PostHog shipped at `f03c694`; temp yotoia4 checkout removed; Telegram sent.
+- Blocker: `PlusSales-Dev/yotoia4` returned 404 to available GitHub auth; `EXPO_PUBLIC_POSTHOG_API_KEY` is missing.
+- Next: Grant repo access or add PostHog key env, then replay live.

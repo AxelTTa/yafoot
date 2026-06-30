@@ -7,7 +7,7 @@ import puppeteer from "puppeteer-core";
 import QRCode from "qrcode";
 import { mkdirSync, rmSync } from "node:fs";
 
-const OUT_DIR = "/tmp/screenshots";
+const OUT_DIR = process.env.SCREENSHOTS_DIR || "/tmp/screenshots";
 const APP_STORE_URL = "https://apps.apple.com/us/app/yafoot/id6782063727";
 const IPHONE = { width: 430, height: 932, deviceScaleFactor: 3 };
 const IPAD = { width: 1024, height: 1366, deviceScaleFactor: 2 };
