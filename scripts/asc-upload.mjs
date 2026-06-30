@@ -111,22 +111,40 @@ async function main() {
     console.log("All versions:", JSON.stringify(allVersions.data?.map(v => ({ id: v.id, state: v.attributes?.appStoreState, ver: v.attributes?.versionString })), null, 2));
     version = allVersions.data?.find(v => v.attributes?.versionString === TARGET_VERSION);
     if (!version) {
-      console.log(`Creating App Store version ${TARGET_VERSION} draft…`);
-      const created = await api("POST", "/appStoreVersions", {
-        data: {
-          type: "appStoreVersions",
-          attributes: {
-            platform: "IOS",
-            versionString: TARGET_VERSION,
-            copyright: "2026 Axel Cassou",
+      version = allVersions.data?.find(v => ["PREPARE_FOR_SUBMISSION","REJECTED","DEVELOPER_REJECTED","READY_FOR_REVIEW"].includes(v.attributes?.appStoreState));
+      if (version) {
+        console.warn(`No ${TARGET_VERSION} draft can be created while editable version ${version.attributes?.versionString} exists; reusing it.`);
+        try {
+          const renamed = await api("PATCH", `/appStoreVersions/${version.id}`, {
+            data: {
+              type: "appStoreVersions",
+              id: version.id,
+              attributes: { versionString: TARGET_VERSION },
+            },
+          });
+          version = renamed.data;
+          console.log("Renamed editable draft to:", version.attributes?.versionString);
+        } catch (e) {
+          console.warn(`Could not rename editable draft to ${TARGET_VERSION}; keeping ASC version ${version.attributes?.versionString}:`, e.message);
+        }
+      } else {
+        console.log(`Creating App Store version ${TARGET_VERSION} draft…`);
+        const created = await api("POST", "/appStoreVersions", {
+          data: {
+            type: "appStoreVersions",
+            attributes: {
+              platform: "IOS",
+              versionString: TARGET_VERSION,
+              copyright: "2026 Axel Cassou",
+            },
+            relationships: {
+              app: { data: { type: "apps", id: APP_ID } },
+            },
           },
-          relationships: {
-            app: { data: { type: "apps", id: APP_ID } },
-          },
-        },
-      });
-      version = created.data;
-      console.log("Created target version ID:", version.id, "state:", version.attributes?.appStoreState);
+        });
+        version = created.data;
+        console.log("Created target version ID:", version.id, "state:", version.attributes?.appStoreState);
+      }
     }
     if (!["PREPARE_FOR_SUBMISSION","REJECTED","DEVELOPER_REJECTED","READY_FOR_REVIEW"].includes(version.attributes?.appStoreState)) {
       throw new Error(`Target version ${TARGET_VERSION} is not safely editable: ${version.attributes?.appStoreState}`);
@@ -431,8 +449,12 @@ async function main() {
     return setId;
   }
 
-  await uploadScreenshots("APP_IPHONE_67", "iphone");
-  await uploadScreenshots("APP_IPAD_PRO_3GEN_129", "ipad");
+  if (process.env.ASC_SKIP_SCREENSHOTS === "1") {
+    console.log("\nScreenshot upload skipped by ASC_SKIP_SCREENSHOTS=1.");
+  } else {
+    await uploadScreenshots("APP_IPHONE_67", "iphone");
+    await uploadScreenshots("APP_IPAD_PRO_3GEN_129", "ipad");
+  }
 
   console.log("\n── Read-back ──");
   try {
