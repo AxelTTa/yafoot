@@ -1,0 +1,27 @@
+[worker 20260630-073327-2060470] Major YaFoot UX/product rebuild
+
+Status: PASS
+Live URL: https://dist-five-zeta-92i4a6g3xx.vercel.app
+Latest commits: 5e642e5, ba7c65c
+Expo OTA: pushed on production branch by deploy script.
+
+What changed
+- Rebuilt World Cup knockout tree into a polished horizontally scrollable bracket with stage columns, status chips, fixture counts, venue/time metadata, and vertical scrolling within busy rounds.
+- Restored inline score prediction on match cards. Matches tab and league match lists can save/update predictions without opening detail, while the detail screen still works.
+- Rebuilt Predict tab as a real rich surface: open picks, next-match model probabilities, likely scorelines, and prediction history.
+- Redesigned Leagues and Friends pages with stronger dark hero blocks, stats cards, clearer actions, bigger list rows, and useful empty-state actions.
+- Reworked competition builder language and logic for post-group-stage World Cup context. It now offers rest of tournament, current round, semi-finals onward, and custom counts from remaining knockout fixtures.
+- Polished punishment picker: removed numeric levels and step text, widened severity badges, and made rows more readable.
+- Removed old main UI host result/finalize score controls from league detail.
+- Added provider-backed official league creation RPC. New World Cup competitions link to existing official `matches` rows through `league_matches` instead of cloning custom matches, so results come from provider sync.
+- Updated `score_match` so private custom matches score only linked leagues, while official provider matches score both classic all-match leagues and selected-match leagues.
+
+Validation
+- `npx tsc --noEmit` passed.
+- `bash scripts/deploy.sh` passed twice: typecheck, web export, native Expo Go export, Vercel deploy, Expo OTA, git push.
+- Live Puppeteer smoke passed: onboarding, Matches/Bracket inline pick area, Predict rich surface, Leagues redesign, Friends redesign.
+- Supabase RPC smoke passed: created an official competition and linked a real upcoming World Cup match.
+
+Notes
+- Existing `browser-test.mjs` and parts of `data-integrity-test.mjs` are stale against the current onboarding/navigation and old host-finalization assumptions; the army-upgrade/final-army workers should update/cover those paths.
+- A support worker produced WC data context: 104 official matches, 76 finished, 28 remaining at snapshot time, group stage over.
