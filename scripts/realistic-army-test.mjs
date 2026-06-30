@@ -286,8 +286,8 @@ async function onboard(page, prefix, language) {
       await setLastInput(page, username);
       await clickRegex(page, /Let's go!|Get started|C'est parti/i, { timeout: 10000 });
     }
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      await sleep(1500 + attempt * 1500);
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await sleep(5000 + attempt * 3000);
       if (!/Signup is busy|inscription/i.test(await bodyText(page))) break;
       await clickRegex(page, /Let's go!|Get started|C'est parti/i, { timeout: 10000 });
     }
@@ -478,6 +478,7 @@ try {
   const names = [];
   for (let idx = 0; idx < pages.length; idx += 1) {
     names.push(await onboard(pages[idx], `army${idx + 1}`, idx % 2 ? "Français" : "English"));
+    await sleep(4000);
   }
   pass("created isolated real accounts", names.join(", "));
 
