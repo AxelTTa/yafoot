@@ -286,6 +286,11 @@ async function onboard(page, prefix, language) {
       await setLastInput(page, username);
       await clickRegex(page, /Let's go!|Get started|C'est parti/i, { timeout: 10000 });
     }
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      await sleep(1500 + attempt * 1500);
+      if (!/Signup is busy|inscription/i.test(await bodyText(page))) break;
+      await clickRegex(page, /Let's go!|Get started|C'est parti/i, { timeout: 10000 });
+    }
     await waitFor(page, /Continue to app|Continuer|Aller dans l'app|Competitions|Profile|Friends|Matches/i, 45000);
     if (/Continue to app|Continuer|Aller dans l'app/i.test(await bodyText(page))) {
       await clickRegex(page, /Continue to app|Continuer|Aller dans l'app/i, { timeout: 10000 });
