@@ -61,7 +61,7 @@ export default function Matches() {
       ]
     : [
         { key: "upcoming", label: t("filter_upcoming"), color: colors.greenDark },
-        { key: "groups", label: t("filter_groups"), color: colors.purple },
+        { key: "groups", label: "Bracket", color: colors.purple },
         { key: "results", label: t("filter_results"), color: colors.orange },
       ];
 
