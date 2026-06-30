@@ -475,7 +475,10 @@ try {
   }
   const [host, guest, alice, bob, reviewer] = pages;
 
-  const names = await Promise.all(pages.map((page, idx) => onboard(page, `army${idx + 1}`, idx % 2 ? "Français" : "English")));
+  const names = [];
+  for (let idx = 0; idx < pages.length; idx += 1) {
+    names.push(await onboard(pages[idx], `army${idx + 1}`, idx % 2 ? "Français" : "English"));
+  }
   pass("created isolated real accounts", names.join(", "));
 
   await scanPage("reviewer", reviewer, "", /Matches|Matchs|Predict|Prévoir|Pronos|Leagues|Competitions|Profile|Profil/i);
