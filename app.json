@@ -17,9 +17,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.axelcassou.yafoot",
       "buildNumber": "7",
-      "associatedDomains": [
-        "applinks:dist-five-zeta-92i4a6g3xx.vercel.app"
-      ],
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "Choose a profile photo for your YaFoot account",
         "NSCameraUsageDescription": "Take a profile photo for your YaFoot account"
