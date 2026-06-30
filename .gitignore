@@ -15,3 +15,7 @@ yafoot_sessions_codx.json
 asc-key.p8
 credentials/
 credentials.json
+
+# Runtime worker state
+workers/*.pid
+workers/.all-done.*

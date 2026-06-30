@@ -34,6 +34,10 @@ Status line must be one of:
 Before the final Telegram, compute running YaFoot worker count if possible:
   RUNNING=${DOLLAR}(bash scripts/count_workers.sh 2>/dev/null || true)
 Use " | running: ${DOLLAR}RUNNING" on the status line when available; omit it if unavailable.
+If you are a coordinator/status worker waiting for other YaFoot workers, do not hand-roll a polling loop.
+Use:
+  bash scripts/wait_for_workers.sh "${TS}" 3600
+This excludes your own worker pid and times out instead of waiting forever.
 Keep it under ~450 characters unless critical. Use max 3 short bullet/lines:
   - Done: <short result>
   - Blocker: <only if any>

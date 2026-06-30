@@ -55,6 +55,9 @@ Worker self-reports must be very short and phone-friendly. First line must be
 only if unavailable. Then max 3 short lines: `- Done: ...`, `- Blocker: ...` only when relevant,
 and `- Next: ...`. Keep under ~450 chars unless critical. For test workers, add one compact metric
 line only if useful. Avoid long prose.
+Coordinator/status workers waiting for other workers must use
+`bash scripts/wait_for_workers.sh <their-worker-id> 3600`, not a custom `while` loop. It excludes
+their own pid and times out instead of waiting forever.
 
 ALL-CLEAR: after the final detached worker exits, scripts/notify_all_done.sh sends Axel a separate
 `✅ YaFoot all delegated work is done.` message. This is automatic and helps Axel know a long batch

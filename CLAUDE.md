@@ -101,12 +101,18 @@ Two delivery targets — keep BOTH current:
   that does the task end-to-end, ships via `scripts/deploy.sh`, and **self-reports to Telegram** when done.
   Workers survive bridge restarts; logs in `workers/<id>.log`. `/workers` lists them.
 - The manager never runs builds/edits/deploys itself — it only delegates + answers quick read-only questions.
+- Server service invariant: `/etc/systemd/system/yafoot-bridge.service` must use `KillMode=process`.
+  Detached workers are intentionally outside the manager lifecycle; with systemd's default
+  `KillMode=control-group`, restarting the bridge kills active workers before they can self-report.
 - If you ARE a worker: read this file, do the task autonomously, ship with `scripts/deploy.sh`, then send a
   concise Telegram summary (token + chat id are in your env). Never ask questions.
 - Worker Telegram self-reports must be phone-friendly:
   - First line exactly `[worker <id>] 🟢 PASS | running: <N>`, `[worker <id>] 🟠 PARTIAL | running: <N>`, or `[worker <id>] 🔴 BLOCKED | running: <N>` when the count is available.
   - Before final Telegram, compute running YaFoot workers if possible:
     `RUNNING=$(bash scripts/count_workers.sh 2>/dev/null || true)`.
+  - If you are a coordinator/status worker waiting for other workers, use
+    `bash scripts/wait_for_workers.sh <your-worker-id> 3600`. Do not hand-roll `while` loops; this
+    helper excludes your own worker pid and times out instead of waiting forever.
   - Omit ` | running: <N>` only if unavailable; preserve the 🟢/🟠/🔴 statuses.
   - Then max 3 short lines: `Done:`, `Blocker:` only if any, and `Next:`. For test workers, add one compact metric line only if useful.
   - Keep under ~450 characters unless critical; avoid long prose.
