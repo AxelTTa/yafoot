@@ -335,18 +335,23 @@ async function submitPrediction(page, user, source, home = 1, away = 0) {
       await clickRegex(page, /Upcoming|À venir/i, { timeout: 5000, required: false });
       await clickFirstMatchCard(page);
     } else {
-      await waitFor(page, /Tap to predict|Make your prediction|Submit prediction|Prediction submitted|No prediction yet|vs/i, 30000);
+      await waitFor(page, /Tap to predict|Make your prediction|Submit prediction|Save pick|Update pick|Prediction submitted|No prediction yet|vs/i, 30000);
       await clickRegex(page, /Tap to predict|Make your prediction|Submit prediction/i, { timeout: 10000, required: false });
     }
-    await waitFor(page, /Make your prediction|Submit prediction|Lock In Prediction|Prediction submitted|No prediction yet|vs/i, 30000);
+    await waitFor(page, /Make your prediction|Submit prediction|Save pick|Update pick|Lock In Prediction|Prediction submitted|No prediction yet|vs/i, 30000);
     await clickAria(page, "Increase home prediction", home).catch(async () => {
       for (let i = 0; i < home; i += 1) await clickText(page, "+", { exact: true, timeout: 2000 });
     });
     await clickAria(page, "Increase away prediction", away).catch(async () => {
       for (let i = 0; i < away; i += 1) await clickText(page, "+", { exact: true, timeout: 2000 });
     });
-    await clickRegex(page, /Submit prediction|Lock In Prediction|Update Prediction|Save/i, { timeout: 10000 });
-    const text = await waitFor(page, /Prediction saved|Prediction submitted|Change the score to update|Your pick|Pick/i, 25000);
+    await clickRegex(page, /Submit prediction|Lock In Prediction|Update Prediction/i, { timeout: 2500, required: false });
+    if (!/Prediction saved|Prediction submitted|Change the score to update|Your pick|Pick|Update pick/i.test(await bodyText(page))) {
+      await clickText(page, "Save pick", { exact: true, timeout: 10000 }).catch(() =>
+        clickText(page, "Update pick", { exact: true, timeout: 10000 })
+      );
+    }
+    const text = await waitFor(page, /Prediction saved|Prediction submitted|Change the score to update|Your pick|Pick|Update pick/i, 25000);
     await screenshot(page, `${user}-${source}-prediction-saved`);
     pass(`${user} predicted via ${source}`, text.slice(0, 120).replace(/\n/g, " "));
   });
