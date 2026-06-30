@@ -1,3 +1,9 @@
+Done. Telegram update sent.
+
+Create-league is fixed and live: successful creation now routes to `/league/<id>`. Live competition smoke passed with league id `87`.
+
+Full realistic army rerun is blocked by repeated live auth signup throttling: `Signup is busy right now`, before it can complete the full flow.
+
 Worker 20260630-080322-2082817 summary
 
 Task: Fix live YaFoot create-league failure from final army.
