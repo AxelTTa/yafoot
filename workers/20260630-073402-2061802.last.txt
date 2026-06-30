@@ -1,3 +1,5 @@
-[worker 20260630-073402-2061802] 🟢 PASS | running: 4
-- Done: Added/pushed realistic full-app UI army harness + worker rules for accounts, friends/DMs, competitions, predictions, languages, page scans, result scores, layout/rage/latency, and clear findings.
-- Next: final army worker should run after product rebuild.
+Implemented and pushed the army-test upgrade.
+
+Added `scripts/realistic-army-test.mjs` and updated `CLAUDE.md` + `scripts/delegate.sh` so future army runs must exercise real UI flows: accounts, friends/DMs, competitions, predictions, languages, page scans, result scores, layout/rage/latency, and clear severity findings.
+
+Verified with `node --check`, `bash -n`, and `git diff --check`. No deploy/full army run was done because this was scripts/docs-only and the task explicitly said not to run the final full army yet. Telegram update was sent, and `workers/20260630-073402-2061802.last.txt` was written/pushed.

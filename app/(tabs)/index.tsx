@@ -121,6 +121,7 @@ export default function Matches() {
               match={item}
               prediction={preds[item.id]}
               onPress={() => router.push(`/match/${item.id}`)}
+              onPredictionSaved={load}
             />
           )}
           ListEmptyComponent={

@@ -31,6 +31,11 @@ function scoreLabel(match: Match) {
   return new Date(match.utc_kickoff).toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+function timeLabel(match: Match) {
+  if (!match.utc_kickoff) return "Time TBD";
+  return new Date(match.utc_kickoff).toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
 function TeamLine({ name, flag }: { name: string; flag?: string | null }) {
   return (
     <View style={styles.teamLine}>
@@ -46,12 +51,15 @@ function MatchNode({ match }: { match: Match }) {
   return (
     <View style={[styles.node, live && styles.nodeLive, finished && styles.nodeDone]}>
       <View style={styles.nodeTop}>
-        <Text style={styles.meta} numberOfLines={1}>{String(match.stage ?? "Knockout").replace(/_/g, " ")}</Text>
-        <Text style={[styles.score, live && { color: colors.greenDark }]}>{scoreLabel(match)}</Text>
+        <View style={[styles.statusPill, live && styles.statusLive, finished && styles.statusDone]}>
+          <Text style={[styles.statusTxt, live && { color: colors.blanc }]}>{live ? (match.minute ? `${match.minute}'` : "LIVE") : finished ? "FT" : scoreLabel(match)}</Text>
+        </View>
+        <Text style={styles.meta} numberOfLines={1}>{timeLabel(match)}</Text>
       </View>
       <TeamLine name={match.home_team} flag={match.home_flag} />
       <View style={styles.divider} />
       <TeamLine name={match.away_team} flag={match.away_flag} />
+      {match.venue ? <Text style={styles.venue} numberOfLines={1}>{match.venue}</Text> : null}
     </View>
   );
 }
@@ -71,16 +79,39 @@ export default function WorldCupBracket({ matches }: { matches: Match[] }) {
   return (
     <View style={styles.wrap}>
       <View style={styles.header}>
-        <Text style={styles.title}>World Cup bracket</Text>
-        <Text style={styles.sub}>Scroll sideways to view the full tree. Future slots stay clear until teams are confirmed.</Text>
+        <View style={styles.headerTop}>
+          <View>
+            <Text style={styles.kicker}>Knockout map</Text>
+            <Text style={styles.title}>World Cup tree</Text>
+          </View>
+          <View style={styles.countPill}>
+            <Text style={styles.countNum}>{columns.reduce((sum, col) => sum + col.matches.length, 0)}</Text>
+            <Text style={styles.countTxt}>fixtures</Text>
+          </View>
+        </View>
+        <Text style={styles.sub}>Swipe sideways for each round. Scroll inside a round when it has more fixtures than the screen can show.</Text>
+        <View style={styles.legend}>
+          <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: colors.greenDark }]} /><Text style={styles.legendTxt}>Live</Text></View>
+          <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: colors.surfaceDark }]} /><Text style={styles.legendTxt}>Finished</Text></View>
+          <View style={styles.legendItem}><View style={[styles.legendDot, { backgroundColor: colors.purple }]} /><Text style={styles.legendTxt}>Upcoming</Text></View>
+        </View>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator contentContainerStyle={styles.scroller}>
-        {columns.map((column) => (
+        {columns.map((column, index) => (
           <View key={column.stage.key} style={styles.column}>
-            <Text style={styles.columnTitle}>{column.stage.title}</Text>
-            <View style={styles.columnBody}>
-              {column.matches.map((match) => <MatchNode key={match.id} match={match} />)}
+            <View style={styles.columnHead}>
+              <Text style={styles.columnTitle}>{column.stage.title}</Text>
+              <Text style={styles.columnCount}>{column.matches.length}</Text>
             </View>
+            <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false} style={styles.columnScroll} contentContainerStyle={styles.columnBody}>
+              {column.matches.map((match) => <MatchNode key={match.id} match={match} />)}
+            </ScrollView>
+            {index < columns.length - 1 ? (
+              <View style={styles.connector}>
+                <View style={styles.connectorLine} />
+                <Text style={styles.connectorTxt}>next</Text>
+              </View>
+            ) : null}
           </View>
         ))}
       </ScrollView>
@@ -90,23 +121,42 @@ export default function WorldCupBracket({ matches }: { matches: Match[] }) {
 
 const styles = StyleSheet.create({
   wrap: { gap: spacing.md },
-  header: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, ...shadow },
-  title: { color: colors.ink, fontSize: 24, fontWeight: "900" },
-  sub: { color: colors.textDim, fontSize: 13, fontWeight: "700", lineHeight: 18, marginTop: 4 },
-  scroller: { gap: spacing.md, paddingBottom: spacing.sm },
-  column: { width: 250, gap: spacing.sm },
-  columnTitle: { color: colors.ink, fontSize: 15, fontWeight: "900", paddingHorizontal: 4 },
-  columnBody: { gap: spacing.sm },
-  node: { minHeight: 112, backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.md, ...shadow },
+  header: { backgroundColor: colors.surfaceDark, borderRadius: radius.xl, padding: spacing.lg, ...shadow },
+  headerTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md },
+  kicker: { color: colors.green, fontSize: 11, fontWeight: "900", letterSpacing: 1 },
+  title: { color: colors.blanc, fontSize: 28, fontWeight: "900" },
+  sub: { color: "rgba(255,255,255,0.68)", fontSize: 13, fontWeight: "700", lineHeight: 18, marginTop: 4 },
+  countPill: { alignItems: "center", justifyContent: "center", minWidth: 72, borderRadius: radius.lg, backgroundColor: "rgba(255,255,255,0.12)", padding: spacing.sm },
+  countNum: { color: colors.green, fontSize: 24, fontWeight: "900" },
+  countTxt: { color: "rgba(255,255,255,0.62)", fontSize: 10, fontWeight: "900" },
+  legend: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, marginTop: spacing.md },
+  legendItem: { flexDirection: "row", alignItems: "center", gap: 5, backgroundColor: "rgba(255,255,255,0.1)", borderRadius: radius.pill, paddingHorizontal: spacing.sm, paddingVertical: 5 },
+  legendDot: { width: 8, height: 8, borderRadius: 4 },
+  legendTxt: { color: colors.blanc, fontSize: 11, fontWeight: "800" },
+  scroller: { gap: spacing.lg, paddingBottom: spacing.sm, paddingRight: spacing.lg },
+  column: { width: 286, gap: spacing.sm, position: "relative" },
+  columnHead: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface, borderRadius: radius.lg, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, borderWidth: 1, borderColor: colors.border },
+  columnTitle: { color: colors.ink, fontSize: 16, fontWeight: "900" },
+  columnCount: { color: colors.purple, fontSize: 13, fontWeight: "900" },
+  columnScroll: { maxHeight: 590 },
+  columnBody: { gap: spacing.sm, paddingVertical: 2 },
+  node: { minHeight: 128, backgroundColor: colors.surface, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.border, padding: spacing.md, ...shadow },
   nodeLive: { borderColor: colors.greenDark, backgroundColor: "rgba(166,230,61,0.14)" },
   nodeDone: { borderColor: "rgba(15,23,42,0.18)" },
   nodeTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: spacing.sm, marginBottom: spacing.sm },
-  meta: { flex: 1, color: colors.textFaint, fontSize: 10, fontWeight: "900", letterSpacing: 0.7 },
-  score: { color: colors.ink, fontSize: 12, fontWeight: "900" },
+  statusPill: { minWidth: 48, alignItems: "center", borderRadius: radius.pill, backgroundColor: "rgba(155,93,229,0.12)", paddingHorizontal: spacing.sm, paddingVertical: 4 },
+  statusLive: { backgroundColor: colors.live },
+  statusDone: { backgroundColor: colors.surfaceDark },
+  statusTxt: { color: colors.purple, fontSize: 11, fontWeight: "900" },
+  meta: { flex: 1, color: colors.textFaint, fontSize: 10, fontWeight: "900", textAlign: "right" },
   teamLine: { flexDirection: "row", alignItems: "center", gap: spacing.sm, minHeight: 26 },
   flag: { width: 24, fontSize: 18, textAlign: "center" },
   teamName: { flex: 1, color: colors.ink, fontSize: 14, fontWeight: "900" },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: 5 },
+  venue: { color: colors.textFaint, fontSize: 10, fontWeight: "800", marginTop: spacing.sm },
+  connector: { position: "absolute", right: -18, top: 68, width: 18, alignItems: "center" },
+  connectorLine: { width: 18, height: 2, backgroundColor: colors.surfaceDark, opacity: 0.35 },
+  connectorTxt: { color: colors.textFaint, fontSize: 8, fontWeight: "900", marginTop: 2 },
   empty: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.xl, ...shadow },
   emptyTitle: { color: colors.ink, fontSize: 22, fontWeight: "900" },
   emptySub: { color: colors.textDim, fontSize: 13, fontWeight: "700", lineHeight: 18, marginTop: 5 },

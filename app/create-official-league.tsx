@@ -10,8 +10,8 @@ import { notify } from "../lib/notify";
 import { supabase } from "../lib/supabase";
 import { colors, radius, shadow, spacing } from "../lib/theme";
 
-type DurKey = "full" | "groups" | "weekend" | "custom";
-const DUR_MATCHES: Record<DurKey, number | null> = { full: null, groups: 48, weekend: 8, custom: 0 };
+type DurKey = "full" | "round" | "sprint" | "custom";
+const DUR_MATCHES: Record<DurKey, number | null> = { full: null, round: 16, sprint: 4, custom: 0 };
 
 export default function CreateOfficialLeague() {
   const router = useRouter();
@@ -38,7 +38,11 @@ export default function CreateOfficialLeague() {
 
   const filteredPunishments = severity === "all" ? punishments : punishments.filter((p) => p.severity === severity);
   const punishment = customPunishment.trim() || selectedPunishment || null;
-  const maxMatches = dur === "full" ? null : dur === "custom" ? Math.max(1, customMatches) : DUR_MATCHES[dur];
+  const maxMatches = dur === "full"
+    ? null
+    : dur === "custom"
+      ? Math.max(1, customMatches)
+      : Math.min(DUR_MATCHES[dur] ?? 1, remainingMatches ?? DUR_MATCHES[dur] ?? 1);
   const bottomPad = Math.max(insets.bottom, 16);
 
   async function submit() {
@@ -119,13 +123,13 @@ export default function CreateOfficialLeague() {
         <View style={styles.card}>
           <Text style={styles.section}>{t("dur_section")}</Text>
           <View style={styles.durGrid}>
-            {(["full", "groups", "weekend", "custom"] as const).map((key) => {
+            {(["full", "round", "sprint", "custom"] as const).map((key) => {
               const active = dur === key;
-              const number = key === "full" ? (remainingMatches == null ? "..." : String(remainingMatches)) : key === "groups" ? "48" : key === "weekend" ? "8" : String(customMatches);
+              const number = key === "full" ? (remainingMatches == null ? "..." : String(remainingMatches)) : key === "round" ? String(Math.min(16, remainingMatches ?? 16)) : key === "sprint" ? String(Math.min(4, remainingMatches ?? 4)) : String(customMatches);
               return (
                 <Pressable key={key} onPress={() => setDur(key)} style={[styles.durCard, active && styles.durCardActive]}>
                   <Text style={[styles.durNum, active && styles.durNumActive]}>{number}</Text>
-                  <Text style={[styles.durLabel, active && styles.durLabelActive]}>{t(`dur_${key}`)}</Text>
+                  <Text style={[styles.durLabel, active && styles.durLabelActive]}>{key === "round" ? "Current round" : key === "sprint" ? "Final sprint" : t(`dur_${key}`)}</Text>
                 </Pressable>
               );
             })}

@@ -99,6 +99,24 @@ export async function createPredictionCompetition(input: {
   return data as League;
 }
 
+export async function createOfficialPredictionCompetition(input: {
+  name: string;
+  punishment?: string | null;
+  matchIds: number[];
+}) {
+  const { data, error } = await withNetworkRetry(() =>
+    Promise.resolve(supabase.rpc("create_official_prediction_competition", {
+      p_name: input.name.trim(),
+      p_description: null,
+      p_public: false,
+      p_punishment: input.punishment?.trim() || null,
+      p_match_ids: input.matchIds,
+    }))
+  );
+  if (error) throw error;
+  return data as League;
+}
+
 export async function fetchCompetitionMatches(leagueId: number): Promise<CompetitionMatch[]> {
   const { data, error } = await supabase
     .from("league_matches")

@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Share, StyleShee
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Icon, QRModal } from "../components/ui";
 import { captureError, track } from "../lib/analytics";
-import { createPredictionCompetition, fetchMatches } from "../lib/api";
+import { createOfficialPredictionCompetition, fetchMatches } from "../lib/api";
 import { APP_STORE_URL, joinLink } from "../lib/invite";
 import { PunishmentSeverity, useI18n } from "../lib/i18n";
 import { notify } from "../lib/notify";
@@ -20,7 +20,6 @@ const LEVEL_COLOR: Record<PunishmentSeverity, string> = {
   daring: colors.orange,
   savage: colors.purple,
 };
-const LEVEL_NUM: Record<PunishmentSeverity, string> = { mild: "1", daring: "2", savage: "3" };
 
 function matchTime(match: Match) {
   if (!match.utc_kickoff) return "TBD";
@@ -28,22 +27,21 @@ function matchTime(match: Match) {
   return `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }
 
-function fixturePayload(match: Match) {
-  return {
-    homeTeam: prettyTeam(match.home_team),
-    homeCode: match.home_code,
-    homeFlag: teamFlag(match.home_team, match.home_flag),
-    awayTeam: prettyTeam(match.away_team),
-    awayCode: match.away_code,
-    awayFlag: teamFlag(match.away_team, match.away_flag),
-    kickoffIso: match.utc_kickoff || new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-  };
-}
-
 function isPredictionReadyFixture(match: Match) {
   const home = prettyTeam(match.home_team);
   const away = prettyTeam(match.away_team);
   return home !== "TBD" && away !== "TBD" && home !== away;
+}
+
+function knockoutBucket(stage: string | null) {
+  const s = String(stage ?? "").toUpperCase();
+  if (/LAST.?32|ROUND.?OF.?32|R32/.test(s)) return "last32";
+  if (/LAST.?16|ROUND.?OF.?16|R16/.test(s)) return "last16";
+  if (/QUARTER/.test(s)) return "quarters";
+  if (/SEMI/.test(s)) return "semis";
+  if (/THIRD/.test(s)) return "third";
+  if (/FINAL/.test(s)) return "final";
+  return "knockout";
 }
 
 export default function CreateCompetitionWizard() {
@@ -89,10 +87,18 @@ export default function CreateCompetitionWizard() {
   useEffect(() => { loadFixtures(); }, [loadFixtures]);
 
   const remainingCount = fixtures.length;
-  const waveCount = Math.min(16, Math.max(1, remainingCount));
-  const finalsCount = Math.min(8, Math.max(1, remainingCount));
-  const selectedCount = length === "rest" ? remainingCount : length === "wave" ? waveCount : length === "finals" ? finalsCount : Math.min(customCount, Math.max(1, remainingCount));
-  const selectedFixtures = fixtures.slice(0, selectedCount || 0);
+  const firstBucket = fixtures[0] ? knockoutBucket(fixtures[0].stage) : null;
+  const waveCount = firstBucket ? fixtures.filter((m) => knockoutBucket(m.stage) === firstBucket).length : 0;
+  const medalCount = fixtures.filter((m) => ["semis", "third", "final"].includes(knockoutBucket(m.stage))).length;
+  const finalsCount = Math.min(Math.max(medalCount || 4, 1), Math.max(1, remainingCount));
+  const selectedFixtures = length === "rest"
+    ? fixtures
+    : length === "wave"
+      ? fixtures.filter((m) => knockoutBucket(m.stage) === firstBucket)
+      : length === "finals"
+        ? (medalCount ? fixtures.filter((m) => ["semis", "third", "final"].includes(knockoutBucket(m.stage))) : fixtures.slice(0, finalsCount))
+        : fixtures.slice(0, Math.min(customCount, Math.max(1, remainingCount)));
+  const selectedCount = selectedFixtures.length;
   const activePunishment = customPunishment.trim() || selectedPunishment;
   const filteredPunishments = severityFilter === "all" ? punishments : punishments.filter((p) => p.severity === severityFilter);
   const bottomPad = Math.max(insets.bottom, 16);
@@ -103,12 +109,12 @@ export default function CreateCompetitionWizard() {
       ? "La phase de groupes est terminee. Choisis une duree basee sur les matchs restants."
       : "The group stage is done. Pick a length based on the remaining knockout matches.",
     rest: lang === "fr" ? "Tout le reste" : "Rest of tournament",
-    wave: lang === "fr" ? "Prochaine vague" : "Next knockout wave",
-    finals: lang === "fr" ? "Sprint final" : "Final stretch",
+    wave: lang === "fr" ? "Tour en cours" : "Current round",
+    finals: lang === "fr" ? "Dernier carre" : "Semi-finals onward",
     custom: lang === "fr" ? "Personnalise" : "Custom",
     restSub: lang === "fr" ? "Tous les matchs restants" : "Every remaining match",
-    waveSub: lang === "fr" ? "Les prochains matchs a pronostiquer" : "The next matches to predict",
-    finalsSub: lang === "fr" ? "Pour une ligue courte et intense" : "For a short, tense league",
+    waveSub: lang === "fr" ? "Seulement le prochain tour disponible" : "Only the next available knockout round",
+    finalsSub: lang === "fr" ? "Demies, petite finale et finale si disponibles" : "Semis, third-place game, and final when available",
     customSub: lang === "fr" ? "Choisis ton nombre" : "Choose the count",
     preview: lang === "fr" ? "Apercu des matchs" : "Fixture preview",
     nameSub: lang === "fr" ? "Derniere etape. Donne un nom a ta ligue." : "Final step. Give your league a name.",
@@ -138,10 +144,10 @@ export default function CreateCompetitionWizard() {
     }
     setBusy(true);
     try {
-      const league = await createPredictionCompetition({
+      const league = await createOfficialPredictionCompetition({
         name: name.trim(),
         punishment: activePunishment,
-        matches: selectedFixtures.map(fixturePayload),
+        matchIds: selectedFixtures.map((match) => match.id),
       });
       track("competition_created", {
         league_id: league.id,
@@ -197,7 +203,7 @@ export default function CreateCompetitionWizard() {
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 104 }]} showsVerticalScrollIndicator={false}>
             <View style={styles.stepHead}>
-              <Text style={styles.stepKicker}>STEP 1/3</Text>
+              <Text style={styles.stepKicker}>WORLD CUP 2026</Text>
               <Text style={styles.stepTitle}>{copy.lengthTitle}</Text>
               <Text style={styles.stepSub}>{copy.lengthSub}</Text>
             </View>
@@ -256,7 +262,7 @@ export default function CreateCompetitionWizard() {
       {step === 2 ? (
         <View style={{ flex: 1 }}>
           <View style={styles.inlineHead}>
-            <Text style={styles.stepKicker}>STEP 2/3</Text>
+            <Text style={styles.stepKicker}>LOSER STAKE</Text>
             <Text style={styles.stepTitle}>{t("create_step2_title")}</Text>
             <View style={styles.contextBanner}>
               <Icon name="flame" size={16} color={colors.blanc} />
@@ -283,8 +289,7 @@ export default function CreateCompetitionWizard() {
               return (
                 <Pressable key={`${p.severity}-${i}`} onPress={() => { setSelectedPunishment(p.text); setCustomPunishment(""); }} style={[styles.punCard, active && styles.punCardActive]}>
                   <View style={[styles.levelBadge, { backgroundColor: LEVEL_COLOR[p.severity] }]}>
-                    <Text style={styles.levelNum}>{LEVEL_NUM[p.severity]}</Text>
-                    <Text style={styles.levelText}>LEVEL</Text>
+                    <Text style={styles.levelText}>{t(`sev_${p.severity}`)}</Text>
                   </View>
                   <View style={{ flex: 1, gap: 3 }}>
                     <Text style={[styles.punTitle, active && { color: colors.blanc }]}>{p.text}</Text>
@@ -317,7 +322,7 @@ export default function CreateCompetitionWizard() {
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 104 }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
             <View style={styles.stepHead}>
-              <Text style={styles.stepKicker}>STEP 3/3</Text>
+              <Text style={styles.stepKicker}>FINAL DETAILS</Text>
               <Text style={styles.stepTitle}>{t("create_step3_title")}</Text>
               <Text style={styles.stepSub}>{copy.nameSub}</Text>
             </View>
@@ -411,10 +416,9 @@ const styles = StyleSheet.create({
   skipText: { color: colors.textDim, fontSize: 15, fontWeight: "900" },
   punCard: { flexDirection: "row", alignItems: "center", gap: spacing.md, backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.md, ...shadow },
   punCardActive: { backgroundColor: colors.surfaceDark },
-  levelBadge: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center" },
-  levelNum: { color: colors.blanc, fontSize: 20, fontWeight: "900", lineHeight: 22 },
-  levelText: { color: "rgba(255,255,255,0.75)", fontSize: 8, fontWeight: "900", letterSpacing: 0.6 },
-  punTitle: { color: colors.ink, fontSize: 14, fontWeight: "900", lineHeight: 18 },
+  levelBadge: { minWidth: 74, height: 38, borderRadius: radius.pill, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.sm },
+  levelText: { color: colors.blanc, fontSize: 11, fontWeight: "900" },
+  punTitle: { color: colors.ink, fontSize: 15, fontWeight: "900", lineHeight: 20 },
   punSub: { color: colors.textFaint, fontSize: 12, fontWeight: "700", lineHeight: 16 },
   customCard: { backgroundColor: colors.surface, borderRadius: radius.xl, padding: spacing.lg, gap: spacing.sm, marginTop: spacing.sm, ...shadow },
   customTitle: { color: colors.purple, fontSize: 14, fontWeight: "900" },
