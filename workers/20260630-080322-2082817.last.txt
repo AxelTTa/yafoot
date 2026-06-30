@@ -1,0 +1,34 @@
+Worker 20260630-080322-2082817 summary
+
+Task: Fix live YaFoot create-league failure from final army.
+
+Result:
+- Determined the real app issue: create-league successfully created a competition but stayed on the completion screen at /create-league, so automated and user flows had no durable /league/<id> route until pressing "Open competition".
+- Fixed app/create-league.tsx so successful competition creation immediately routes to /league/<id>. The league detail screen already exposes the invite code, QR, matches, standings, and chat, so the share/join path remains available.
+- Updated live and realistic army harnesses to match current official competition behavior: inline "Save pick"/"Update pick", no old Host result/finalize flow, and safer signup/backoff handling.
+- Hardened scripts/deploy.sh so it sources yafoot.env and fails when VERCEL_TOKEN is missing instead of masking a failed deploy.
+
+Deploys / commits:
+- fa198d0: app create-league route fix plus existing dirty harness updates.
+- d389691: deploy script env/token hardening.
+- 264469c, 6547ff6: live competition smoke harness updates.
+- 8dd34df, 56962fa, e9412d7, d9f3aac: realistic army harness updates and deployed builds.
+- Live URL aliased each deploy: https://dist-five-zeta-92i4a6g3xx.vercel.app
+- Expo Go OTA updates were pushed by deploy.sh.
+
+Verification:
+- bash scripts/deploy.sh passed typecheck, web export, native bundle compile, Vercel deploy, Expo OTA, git commit/push.
+- Live competition smoke PASS:
+  URL=https://dist-five-zeta-92i4a6g3xx.vercel.app OUT=/tmp/yafoot-live-competition-smoke-20260630-080322-2082817-r3 node scripts/live-competition-smoke.mjs
+  Report: /tmp/yafoot-live-competition-smoke-20260630-080322-2082817-r3/report.json
+  Confirmed create competition, invite code 48A7E1, leagueId 87, guest join, host and guest predictions, and old Host result flow hidden.
+- Realistic army reached and fixed original create-league path in earlier reruns:
+  r1 created competition through real UI: Army 0dcksi 7F4AC6, joined by second user, but then hit a harness click issue on competition prediction; harness fixed.
+- Final realistic army reruns are blocked before create-league by live auth signup throttling:
+  /tmp/yafoot-realistic-army-20260630-080322-2082817-r6/report.json
+  Screen shows "Signup is busy right now. Wait a moment, then try again." on second account even after serial onboarding, retries, and spacing.
+
+Status:
+- Create-league production failure is fixed and smoke-verified.
+- Full realistic army is partial because current live auth throttling prevents creating the required multiple fresh army accounts in sequence.
+- Recommended next action: rerun realistic army after auth throttle cools down, or add a service-role cleanup/seeded-user mode for stress test accounts if repeated army runs are expected.
