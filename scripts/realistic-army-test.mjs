@@ -131,6 +131,7 @@ function wire(page, label) {
     const url = request.url();
     const message = request.failure()?.errorText || "request failed";
     page._events.push({ type: "requestfailed", url, message });
+    if (/ERR_ABORTED|net::ERR_ABORTED/i.test(message)) return;
     if (/supabase\.co|football-data|vercel/i.test(url)) fail(`${label} critical request failed`, `${url} ${message}`, "high");
   });
 }
@@ -285,9 +286,9 @@ async function onboard(page, prefix, language) {
       await setLastInput(page, username);
       await clickRegex(page, /Let's go!|Get started|C'est parti/i, { timeout: 10000 });
     }
-    await waitFor(page, /Continue to app|Continuer|Competitions|Profile|Friends|Matches/i, 45000);
-    if (/Continue to app|Continuer/i.test(await bodyText(page))) {
-      await clickRegex(page, /Continue to app|Continuer/i, { timeout: 10000 });
+    await waitFor(page, /Continue to app|Continuer|Aller dans l'app|Competitions|Profile|Friends|Matches/i, 45000);
+    if (/Continue to app|Continuer|Aller dans l'app/i.test(await bodyText(page))) {
+      await clickRegex(page, /Continue to app|Continuer|Aller dans l'app/i, { timeout: 10000 });
     }
     await waitFor(page, /Competitions|Profile|Friends|Matches|Matchs/i, 30000);
   });
@@ -324,18 +325,17 @@ async function clickFirstMatchCard(page) {
 async function submitPrediction(page, user, source, home = 1, away = 0) {
   await measured(`${user}-prediction-${source}`, async () => {
     if (source === "predict-tab") {
-      await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 60000 });
-      await clickRegex(page, /Predict|Prévoir/i, { timeout: 10000 });
-      await waitFor(page, /Tap to predict|Make your prediction|Submit prediction|Predict|No match|Aucun/i, 30000);
+      await page.goto(`${BASE_URL}/predict`, { waitUntil: "domcontentloaded", timeout: 60000 });
+      await waitFor(page, /Tap to predict|Make your prediction|Submit prediction|Predict|Pronos|No match|Aucun/i, 30000);
       if (/No match|Aucun/i.test(await bodyText(page))) throw new Error("Predict tab has no match to predict");
       await clickRegex(page, /Tap to predict|Make your prediction|Submit prediction/i, { timeout: 10000, required: false });
     } else if (source === "matches-detail") {
-      await page.goto(`${BASE_URL}/matches`, { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => page.goto(BASE_URL, { waitUntil: "domcontentloaded" }));
+      await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 60000 });
       await waitFor(page, /Upcoming|Live|Groups|Results|Matchs|À venir/i, 30000);
       await clickRegex(page, /Upcoming|À venir/i, { timeout: 5000, required: false });
       await clickFirstMatchCard(page);
     } else {
-      await waitFor(page, /Tap to predict|Make your prediction|Submit prediction|Prediction submitted|No prediction yet|Host result|vs/i, 30000);
+      await waitFor(page, /Tap to predict|Make your prediction|Submit prediction|Prediction submitted|No prediction yet|vs/i, 30000);
       await clickRegex(page, /Tap to predict|Make your prediction|Submit prediction/i, { timeout: 10000, required: false });
     }
     await waitFor(page, /Make your prediction|Submit prediction|Lock In Prediction|Prediction submitted|No prediction yet|vs/i, 30000);
@@ -367,7 +367,7 @@ async function createCompetition(host) {
     await setLastInput(host, name);
     await clickRegex(host, /Create competition|Create League|Create|Créer/i, { timeout: 10000 });
   });
-  const created = await waitFor(host, /INVITE CODE|Submit prediction|Host result|Could not create competition|Invite code/i, 60000);
+  const created = await waitFor(host, /INVITE CODE|Submit prediction|Could not create competition|Invite code/i, 60000);
   await screenshot(host, "competition-created");
   if (/Could not create competition/i.test(created)) throw new Error("Create competition failure was visible");
   const code = (created.match(/INVITE CODE\s*([A-Z0-9]{6,8})/i) || created.match(/\b([A-F0-9]{6})\b/))?.[1] ?? null;
@@ -383,28 +383,22 @@ async function joinCompetition(page, user, code) {
     await page.goto(`${BASE_URL}/join/${code}`, { waitUntil: "domcontentloaded", timeout: 60000 });
     await waitFor(page, /Join|competition|code|Rejoindre/i, 30000);
     await clickRegex(page, /Join|Rejoindre/i, { timeout: 10000 });
-    const joined = await waitFor(page, /Submit prediction|Host result|Standings|Invite code|Could not join|Classement/i, 45000);
+    const joined = await waitFor(page, /Submit prediction|Standings|Invite code|Could not join|Classement/i, 45000);
     if (/Could not join|not found|error/i.test(joined)) throw new Error(`Join failed: ${joined.slice(0, 500)}`);
     await screenshot(page, `${user}-joined-competition`);
   });
   pass(`${user} joined competition through invite UI`);
 }
 
-async function finalizeCompetition(host, leagueId) {
-  await measured("competition-finalize-score", async () => {
-    await host.goto(`${BASE_URL}/league/${leagueId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await waitFor(host, /Host result|Finalize score|Submit prediction/i, 30000);
-    await clickAria(host, "Increase home final score", 2).catch(async () => {
-      await clickText(host, "+", { exact: true, timeout: 2000 });
-      await clickText(host, "+", { exact: true, timeout: 2000 });
-    });
-    await clickAria(host, "Increase away final score", 1).catch(() => clickText(host, "+", { exact: true, timeout: 2000 }));
-    await screenshot(host, "competition-before-finalize");
-    await clickRegex(host, /Finalize score|Finaliser/i, { timeout: 10000 });
-    await clickRegex(host, /OK/i, { timeout: 3000, required: false });
-    const final = await waitFor(host, /FT|Final score set|3 pts|1 pts|0 pts|previous|score/i, 40000);
-    await screenshot(host, "competition-finalized");
-    pass("competition real-score behavior scored from UI", final.slice(0, 160).replace(/\n/g, " "));
+async function verifyNoHostResult(page, leagueId) {
+  await measured("competition-no-host-result", async () => {
+    await page.goto(`${BASE_URL}/league/${leagueId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
+    const text = await waitFor(page, /Submit prediction|Standings|Invite code|Matches|Classement/i, 30000);
+    if (/Host result|Finalize score|Finaliser le score/i.test(text)) {
+      throw new Error(`Old host result flow visible on official competition: ${text.slice(0, 500)}`);
+    }
+    await screenshot(page, "competition-no-host-result");
+    pass("official competition hides old Host result flow");
   });
 }
 
@@ -444,7 +438,7 @@ async function friendAndDm(alice, bob, aliceName, bobName) {
 
 async function verifyFinishedResult(page) {
   await measured("results-real-score-api", async () => {
-    await page.goto(`${BASE_URL}/matches`, { waitUntil: "domcontentloaded", timeout: 60000 }).catch(() => page.goto(BASE_URL, { waitUntil: "domcontentloaded" }));
+    await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 60000 });
     await waitFor(page, /Live|Upcoming|Groups|Results|Matchs/i, 30000);
     await clickRegex(page, /Results|Résultats/i, { timeout: 10000 });
     const text = await waitFor(page, /Results|FT|Full Time|\d+\s*-\s*\d+|No results/i, 30000);
@@ -474,8 +468,8 @@ try {
   const names = await Promise.all(pages.map((page, idx) => onboard(page, `army${idx + 1}`, idx % 2 ? "Français" : "English")));
   pass("created isolated real accounts", names.join(", "));
 
-  await scanPage("reviewer", reviewer, "", /Matches|Matchs|Predict|Prévoir|Leagues|Competitions|Profile|Profil/i);
-  await scanPage("reviewer", reviewer, "/matches", /Live|Upcoming|Groups|Results|Matchs|À venir/i);
+  await scanPage("reviewer", reviewer, "", /Matches|Matchs|Predict|Prévoir|Pronos|Leagues|Competitions|Profile|Profil/i);
+  await scanPage("reviewer", reviewer, "", /Live|Upcoming|Groups|Results|Matchs|À venir/i);
   await clickRegex(reviewer, /Groups|Groupes/i, { timeout: 10000, required: false });
   await screenshot(reviewer, "reviewer-groups");
   await scanPage("reviewer", reviewer, "/leagues", /League|Competition|Join|Create|Ligue|Rejoindre/i);
@@ -492,7 +486,7 @@ try {
   await submitPrediction(host, names[0], "competition-detail", 2, 1);
   await guest.goto(`${BASE_URL}/league/${competition.leagueId}`, { waitUntil: "domcontentloaded", timeout: 60000 });
   await submitPrediction(guest, names[1], "competition-detail", 0, 1);
-  await finalizeCompetition(host, competition.leagueId);
+  await verifyNoHostResult(host, competition.leagueId);
 
   await friendAndDm(alice, bob, names[2], names[3]);
   await verifyFinishedResult(reviewer);

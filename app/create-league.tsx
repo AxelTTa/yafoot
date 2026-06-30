@@ -156,7 +156,7 @@ export default function CreateCompetitionWizard() {
         has_punishment: Boolean(activePunishment),
       });
       setDone({ id: league.id, code: league.code, name: league.name });
-      setStep(4);
+      router.replace(`/league/${league.id}`);
     } catch (e: any) {
       captureError(e, "competition_create", { match_count: selectedFixtures.length, length });
       notify("Could not create competition", e.message);

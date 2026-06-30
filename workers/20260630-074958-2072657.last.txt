@@ -1,0 +1,18 @@
+Investigated and reported to Telegram.
+
+Result: `PARTIAL`, because ASC territory availability is already correct, but France is blocked by Apple EU DSA compliance.
+
+Key findings:
+- ASC: 175/175 territories enabled, including France.
+- France status: `TRADER_STATUS_NOT_PROVIDED`.
+- All 27 EU territories have that same blocker.
+- US listing works and is free; FR listing still 404:
+  https://apps.apple.com/fr/app/yafoot/id6782063727
+
+Manual fix needed in App Store Connect:
+`Business > Agreements > Compliance > Digital Services Act`
+
+Apple docs confirm this requires Account Holder/Admin action and trader/non-trader self-assessment:
+https://developer.apple.com/help/app-store-connect/manage-compliance-information/manage-european-union-digital-services-act-trader-requirements/
+
+Summary written to `workers/20260630-074958-2072657.last.txt`. No deploy run because no app code/build change was needed.
